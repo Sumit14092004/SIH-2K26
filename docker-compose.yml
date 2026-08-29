@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: sih_mqtt_broker
+    ports:
+      - "1883:1883" # Default MQTT port
+      - "9001:9001" # WebSockets port (useful for the React dashboard)
+    volumes:
+      - ./backend/mosquitto/config:/mosquitto/config
+      - ./backend/mosquitto/data:/mosquitto/data
+      - ./backend/mosquitto/log:/mosquitto/log
+    restart: always
+
+  # Optional: InfluxDB for time-series sensor data
+  influxdb:
+    image: influxdb:2.7
+    container_name: sih_influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=sih_team
+      - DOCKER_INFLUXDB_INIT_BUCKET=sensor_data
+    restart: always
