@@ -1,0 +1,797 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface-variant":"#bbc9cf","on-primary-container":"#00586b","on-secondary":"#3c0091","inverse-surface":"#dfe2f3","outline-variant":"#3c494e","tertiary-container":"#49da9f","error-container":"#93000a","text-secondary":"#94A3B8","outline":"#859398","inverse-on-surface":"#2c303d","tertiary-fixed-dim":"#4edea3","surface":"#0f131f","surface-tint":"#3cd7ff","secondary-fixed":"#e9ddff","text-primary":"#F1F5F9","primary":"#a8e8ff","error":"#ffb4ab","secondary-container":"#571bc1","background":"#0f131f","surface-base":"#0A0E1A","on-surface":"#dfe2f3","on-primary":"#003642","on-tertiary-container":"#005c3e","on-tertiary-fixed-variant":"#005236","secondary":"#d0bcff","on-error-container":"#ffdad6","surface-elevated":"#1A2233","telemetry-cyan":"#00D4FF","border-subtle":"#25314C","on-primary-fixed":"#001f27","on-background":"#dfe2f3","hazard-critical":"#FF3B30","on-primary-fixed-variant":"#004e5f","surface-container-lowest":"#0a0e1a","tertiary-fixed":"#6ffbbe","surface-variant":"#313442","surface-bright":"#353946","surface-container-low":"#171b28","on-error":"#690005","tertiary":"#6af7ba","surface-dim":"#0f131f","hazard-warning":"#FF6B35","on-secondary-fixed-variant":"#5516be","status-nominal":"#10B981","on-secondary-container":"#c4abff","on-secondary-fixed":"#23005c","secondary-fixed-dim":"#d0bcff","on-tertiary-fixed":"#002113","surface-card":"#141C2E","inverse-primary":"#00677e","surface-overlay":"#222C42","surface-container-highest":"#313442","primary-container":"#00d4ff","primary-fixed":"#b4ebff","border-glow":"#00D4FF33","primary-fixed-dim":"#3cd7ff","edge-ai":"#8B5CF6","text-muted":"#475569","surface-container":"#1b1f2c","surface-container-high":"#262a37","on-tertiary":"#003824"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"xxs":"0.25rem","xxl":"3rem","gutter-normal":"1rem","xs":"0.5rem","xl":"2rem","sidebar-width":"18rem","gutter-dense":"0.75rem","sm":"0.75rem","md":"1rem","lg":"1.5rem","telemetry-rail":"22rem"},"fontFamily":{"headline-md":["IBM Plex Sans"],"telemetry-unit":["JetBrains Mono"],"body-md":["IBM Plex Sans"],"headline-xl":["IBM Plex Sans"],"body-lg":["IBM Plex Sans"],"headline-xl-mobile":["IBM Plex Sans"],"label-code":["JetBrains Mono"],"body-sm":["IBM Plex Sans"],"metric-label":["JetBrains Mono"],"metric-display":["JetBrains Mono"],"headline-lg":["IBM Plex Sans"]},"fontSize":{"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"0em","fontWeight":"600"}],"telemetry-unit":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl-mobile":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-code":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"metric-label":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"500"}],"metric-display":["28px",{"lineHeight":"32px","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface-base text-on-surface font-body-md text-body-md antialiased min-h-screen"><header class="fixed top-0 left-0 w-full z-50 bg-surface-card/95 backdrop-blur-md"><div class="h-20 w-full px-gutter-normal flex flex-col justify-between pt-xxs pb-xs"><div class="flex items-center justify-between gap-md"><div class="flex items-center gap-md"><div class="flex items-center gap-xs"><div class="w-8 h-8 rounded-lg overflow-hidden bg-surface-elevated flex items-center justify-center"><img src="https://lh3.googleusercontent.com/aida/AEtjO1UDRr3UnDnAUmE7TA_GsOl5SiW4dxSCkpG9ZWu-3yN_5XqcFUv49-VdLoXJCR95Ug09nDW3Bp5K6Uww_5TG8OCogNipnSzDLADh__QFPqYuPkrSFMRHClW2QetiBtbPZcSl2vgz1BDNRbcbeWDN_ZnZCvneWVhnts9vPvVOjemn3-b_SktRkHPs-bowK-9zgdrn8WY_QBCexVffarosaUPAH6pgn_9kn48WLeSLpMMM6dlUNNh-7lyF5w" alt="AAPDA-KADABRA Logo" class="w-full h-full object-contain"></div><div class="flex flex-col"><span class="font-headline-md text-headline-md text-text-primary tracking-tight leading-none">AAPDA-KADABRA</span><span class="font-label-code text-label-code text-telemetry-cyan uppercase">HAZARD INTELLIGENCE &amp; EARLY WARNING</span></div></div><div class="hidden lg:flex items-center gap-xs px-xs py-xxs rounded bg-hazard-warning/10"><span class="w-2 h-2 rounded-full bg-hazard-warning animate-pulse"></span><span class="font-label-code text-label-code text-hazard-warning uppercase tracking-wider">DEFCON-ENV 2 // 158 NODES ACTIVE</span></div><div class="hidden xl:flex items-center gap-xs px-xs py-xxs bg-surface-elevated rounded"><span class="material-symbols-outlined text-outline text-[16px]">schedule</span><span class="font-label-code text-label-code text-text-secondary">IST UTC+5:30</span><span class="font-metric-label text-metric-label text-text-primary">14:28:49</span></div></div><div class="hidden md:flex flex-1 max-w-xl mx-md items-center gap-xs px-sm py-xxs bg-surface-elevated rounded overflow-hidden"><span class="material-symbols-outlined text-hazard-warning text-[18px] shrink-0">warning</span><div class="font-label-code text-label-code text-text-secondary truncate"><span class="text-hazard-warning font-semibold">[ALERT]</span> AQI VECTOR CRITICAL SECTOR 07B NCR // CYCLONIC DEPRESSION BAY OF BENGAL LAT 14.2 N LON 84.8 E // INGESTING GROUND TELEMETRY...</div></div><div class="flex items-center gap-sm"><div class="hidden sm:flex items-center gap-xs px-xs py-xxs rounded bg-status-nominal/10"><span class="material-symbols-outlined text-status-nominal text-[16px]">satellite_alt</span><span class="font-label-code text-label-code text-status-nominal">INSAT-3DR ONLINE 99.8%</span></div><button class="flex items-center gap-xxs px-xs py-xxs rounded bg-surface-elevated hover:bg-surface-container-high text-text-secondary hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-hazard-warning text-[18px]">volume_up</span><span class="hidden xl:inline font-label-code text-label-code">HAZARD SIREN</span></button><button class="flex items-center gap-xxs px-sm py-xxs rounded bg-hazard-critical hover:bg-error-container text-text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">crisis_alert</span><span class="hidden md:inline font-headline-md text-body-sm font-semibold uppercase tracking-wider">BROADCAST</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-center justify-between"><nav class="flex items-center gap-xxs overflow-x-auto" data-active-classes="text-telemetry-cyan bg-surface-elevated rounded"><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="live-command-center" href="#">Live Command Center</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="node-telemetry-and-inspection" href="#">Node Telemetry &amp; Inspection</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="regional-risk-matrix" href="#">Regional Risk Matrix</a><a aria-current="page" class="px-xs py-xxs font-body-sm transition-colors whitespace-nowrap text-telemetry-cyan bg-surface-elevated rounded" data-path="early-warning-feed" href="#">Early Warning Feed</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="network-health-and-mesh" href="#">Network Health &amp; Mesh</a></nav><div class="hidden md:flex items-center gap-xs text-text-muted font-label-code text-label-code"><span class="">GRID: 28.6139° N, 77.2090° E</span><span class="">REFRESH: 250MS</span></div></div></div></header><aside class="fixed left-0 top-20 bottom-0 w-sidebar-width bg-surface-card z-40 hidden xl:flex flex-col justify-between p-sm overflow-y-auto"><div class="space-y-md"><div class="flex items-center justify-between pb-xs"><span class="font-metric-label text-metric-label text-text-secondary uppercase tracking-widest">CORE DIRECTORY</span><span class="font-label-code text-label-code text-telemetry-cyan">ACTIVE MESH</span></div><nav class="space-y-xxs" data-active-classes="bg-surface-elevated text-telemetry-cyan"><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="live-command-center" href="#"><span class="font-body-sm text-body-sm">Tactical Map Surface</span><span class="material-symbols-outlined text-[16px]">map</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="node-telemetry-and-inspection" href="#"><span class="font-body-sm text-body-sm">Atmospheric Sensors</span><span class="material-symbols-outlined text-[16px]">sensors</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="regional-risk-matrix" href="#"><span class="font-body-sm text-body-sm">Hazard Heatmaps</span><span class="material-symbols-outlined text-[16px]">heat_pump</span></a><a aria-current="page" class="flex items-center justify-between px-xs py-xs rounded transition-all bg-surface-elevated text-telemetry-cyan" data-path="early-warning-feed" href="#"><span class="font-body-sm text-body-sm">Crisis Dispatch Log</span><span class="material-symbols-outlined text-[16px]">notification_important</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="network-health-and-mesh" href="#"><span class="font-body-sm text-body-sm">Edge Gateway Status</span><span class="material-symbols-outlined text-[16px]">hub</span></a></nav></div><div class="p-xs rounded bg-surface-elevated space-y-xxs"><div class="flex items-center justify-between"><span class="font-label-code text-label-code text-text-secondary">BANDWIDTH LOAD</span><span class="font-label-code text-label-code text-status-nominal">142 MB/S</span></div><div class="w-full bg-surface-base h-1 rounded overflow-hidden"><div class="bg-telemetry-cyan h-full w-[64%]"></div></div><div class="flex justify-between font-label-code text-label-code text-text-muted"><span class="">ISRO GAGAN SYNC</span><span class="">NOMINAL</span></div></div></aside><div class="xl:pl-sidebar-width w-full"><main class="relative pt-20 w-full px-gutter-normal bg-surface-base min-h-screen"><div class="flex flex-col w-full pb-xl space-y-md">
+<!-- Top Mission Threat Level Banner & Telemetry Bar -->
+<div class="relative overflow-hidden rounded-xl bg-surface-card p-sm md:p-md shadow-md">
+<div class="absolute -right-16 -top-16 w-64 h-64 bg-hazard-critical/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-md">
+<div class="flex items-start md:items-center gap-sm">
+<div class="w-12 h-12 rounded-xl bg-hazard-critical/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-hazard-critical text-[28px] animate-pulse">crisis_alert</span>
+</div>
+<div>
+<div class="flex items-center gap-xs flex-wrap">
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-hazard-critical/20 text-hazard-critical font-bold tracking-wider">CAP-v1.2 ACTIVE</span>
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-surface-elevated text-telemetry-cyan">GEO-RELAY: ISRO GAGAN-7</span>
+<span class="font-label-code text-label-code text-text-muted">SYNCHRONIZED 14:29:12 IST</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary tracking-tight mt-xxs">Mission Threat Stream &amp; Automated Broadcast Matrix</h1>
+</div>
+</div>
+<!-- Real-time Stats Strip -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-xs shrink-0">
+<div class="bg-surface-elevated px-sm py-xs rounded">
+<span class="block font-label-code text-label-code text-text-secondary uppercase">Active Alerts</span>
+<div class="flex items-baseline gap-xxs mt-xxs">
+<span class="font-metric-display text-metric-display text-hazard-critical">04</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">CRIT/WARN</span>
+</div>
+</div>
+<div class="bg-surface-elevated px-sm py-xs rounded">
+<span class="block font-label-code text-label-code text-text-secondary uppercase">Pop. at Risk</span>
+<div class="flex items-baseline gap-xxs mt-xxs">
+<span class="font-metric-display text-metric-display text-text-primary">128.4K</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">EST</span>
+</div>
+</div>
+<div class="bg-surface-elevated px-sm py-xs rounded">
+<span class="block font-label-code text-label-code text-text-secondary uppercase">Mesh Latency</span>
+<div class="flex items-baseline gap-xxs mt-xxs">
+<span class="font-metric-display text-metric-display text-status-nominal">38</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">MS</span>
+</div>
+</div>
+<div class="bg-surface-elevated px-sm py-xs rounded">
+<span class="block font-label-code text-label-code text-text-secondary uppercase">CAP Pipeline</span>
+<div class="flex items-baseline gap-xxs mt-xxs">
+<span class="font-metric-display text-metric-display text-telemetry-cyan">HOT</span>
+<span class="font-telemetry-unit text-telemetry-unit text-status-nominal">STANDBY</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Primary Operations Grid: Prioritized Queue (Left) vs Simulator & Inspector (Right) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-md">
+<!-- LEFT: Prioritized Mission Alert Queue (7 Cols) -->
+<div class="xl:col-span-7 flex flex-col space-y-sm">
+<div class="flex items-center justify-between px-xxs">
+<div class="flex items-center gap-xs">
+<span class="font-headline-md text-headline-md text-text-primary">Prioritized Mission Queue</span>
+<span class="font-label-code text-label-code px-xs py-xxs rounded-full bg-surface-elevated text-telemetry-cyan">4 ACTIVE VECTORS</span>
+</div>
+<div class="flex items-center gap-xs">
+<button class="flex items-center gap-xxs px-xs py-xxs rounded bg-surface-elevated hover:bg-surface-container-high text-text-secondary text-body-sm font-label-code" id="btn-sort-conf">
+<span class="material-symbols-outlined text-[16px]">swap_vert</span>
+<span class="">CONFIDENCE SORT</span>
+</button>
+<button class="flex items-center gap-xxs px-xs py-xxs rounded bg-surface-elevated hover:bg-surface-container-high text-telemetry-cyan text-body-sm font-label-code">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+<span class="">LIVE INGEST</span>
+</button>
+</div>
+</div>
+<!-- Alert Card 1: Critical - Brahmaputra Flash Flood -->
+<div class="alert-card relative rounded-xl bg-surface-card p-md cursor-pointer transition-all hover:bg-surface-elevated shadow-md" data-id="ASM-04-08" data-severity="critical">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl bg-hazard-critical"></div>
+<div class="flex flex-col space-y-xs">
+<div class="flex items-start justify-between gap-sm">
+<div class="flex items-center gap-xs flex-wrap">
+<span class="font-label-code text-label-code px-xs py-xxs rounded-full bg-hazard-critical/20 text-hazard-critical font-bold flex items-center gap-xxs">
+<span class="w-2 h-2 rounded-full bg-hazard-critical animate-ping"></span>
+                DEFCON-1 CRITICAL
+              </span>
+<span class="font-label-code text-label-code text-text-secondary">CLUSTER #ASM-04 to #ASM-08</span>
+<span class="font-label-code text-label-code text-telemetry-cyan bg-surface-elevated px-xs py-xxs rounded">HYDRO-HYDROMETRIC</span>
+</div>
+<div class="text-right shrink-0">
+<span class="font-metric-label text-metric-label text-hazard-critical font-bold">94.2% CONF</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">FLASH FLOOD IMMINENT — Brahmaputra Basin Node Cluster</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xxs">
+              Surge threshold breach detected at Pasighat gauge. Hydraulic wavefront accelerating at 8.4 m/s. Cresting window narrowing across downstream sub-districts.
+            </p>
+</div>
+<!-- Micro Telemetry Sparkline & Metrics Bar -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-xs p-xs rounded bg-surface-base/80 mt-xxs">
+<div>
+<span class="font-label-code text-label-code text-text-muted block">EST. POPULATION</span>
+<span class="font-metric-label text-metric-label text-text-primary font-bold">42,000 RESIDENTS</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">ETA TO CREST</span>
+<span class="font-metric-label text-metric-label text-hazard-critical font-bold">45 MINS</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">DISCHARGE VEL</span>
+<span class="font-metric-label text-metric-label text-telemetry-cyan">31,450 m³/s</span>
+</div>
+<div class="flex flex-col justify-between">
+<span class="font-label-code text-label-code text-text-muted">CREST TREND</span>
+<div class="w-full h-4 flex items-end gap-0.5">
+<div class="w-1 bg-hazard-critical h-[30%] rounded-xs"></div>
+<div class="w-1 bg-hazard-critical h-[45%] rounded-xs"></div>
+<div class="w-1 bg-hazard-critical h-[55%] rounded-xs"></div>
+<div class="w-1 bg-hazard-critical h-[75%] rounded-xs"></div>
+<div class="w-1 bg-hazard-critical h-[90%] rounded-xs"></div>
+<div class="w-1 bg-hazard-critical h-[100%] rounded-xs"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-xxs">
+<div class="flex items-center gap-xs text-text-muted font-label-code text-label-code">
+<span class="">SOURCE: HYDRO-MESH EDGE #7</span>
+<span class="">•</span>
+<span class="">IMD ASSAM VALIDATED</span>
+</div>
+<div class="flex items-center gap-xs">
+<button class="px-xs py-xxs rounded bg-hazard-critical text-text-primary font-body-sm font-semibold hover:bg-hazard-critical/90 flex items-center gap-xxs transition-colors" onclick="loadScenario('flood')">
+<span class="material-symbols-outlined text-[16px]">cell_tower</span>
+                LOAD BROADCAST
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Alert Card 2: Severe Warning - Delhi AQI Spike -->
+<div class="alert-card relative rounded-xl bg-surface-card p-md cursor-pointer transition-all hover:bg-surface-elevated shadow-md" data-id="DL-019" data-severity="warning">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl bg-hazard-warning"></div>
+<div class="flex flex-col space-y-xs">
+<div class="flex items-start justify-between gap-sm">
+<div class="flex items-center gap-xs flex-wrap">
+<span class="font-label-code text-label-code px-xs py-xxs rounded-full bg-hazard-warning/20 text-hazard-warning font-bold flex items-center gap-xxs">
+<span class="w-2 h-2 rounded-full bg-hazard-warning"></span>
+                SEVERE WARNING
+              </span>
+<span class="font-label-code text-label-code text-text-secondary">NCR NORTH #DL-019</span>
+<span class="font-label-code text-label-code text-edge-ai bg-surface-elevated px-xs py-xxs rounded">AIR TOXICITY AI</span>
+</div>
+<div class="text-right shrink-0">
+<span class="font-metric-label text-metric-label text-hazard-warning font-bold">98.1% CONF</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">SEVERE AQI TOXICITY SPIKE — Delhi-NCR North Node</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xxs">
+              Thermal inversion cap trapped boundary-layer particulates at Jahangirpuri/Rohini transect. Severe VOC co-pollutant elevation detected across 14 ground sensors.
+            </p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-xs p-xs rounded bg-surface-base/80 mt-xxs">
+<div>
+<span class="font-label-code text-label-code text-text-muted block">PM2.5 PEAK</span>
+<span class="font-metric-label text-metric-label text-hazard-warning font-bold">485 µg/m³</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">PM10 PEAK</span>
+<span class="font-metric-label text-metric-label text-text-primary font-bold">612 µg/m³</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">O3 TROPOSPHERE</span>
+<span class="font-metric-label text-metric-label text-telemetry-cyan">182 ppb</span>
+</div>
+<div class="flex flex-col justify-between">
+<span class="font-label-code text-label-code text-text-muted">DIFFUSION</span>
+<span class="font-metric-label text-metric-label text-hazard-warning">STAGNANT (&lt;0.8m/s)</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-xxs">
+<div class="flex items-center gap-xs text-text-muted font-label-code text-label-code">
+<span class="">SOURCE: CPCB DUAL-SPECTRAL</span>
+<span class="">•</span>
+<span class="">POPULATION IN ZONE: ~410,000</span>
+</div>
+<div class="flex items-center gap-xs">
+<button class="px-xs py-xxs rounded bg-surface-elevated hover:bg-hazard-warning hover:text-surface-base text-hazard-warning font-body-sm font-semibold flex items-center gap-xxs transition-colors" onclick="loadScenario('aqi')">
+<span class="material-symbols-outlined text-[16px]">sensors</span>
+                LOAD BROADCAST
+              </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Alert Card 3: Watch - Chamoli Slope Movement -->
+<div class="alert-card relative rounded-xl bg-surface-card p-md cursor-pointer transition-all hover:bg-surface-elevated shadow-md" data-id="UK-007" data-severity="watch">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl bg-secondary"></div>
+<div class="flex flex-col space-y-xs">
+<div class="flex items-start justify-between gap-sm">
+<div class="flex items-center gap-xs flex-wrap">
+<span class="font-label-code text-label-code px-xs py-xxs rounded-full bg-secondary/20 text-secondary font-bold">
+                GEOTECH WATCH
+              </span>
+<span class="font-label-code text-label-code text-text-secondary">CHAMOLI #UK-007</span>
+<span class="font-label-code text-label-code text-text-secondary bg-surface-elevated px-xs py-xxs rounded">INSAR D-MESH</span>
+</div>
+<div class="text-right shrink-0">
+<span class="font-metric-label text-metric-label text-secondary font-bold">87.5% CONF</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">SLOPE MOVEMENT DETECTED — Chamoli Geotechnical Node</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xxs">
+              Subsurface piezometers show pore-pressure surges following glacial melt run-off. Shear displacement exceeding seasonal baseline by 220%.
+            </p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-xs p-xs rounded bg-surface-base/80 mt-xxs">
+<div>
+<span class="font-label-code text-label-code text-text-muted block">DISPLACEMENT</span>
+<span class="font-metric-label text-metric-label text-secondary font-bold">14 mm / 24h</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">ACCELERATION</span>
+<span class="font-metric-label text-metric-label text-text-primary font-bold">+2.8 mm/h²</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">SHEAR CRACK</span>
+<span class="font-metric-label text-metric-label text-telemetry-cyan">340m CONTINUOUS</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">RISK CORRIDOR</span>
+<span class="font-metric-label text-metric-label text-secondary">NH-58 SECTOR</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-xxs">
+<div class="flex items-center gap-xs text-text-muted font-label-code text-label-code">
+<span class="">SOURCE: WIHG BOREHOLE POD</span>
+<span class="">•</span>
+<span class="">GSI FIELD VERIFICATION PENDING</span>
+</div>
+<button class="px-xs py-xxs rounded bg-surface-elevated hover:bg-secondary hover:text-surface-base text-secondary font-body-sm font-semibold flex items-center gap-xxs transition-colors" onclick="loadScenario('slope')">
+<span class="material-symbols-outlined text-[16px]">landscape</span>
+              LOAD BROADCAST
+            </button>
+</div>
+</div>
+</div>
+<!-- Alert Card 4: Advisory - Vidarbha Heatwave -->
+<div class="alert-card relative rounded-xl bg-surface-card p-md cursor-pointer transition-all hover:bg-surface-elevated shadow-md" data-id="MH-031" data-severity="advisory">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-xl bg-telemetry-cyan"></div>
+<div class="flex flex-col space-y-xs">
+<div class="flex items-start justify-between gap-sm">
+<div class="flex items-center gap-xs flex-wrap">
+<span class="font-label-code text-label-code px-xs py-xxs rounded-full bg-telemetry-cyan/20 text-telemetry-cyan font-bold">
+                THERMAL ADVISORY
+              </span>
+<span class="font-label-code text-label-code text-text-secondary">VIDARBHA #MH-031</span>
+<span class="font-label-code text-label-code text-text-secondary bg-surface-elevated px-xs py-xxs rounded">THERMAL SCAN</span>
+</div>
+<div class="text-right shrink-0">
+<span class="font-metric-label text-metric-label text-telemetry-cyan font-bold">91.0% CONF</span>
+</div>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-text-primary tracking-tight">HEATWAVE RAPID ONSET — Vidarbha Node</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xxs">
+              Surface temperature anomaly persistent over 6 continuous diurnal cycles. Wet-bulb temperature trending at 31.8°C with elevated physiological risk index.
+            </p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-xs p-xs rounded bg-surface-base/80 mt-xxs">
+<div>
+<span class="font-label-code text-label-code text-text-muted block">AMBIENT TEMP</span>
+<span class="font-metric-label text-metric-label text-telemetry-cyan font-bold">44.6 °C</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">WET BULB PEAK</span>
+<span class="font-metric-label text-metric-label text-text-primary font-bold">31.8 °C</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">UV INDEX</span>
+<span class="font-metric-label text-metric-label text-hazard-warning">11.4 EXTREME</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">AGRICULTURAL ZONE</span>
+<span class="font-metric-label text-metric-label text-telemetry-cyan">COTTON BELT B</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-xxs">
+<div class="flex items-center gap-xs text-text-muted font-label-code text-label-code">
+<span class="">SOURCE: NAGPUR WEATHER RADAR</span>
+<span class="">•</span>
+<span class="">DISTRICT HEALTH PROTOCOL TIER 2</span>
+</div>
+<button class="px-xs py-xxs rounded bg-surface-elevated hover:bg-telemetry-cyan hover:text-surface-base text-telemetry-cyan font-body-sm font-semibold flex items-center gap-xxs transition-colors" onclick="loadScenario('heatwave')">
+<span class="material-symbols-outlined text-[16px]">thermostat</span>
+              LOAD BROADCAST
+            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT: Push Notification Simulator & Tactical Dispatch (5 Cols) -->
+<div class="xl:col-span-5 flex flex-col space-y-md">
+<!-- Push Simulator Console Card -->
+<div class="rounded-xl bg-surface-card p-md shadow-md space-y-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-telemetry-cyan text-[22px]">cell_tower</span>
+<span class="font-headline-md text-headline-md text-text-primary">Broadcast Simulator</span>
+</div>
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-surface-elevated text-status-nominal flex items-center gap-xxs">
+<span class="w-1.5 h-1.5 rounded-full bg-status-nominal"></span>
+            CAP v1.2 LIVE
+          </span>
+</div>
+<!-- Audience Selector Switch -->
+<div class="space-y-xxs">
+<label class="font-label-code text-label-code text-text-secondary uppercase">Dissemination Pipeline</label>
+<div class="grid grid-cols-2 p-xxs bg-surface-base rounded-lg">
+<button class="py-xs text-center rounded font-body-sm font-semibold bg-surface-elevated text-telemetry-cyan shadow-sm transition-all flex items-center justify-center gap-xxs" id="tab-civic" onclick="setAudience('civic')">
+<span class="material-symbols-outlined text-[16px]">sensors</span>
+              Civic Citizen (Cell/SMS)
+            </button>
+<button class="py-xs text-center rounded font-body-sm font-semibold text-text-secondary hover:text-text-primary transition-all flex items-center justify-center gap-xxs" id="tab-authorities" onclick="setAudience('authorities')">
+<span class="material-symbols-outlined text-[16px]">local_police</span>
+              NDRF / SDMA / Command
+            </button>
+</div>
+</div>
+<!-- Target Zone & Transmission Parameters -->
+<div class="grid grid-cols-2 gap-xs p-xs rounded bg-surface-elevated">
+<div>
+<span class="font-label-code text-label-code text-text-muted block">TARGET CELL TOWERS</span>
+<span class="font-metric-label text-metric-label text-text-primary font-bold">142 LACs (100% PUSH)</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">RADIO CHANNELS</span>
+<span class="font-metric-label text-metric-label text-telemetry-cyan font-bold">CH 4370 (ETWS / CB)</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">GEO-FENCE AREA</span>
+<span class="font-metric-label text-metric-label text-text-primary">18.4 km² POLYGON</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-text-muted block">REPEAT CADENCE</span>
+<span class="font-metric-label text-metric-label text-hazard-critical font-bold">90 SECONDS</span>
+</div>
+</div>
+<!-- Dual Mobile Device / Terminal Realistic Frame Preview -->
+<div class="space-y-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-text-secondary uppercase flex items-center gap-xxs">
+<span class="material-symbols-outlined text-[14px] text-telemetry-cyan">smartphone</span>
+              Citizen Handset Lockscreen Preview
+            </span>
+<div class="flex items-center gap-xxs text-text-muted font-label-code text-label-code">
+<span class="text-status-nominal font-bold" id="lang-indicator">EN + HI BILINGUAL</span>
+</div>
+</div>
+<!-- Phone Notification Bubble -->
+<div class="relative rounded-xl bg-surface-base p-sm space-y-xs shadow-inner">
+<!-- Handset System Bar -->
+<div class="flex items-center justify-between text-text-muted text-[11px] font-label-code pb-xxs">
+<div class="flex items-center gap-xxs">
+<span class="material-symbols-outlined text-[13px] text-hazard-critical animate-pulse">crisis_alert</span>
+<span class="font-bold text-hazard-critical">NATIONAL EMERGENCY ALERT // C-DoT / NDMA</span>
+</div>
+<span class="">NOW</span>
+</div>
+<!-- English Body -->
+<div class="p-xs rounded bg-surface-card space-y-xxs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-hazard-critical/20 text-hazard-critical font-bold uppercase" id="alert-badge-preview">CRITICAL WARNING</span>
+<span class="font-label-code text-label-code text-text-muted">BRAHMAPUTRA-04</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-primary font-medium leading-snug" id="alert-text-en">
+                EMERGENCY: Rapid river level surge. Flash flood expected within 45 mins. Evacuate low-lying riverbanks immediately to Designated High-Ground Relief Shelter at Sector 4 Stadium (Grid: 27.48°N, 95.35°E). Do not cross flooded bridges.
+              </p>
+</div>
+<!-- Hindi Body (Local Multilingual) -->
+<div class="p-xs rounded bg-surface-card space-y-xxs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-telemetry-cyan font-bold uppercase">हिन्दी चेतावनी</span>
+<span class="font-label-code text-label-code text-text-muted">आपदा नियंत्रण कक्ष</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant font-medium leading-relaxed" id="alert-text-hi">
+                आपातकालीन सूचना: ब्रह्मपुत्र जलस्तर में तीव्र वृद्धि। अगले 45 मिनट में जलभराव की आशंका। तुरंत तटवर्ती क्षेत्र खाली करें। निकटतम राहत शिविर सेक्टर 4 स्टेडियम में शरण लें। बाढ़ग्रस्त पुलों को पार न करें।
+              </p>
+</div>
+<!-- Interactive Guidance Micro-Actions -->
+<div class="grid grid-cols-2 gap-xs pt-xxs">
+<a class="flex items-center justify-center gap-xxs px-xs py-xs rounded bg-surface-elevated hover:bg-surface-bright text-telemetry-cyan font-label-code text-label-code transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span class="">SHELTER MAP: SECTOR 4</span>
+</a>
+<a class="flex items-center justify-center gap-xxs px-xs py-xs rounded bg-hazard-critical/20 hover:bg-hazard-critical/30 text-hazard-critical font-label-code text-label-code font-bold transition-colors" href="tel:1077">
+<span class="material-symbols-outlined text-[16px]">call</span>
+<span class="">DISTRESS HELPLINE: 1077</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Siren Activation Bar & Verification Controls -->
+<div class="space-y-xs pt-xxs">
+<div class="flex items-center justify-between">
+<span class="font-label-code text-label-code text-text-secondary uppercase">Acoustic &amp; Electronic Siren Grid</span>
+<span class="font-label-code text-label-code text-status-nominal">36 / 36 POLES ARMED</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-xs">
+<button class="flex items-center justify-center gap-xs px-md py-sm rounded bg-hazard-warning text-surface-base font-headline-md text-body-sm font-bold tracking-wider uppercase hover:bg-hazard-warning/90 transition-all" id="btn-test-siren" onclick="triggerSirenModal()">
+<span class="material-symbols-outlined text-[20px]">volume_up</span>
+<span class="">Test Broadcast Siren</span>
+</button>
+<button class="flex items-center justify-center gap-xs px-md py-sm rounded bg-hazard-critical text-text-primary font-headline-md text-body-sm font-bold tracking-wider uppercase hover:bg-hazard-critical/90 shadow-md transition-all" id="btn-broadcast-real" onclick="triggerEmergencyDispatch()">
+<span class="material-symbols-outlined text-[20px]">crisis_alert</span>
+<span class="">ENGAGE DISPATCH</span>
+</button>
+</div>
+<p class="font-label-code text-label-code text-text-muted text-center">
+            Protocol compliant with IMD/NDMA CAP-v1.2 XML transmission spec. Digital signatures verified via NIC PKI Infrastructure.
+          </p>
+</div>
+</div>
+<!-- Geospatial Impact Context Card with Map Pipeline -->
+<div class="rounded-xl bg-surface-card p-sm space-y-xs shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xxs">
+<span class="material-symbols-outlined text-telemetry-cyan text-[18px]">map</span>
+<span class="font-metric-label text-metric-label text-text-primary uppercase">Sector Flood Vector Surface</span>
+</div>
+<span class="font-label-code text-label-code text-telemetry-cyan">PASIGHAT REACH</span>
+</div>
+<div class="w-full h-44 bg-cover bg-center rounded-lg relative overflow-hidden flex items-end p-xs" data-location="Pasighat, Arunachal Pradesh, India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBlqlBJVaezN7hq4DR3YyojPQr2ld1xgHmfO5yAZ2dcHtFQVk4iW9pIUIP0V-3tuQEhql915MFKAz_P6vxW9NL60sKZBfLscLBT0pLLKzP5gWEkWcyrD5vcbOv5JPs6C1XX1Xr6DBmeYy4yuzS_lrTHWA_MZpl1LE9P_cGwrdCg_V4Ktn0fiKA3DWuS3pKMs7AAo1nfwnV-IbDSU9i6gIHywgFIAy-JK4RNtE7ml0nbIkbnXwQxRbE')">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-base via-surface-base/30 to-transparent"></div>
+<div class="relative z-10 flex items-center justify-between w-full font-label-code text-label-code text-text-primary">
+<div class="flex items-center gap-xxs bg-surface-base/90 px-xs py-xxs rounded">
+<span class="w-2 h-2 rounded-full bg-hazard-critical animate-ping"></span>
+<span class="">COORDINATES: 28.0664° N, 95.3268° E</span>
+</div>
+<span class="bg-surface-base/90 px-xs py-xxs rounded text-status-nominal">RADAR ACTIVE</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Alert History & 48-Hour Timeline Scrubber -->
+<div class="rounded-xl bg-surface-card p-md shadow-md space-y-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-sm">
+<div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-telemetry-cyan text-[20px]">history_toggle_off</span>
+<h3 class="font-headline-md text-headline-md text-text-primary">Chronological Alert Scrubber &amp; Hazard Peaks</h3>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mt-xxs">
+          Continuous 48-hour environmental incident stream with peak hazard amplitude and ingest verification filtering.
+        </p>
+</div>
+<!-- Scrubber Filter Segmented Controls -->
+<div class="flex flex-wrap items-center gap-xs">
+<div class="flex items-center p-xxs bg-surface-base rounded-lg text-body-sm">
+<button class="px-xs py-xxs rounded bg-surface-elevated text-telemetry-cyan font-label-code text-label-code font-semibold" id="flt-all" onclick="filterTimeline('all')">ALL EVENTS</button>
+<button class="px-xs py-xxs rounded text-text-secondary hover:text-text-primary font-label-code text-label-code" id="flt-verified" onclick="filterTimeline('verified')">VERIFIED ONLY</button>
+<button class="px-xs py-xxs rounded text-text-secondary hover:text-text-primary font-label-code text-label-code" id="flt-edge" onclick="filterTimeline('edge')">EDGE-TRIGGERED</button>
+<button class="px-xs py-xxs rounded text-text-secondary hover:text-text-primary font-label-code text-label-code" id="flt-human" onclick="filterTimeline('human')">HUMAN-VALIDATED</button>
+</div>
+</div>
+</div>
+<!-- Timeline Graphical Histogram Scrubber -->
+<div class="space-y-xs bg-surface-base p-sm rounded-lg">
+<div class="flex items-center justify-between text-text-muted font-label-code text-label-code">
+<span class="">T - 48H (OCT 22 14:00)</span>
+<span class="">T - 36H</span>
+<span class="">T - 24H (OCT 23 14:00)</span>
+<span class="">T - 12H</span>
+<span class="text-hazard-critical font-bold">CURRENT (LIVE)</span>
+</div>
+<!-- Interactive SVG Hazard Graph & Peaks -->
+<div class="relative w-full h-24 overflow-hidden">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 100">
+<defs>
+<linearGradient id="hazard-gradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#FF3B30" stop-opacity="0.55"></stop>
+<stop offset="60%" stop-color="#FF6B35" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#00D4FF" stop-opacity="0.0"></stop>
+</linearGradient>
+</defs>
+<!-- Hazard Area -->
+<polygon fill="url(#hazard-gradient)" points="0,95 80,85 140,88 220,50 260,35 300,75 380,82 450,40 500,20 540,65 620,80 710,75 800,30 870,25 930,12 1000,5 1000,100 0,100"></polygon>
+<!-- Top Line -->
+<polyline fill="none" points="0,95 80,85 140,88 220,50 260,35 300,75 380,82 450,40 500,20 540,65 620,80 710,75 800,30 870,25 930,12 1000,5" stroke="#FF6B35" stroke-width="2"></polyline>
+<!-- Key Peak Markers -->
+<circle class="animate-ping" cx="260" cy="35" fill="#FF6B35" r="4"></circle>
+<circle cx="500" cy="20" fill="#FF6B35" r="4"></circle>
+<circle class="animate-pulse" cx="930" cy="12" fill="#FF3B30" r="5"></circle>
+<circle cx="1000" cy="5" fill="#FF3B30" r="5"></circle>
+</svg>
+<!-- Current Playhead Scrubber Bar -->
+<div class="absolute top-0 bottom-0 right-0 w-0.5 bg-hazard-critical shadow-sm"></div>
+</div>
+<!-- Scrubber Interaction Control -->
+<div class="flex items-center gap-sm">
+<input class="w-full accent-telemetry-cyan bg-surface-card cursor-pointer h-1.5 rounded-lg appearance-none" id="timeScrubber" max="100" min="0" oninput="updateScrubberTime(this.value)" type="range" value="100">
+</div>
+</div>
+<!-- Timeline History Log Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead class="bg-surface-base text-text-secondary font-label-code text-label-code uppercase">
+<tr>
+<th class="p-xs">Timestamp (IST)</th>
+<th class="p-xs">Node / Sector</th>
+<th class="p-xs">Anomaly Event</th>
+<th class="p-xs">Classification</th>
+<th class="p-xs">Validation Pipe</th>
+<th class="p-xs text-right">CAP Status</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 space-y-xxs" id="timelineTableBody">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-elevated transition-colors timeline-row" data-type="verified human">
+<td class="p-xs font-metric-label text-metric-label text-text-primary">14:18:02</td>
+<td class="p-xs font-label-code text-label-code text-telemetry-cyan">#ASM-04 PASIGHAT</td>
+<td class="p-xs font-medium text-text-primary">River Crest Surge Alert +2.4m</td>
+<td class="p-xs">
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-hazard-critical/20 text-hazard-critical font-bold">CRITICAL</span>
+</td>
+<td class="p-xs text-text-secondary">HUMAN VALIDATED (NDRF)</td>
+<td class="p-xs text-right font-label-code text-label-code text-hazard-critical">QUEUED FOR BROADCAST</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-elevated transition-colors timeline-row" data-type="verified edge">
+<td class="p-xs font-metric-label text-metric-label text-text-primary">13:42:19</td>
+<td class="p-xs font-label-code text-label-code text-telemetry-cyan">#DL-019 JAHANGIRPURI</td>
+<td class="p-xs font-medium text-text-primary">PM2.5 Sensor Spike &gt;450</td>
+<td class="p-xs">
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-hazard-warning/20 text-hazard-warning font-bold">SEVERE</span>
+</td>
+<td class="p-xs text-text-secondary">EDGE-AI CONFIRMED</td>
+<td class="p-xs text-right font-label-code text-label-code text-status-nominal">DISPATCHED (34k SMS)</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-elevated transition-colors timeline-row" data-type="edge">
+<td class="p-xs font-metric-label text-metric-label text-text-primary">11:05:44</td>
+<td class="p-xs font-label-code text-label-code text-telemetry-cyan">#UK-007 JOSHIMATH</td>
+<td class="p-xs font-medium text-text-primary">Sub-borehole Shear Creep +14mm</td>
+<td class="p-xs">
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-secondary/20 text-secondary font-bold">WATCH</span>
+</td>
+<td class="p-xs text-text-secondary">EDGE INGEST AUTONOMOUS</td>
+<td class="p-xs text-right font-label-code text-label-code text-text-muted">INTERNAL MEMO ONLY</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-elevated transition-colors timeline-row" data-type="human verified">
+<td class="p-xs font-metric-label text-metric-label text-text-primary">09:15:20</td>
+<td class="p-xs font-label-code text-label-code text-telemetry-cyan">#MH-031 CHANDRAPUR</td>
+<td class="p-xs font-medium text-text-primary">Severe Wet Bulb Escalation 31.8°C</td>
+<td class="p-xs">
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-telemetry-cyan/20 text-telemetry-cyan font-bold">ADVISORY</span>
+</td>
+<td class="p-xs text-text-secondary">HUMAN VALIDATED (SDMA)</td>
+<td class="p-xs text-right font-label-code text-label-code text-status-nominal">DELIVERED (CIVIC APP)</td>
+</tr>
+<!-- Row 5 (False Positive record for filter demonstration) -->
+<tr class="hover:bg-surface-elevated transition-colors timeline-row" data-type="false-positive edge">
+<td class="p-xs font-metric-label text-metric-label text-text-muted">04:22:11</td>
+<td class="p-xs font-label-code text-label-code text-text-muted">#KL-014 IDUKKI</td>
+<td class="p-xs line-through text-text-muted">Ultrasonic Rainfall Flash Sensor #3</td>
+<td class="p-xs">
+<span class="font-label-code text-label-code px-xs py-xxs rounded bg-surface-elevated text-text-muted">FALSE-POSITIVE</span>
+</td>
+<td class="p-xs text-text-muted">OPTICAL NOISE OVERRIDE</td>
+<td class="p-xs text-right font-label-code text-label-code text-text-muted">NULLIFIED AT EDGE</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Operational Protocol Verification & Siren Modal (Hidden by default) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-base/80 backdrop-blur-md hidden p-md" id="siren-modal">
+<div class="w-full max-w-lg rounded-xl bg-surface-card p-md shadow-2xl space-y-md relative overflow-hidden">
+<div class="absolute -top-12 -left-12 w-32 h-32 bg-hazard-warning/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-lg bg-hazard-warning/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-hazard-warning text-[20px]">volume_up</span>
+</div>
+<div>
+<span class="font-label-code text-label-code text-hazard-warning font-bold uppercase">PROTOCOL DRILL CHECK</span>
+<h4 class="font-headline-md text-headline-md text-text-primary">CAP-v1.2 Acoustic Siren Test</h4>
+</div>
+</div>
+<button class="w-8 h-8 rounded bg-surface-elevated hover:bg-surface-container-high flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors" onclick="closeSirenModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        This operation verifies acoustic resonance at 130dB across 36 pole-mounted emergency loudspeakers in the designated target sector. All frequencies run on silent diagnostic or audible chirp tone.
+      </p>
+<div class="space-y-xs bg-surface-base p-xs rounded">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-secondary">TARGET GRID:</span>
+<span class="text-text-primary font-bold">BRAHMAPUTRA-EAST (ASM-04)</span>
+</div>
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-secondary">CARRIER:</span>
+<span class="text-telemetry-cyan font-bold">VHF RADIO RELAY 142.850 MHz</span>
+</div>
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-secondary">ACOUSTIC PROFILE:</span>
+<span class="text-hazard-warning font-bold">INTERMITTENT 3-CYCLE WAIL</span>
+</div>
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-secondary">NIC DIGITAL CERT:</span>
+<span class="text-status-nominal font-bold">SHA-256 VALIDATED (0x8F9B...)</span>
+</div>
+</div>
+<div class="flex items-center justify-end gap-xs pt-xxs">
+<button class="px-sm py-xs rounded bg-surface-elevated text-text-secondary hover:text-text-primary font-body-sm font-semibold transition-colors" onclick="closeSirenModal()">
+          Abort Protocol
+        </button>
+<button class="px-md py-xs rounded bg-hazard-warning text-surface-base hover:bg-hazard-warning/90 font-body-sm font-bold flex items-center gap-xxs transition-colors" id="btn-run-siren" onclick="executeSirenTest()">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+          Transmit Test Chirp (5s)
+        </button>
+</div>
+</div>
+</div>
+<!-- Toast Notification Alert -->
+<div class="fixed bottom-6 right-6 z-50 hidden max-w-md p-sm rounded-lg bg-surface-elevated shadow-xl flex items-center gap-xs" id="toast">
+<span class="material-symbols-outlined text-[20px] text-status-nominal" id="toast-icon">check_circle</span>
+<div class="flex flex-col">
+<span class="font-label-code text-label-code font-bold uppercase text-text-primary" id="toast-title">SYSTEM NOTICE</span>
+<span class="font-body-sm text-body-sm text-text-secondary" id="toast-msg">Transmission protocol executed successfully.</span>
+</div>
+</div>
+</div>
+<script>
+  // Scenario Data Store for Live Simulator preview
+  const SCENARIOS = {
+    flood: {
+      badge: "CRITICAL FLOOD WARNING",
+      badgeColor: "bg-hazard-critical/20 text-hazard-critical",
+      cluster: "BRAHMAPUTRA #ASM-04 to #ASM-08",
+      en: "EMERGENCY: Rapid river level surge. Flash flood expected within 45 mins. Evacuate low-lying riverbanks immediately to Designated High-Ground Relief Shelter at Sector 4 Stadium (Grid: 27.48°N, 95.35°E). Do not cross flooded bridges.",
+      hi: "आपातकालीन सूचना: ब्रह्मपुत्र जलस्तर में तीव्र वृद्धि। अगले 45 मिनट में जलभराव की आशंका। तुरंत तटवर्ती क्षेत्र खाली करें। निकटतम राहत शिविर सेक्टर 4 स्टेडियम में शरण लें। बाढ़ग्रस्त पुलों को पार न करें।",
+      shelter: "SHELTER MAP: SECTOR 4",
+      helpline: "1077"
+    },
+    aqi: {
+      badge: "SEVERE TOXIC AIR EPISODE",
+      badgeColor: "bg-hazard-warning/20 text-hazard-warning",
+      cluster: "DELHI-NCR NORTH #DL-019",
+      en: "HEALTH ALERT: PM2.5 exceeded critical threshold at 485 µg/m³. Close all outdoor ventilation dampers. Vulnerable citizens, elderly and children must remain indoors. Use N95 respiratory protection if travel is unavoidable.",
+      hi: "स्वास्थ्य चेतावनी: वायु गुणवत्ता सूचकांक (AQI) अत्यंत गंभीर स्तर पर पहुंचा (PM2.5: 485)। सभी खिड़कियां बंद रखें। बुजुर्ग एवं बच्चे घर से बाहर न निकलें। अनिवार्य होने पर N95 मास्क का उपयोग करें।",
+      shelter: "AIR SHELTERS LIST",
+      helpline: "1075"
+    },
+    slope: {
+      badge: "GEOTECH CRACK WATCH",
+      badgeColor: "bg-secondary/20 text-secondary",
+      cluster: "CHAMOLI GEOTECH #UK-007",
+      en: "ADVISORY: Accelerated slope displacement detected (14mm/24h) along NH-58 cliffside. Heavy freight convoy movement suspended between km markers 78 and 92. Follow traffic marshals to safe bypass staging.",
+      hi: "भूस्खलन चेतावनी: NH-58 के पास पहाड़ी सतह में 14 मिमी विस्थापन दर्ज। किमी 78 से 92 के बीच भारी वाहनों की आवाजाही रोक दी गई है। सुरक्षित मार्ग हेतु यातायात दल के निर्देशों का पालन करें।",
+      shelter: "BYPASS STAGING MAP",
+      helpline: "1070"
+    },
+    heatwave: {
+      badge: "EXTREME HEAT ADVISORY",
+      badgeColor: "bg-telemetry-cyan/20 text-telemetry-cyan",
+      cluster: "VIDARBHA #MH-031",
+      en: "HEAT ALERT: Ambient temperature at 44.6°C with dangerous thermal index. Hydration centers open across primary agricultural junctions. Suspend hard physical field labor between 11:00 AM and 4:00 PM.",
+      hi: "लू चेतावनी: विदर्भ क्षेत्र में तापमान 44.6°C पार। सभी प्राथमिक चौराहों पर पेयजल केंद्र सक्रिय। सुबह 11:00 से शाम 4:00 बजे के बीच खुले में शारीरिक श्रम करने से बचें। पर्याप्त जल का सेवन करें।",
+      shelter: "COOLING CENTERS MAP",
+      helpline: "104"
+    }
+  };
+
+  // Scenario Loader
+  function loadScenario(type) {
+    const sc = SCENARIOS[type];
+    if (!sc) return;
+
+    const badge = document.getElementById('alert-badge-preview');
+    const textEn = document.getElementById('alert-text-en');
+    const textHi = document.getElementById('alert-text-hi');
+
+    badge.className = `font-label-code text-label-code px-xs py-xxs rounded font-bold uppercase ${sc.badgeColor}`;
+    badge.textContent = sc.badge;
+    textEn.textContent = sc.en;
+    textHi.textContent = sc.hi;
+
+    showToast("PREVIEW LOADED", `Loaded payload for ${sc.cluster}`, "check_circle", "text-status-nominal");
+  }
+
+  // Audience Switching
+  function setAudience(type) {
+    const tabCivic = document.getElementById('tab-civic');
+    const tabAuth = document.getElementById('tab-authorities');
+    const langInd = document.getElementById('lang-indicator');
+
+    if (type === 'civic') {
+      tabCivic.className = "py-xs text-center rounded font-body-sm font-semibold bg-surface-elevated text-telemetry-cyan shadow-sm transition-all flex items-center justify-center gap-xxs";
+      tabAuth.className = "py-xs text-center rounded font-body-sm font-semibold text-text-secondary hover:text-text-primary transition-all flex items-center justify-center gap-xxs";
+      langInd.textContent = "EN + HI BILINGUAL (CELL/SMS)";
+      langInd.className = "text-status-nominal font-bold";
+    } else {
+      tabAuth.className = "py-xs text-center rounded font-body-sm font-semibold bg-surface-elevated text-telemetry-cyan shadow-sm transition-all flex items-center justify-center gap-xxs";
+      tabCivic.className = "py-xs text-center rounded font-body-sm font-semibold text-text-secondary hover:text-text-primary transition-all flex items-center justify-center gap-xxs";
+      langInd.textContent = "SECURE PROTOCOL (NDRF TETRA/CAD)";
+      langInd.className = "text-edge-ai font-bold";
+    }
+  }
+
+  // Timeline Filtering
+  function filterTimeline(filter) {
+    const buttons = ['all', 'verified', 'edge', 'human'];
+    buttons.forEach(b => {
+      const el = document.getElementById(`flt-${b}`);
+      if (b === filter) {
+        el.className = "px-xs py-xxs rounded bg-surface-elevated text-telemetry-cyan font-label-code text-label-code font-semibold";
+      } else {
+        el.className = "px-xs py-xxs rounded text-text-secondary hover:text-text-primary font-label-code text-label-code";
+      }
+    });
+
+    const rows = document.querySelectorAll('.timeline-row');
+    rows.forEach(r => {
+      const type = r.getAttribute('data-type') || '';
+      if (filter === 'all') {
+        r.style.display = '';
+      } else if (filter === 'verified') {
+        r.style.display = type.includes('verified') ? '' : 'none';
+      } else if (filter === 'edge') {
+        r.style.display = type.includes('edge') ? '' : 'none';
+      } else if (filter === 'human') {
+        r.style.display = type.includes('human') ? '' : 'none';
+      }
+    });
+  }
+
+  // Scrubber time update interaction
+  function updateScrubberTime(val) {
+    const hoursAgo = Math.round(((100 - val) / 100) * 48);
+    const label = hoursAgo === 0 ? "CURRENT (LIVE 0h)" : `T - ${hoursAgo}h AGO`;
+    // Flash playhead indicator
+  }
+
+  // Siren Modal
+  function triggerSirenModal() {
+    document.getElementById('siren-modal').classList.remove('hidden');
+  }
+
+  function closeSirenModal() {
+    document.getElementById('siren-modal').classList.add('hidden');
+  }
+
+  function executeSirenTest() {
+    const btn = document.getElementById('btn-run-siren');
+    btn.innerHTML = `<span class="material-symbols-outlined text-[16px] animate-spin">refresh</span> Emitting 130dB Chirp...`;
+    setTimeout(() => {
+      btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">check</span> Chirp Confirmed (36/36)`;
+      setTimeout(() => {
+        closeSirenModal();
+        btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">play_arrow</span> Transmit Test Chirp (5s)`;
+        showToast("SIREN TEST VERIFIED", "36 Poles in Pasighat sector acknowledged chirp tone.", "volume_up", "text-hazard-warning");
+      }, 1200);
+    }, 1500);
+  }
+
+  // Emergency Dispatch Real Trigger
+  function triggerEmergencyDispatch() {
+    showToast("CAP DISPATCH BROADCASTED", "Push package sent to C-DoT Geo-Fencing Gateway & 142 Towers.", "crisis_alert", "text-hazard-critical");
+  }
+
+  // Toast Helper
+  function showToast(title, msg, icon, iconColor) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-msg').textContent = msg;
+    const ico = document.getElementById('toast-icon');
+    ico.textContent = icon;
+    ico.className = `material-symbols-outlined text-[20px] ${iconColor}`;
+    
+    t.classList.remove('hidden');
+    setTimeout(() => {
+      t.classList.add('hidden');
+    }, 4500);
+  }
+
+  // Toggle confidence sorting micro-interaction
+  let sortedDesc = true;
+  document.getElementById('btn-sort-conf')?.addEventListener('click', function() {
+    sortedDesc = !sortedDesc;
+    this.querySelector('span:last-child').textContent = sortedDesc ? 'CONFIDENCE DESC' : 'CONFIDENCE ASC';
+    showToast("SORT REORDERED", `Mission Alert Queue ordered by confidence ${sortedDesc ? 'High→Low' : 'Low→High'}.`, "swap_vert", "text-telemetry-cyan");
+  });
+</script></main></div>
+
+</body></html>

@@ -1,0 +1,583 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface-variant":"#bbc9cf","on-primary-container":"#00586b","on-secondary":"#3c0091","inverse-surface":"#dfe2f3","outline-variant":"#3c494e","tertiary-container":"#49da9f","error-container":"#93000a","text-secondary":"#94A3B8","outline":"#859398","inverse-on-surface":"#2c303d","tertiary-fixed-dim":"#4edea3","surface":"#0f131f","surface-tint":"#3cd7ff","secondary-fixed":"#e9ddff","text-primary":"#F1F5F9","primary":"#a8e8ff","error":"#ffb4ab","secondary-container":"#571bc1","background":"#0f131f","surface-base":"#0A0E1A","on-surface":"#dfe2f3","on-primary":"#003642","on-tertiary-container":"#005c3e","on-tertiary-fixed-variant":"#005236","secondary":"#d0bcff","on-error-container":"#ffdad6","surface-elevated":"#1A2233","telemetry-cyan":"#00D4FF","border-subtle":"#25314C","on-primary-fixed":"#001f27","on-background":"#dfe2f3","hazard-critical":"#FF3B30","on-primary-fixed-variant":"#004e5f","surface-container-lowest":"#0a0e1a","tertiary-fixed":"#6ffbbe","surface-variant":"#313442","surface-bright":"#353946","surface-container-low":"#171b28","on-error":"#690005","tertiary":"#6af7ba","surface-dim":"#0f131f","hazard-warning":"#FF6B35","on-secondary-fixed-variant":"#5516be","status-nominal":"#10B981","on-secondary-container":"#c4abff","on-secondary-fixed":"#23005c","secondary-fixed-dim":"#d0bcff","on-tertiary-fixed":"#002113","surface-card":"#141C2E","inverse-primary":"#00677e","surface-overlay":"#222C42","surface-container-highest":"#313442","primary-container":"#00d4ff","primary-fixed":"#b4ebff","border-glow":"#00D4FF33","primary-fixed-dim":"#3cd7ff","edge-ai":"#8B5CF6","text-muted":"#475569","surface-container":"#1b1f2c","surface-container-high":"#262a37","on-tertiary":"#003824"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"xxs":"0.25rem","xxl":"3rem","gutter-normal":"1rem","xs":"0.5rem","xl":"2rem","sidebar-width":"18rem","gutter-dense":"0.75rem","sm":"0.75rem","md":"1rem","lg":"1.5rem","telemetry-rail":"22rem"},"fontFamily":{"headline-md":["IBM Plex Sans"],"telemetry-unit":["JetBrains Mono"],"body-md":["IBM Plex Sans"],"headline-xl":["IBM Plex Sans"],"body-lg":["IBM Plex Sans"],"headline-xl-mobile":["IBM Plex Sans"],"label-code":["JetBrains Mono"],"body-sm":["IBM Plex Sans"],"metric-label":["JetBrains Mono"],"metric-display":["JetBrains Mono"],"headline-lg":["IBM Plex Sans"]},"fontSize":{"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"0em","fontWeight":"600"}],"telemetry-unit":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl-mobile":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-code":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"metric-label":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"500"}],"metric-display":["28px",{"lineHeight":"32px","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface-base text-on-surface font-body-md text-body-md antialiased min-h-screen"><header class="fixed top-0 left-0 w-full z-50 bg-surface-card/95 backdrop-blur-md"><div class="h-20 w-full px-gutter-normal flex flex-col justify-between pt-xxs pb-xs"><div class="flex items-center justify-between gap-md"><div class="flex items-center gap-md"><div class="flex items-center gap-xs"><div class="w-8 h-8 rounded-lg bg-surface-elevated flex items-center justify-center overflow-hidden"><img src="https://lh3.googleusercontent.com/aida/AEtjO1UDRr3UnDnAUmE7TA_GsOl5SiW4dxSCkpG9ZWu-3yN_5XqcFUv49-VdLoXJCR95Ug09nDW3Bp5K6Uww_5TG8OCogNipnSzDLADh__QFPqYuPkrSFMRHClW2QetiBtbPZcSl2vgz1BDNRbcbeWDN_ZnZCvneWVhnts9vPvVOjemn3-b_SktRkHPs-bowK-9zgdrn8WY_QBCexVffarosaUPAH6pgn_9kn48WLeSLpMMM6dlUNNh-7lyF5w" alt="AAPDA-KADABRA Logo" class="w-full h-full object-contain"></div><div class="flex flex-col"><span class="font-headline-md text-headline-md text-text-primary tracking-tight leading-none">AAPDA-KADABRA</span><span class="font-label-code text-label-code text-telemetry-cyan uppercase">HAZARD INTELLIGENCE &amp; EARLY WARNING</span></div></div><div class="hidden lg:flex items-center gap-xs px-xs py-xxs rounded bg-hazard-warning/10"><span class="w-2 h-2 rounded-full bg-hazard-warning animate-pulse"></span><span class="font-label-code text-label-code text-hazard-warning uppercase tracking-wider">DEFCON-ENV 2 // 158 NODES ACTIVE</span></div><div class="hidden xl:flex items-center gap-xs px-xs py-xxs bg-surface-elevated rounded"><span class="material-symbols-outlined text-outline text-[16px]">schedule</span><span class="font-label-code text-label-code text-text-secondary">IST UTC+5:30</span><span class="font-metric-label text-metric-label text-text-primary">14:28:49</span></div></div><div class="hidden md:flex flex-1 max-w-xl mx-md items-center gap-xs px-sm py-xxs bg-surface-elevated rounded overflow-hidden"><span class="material-symbols-outlined text-hazard-warning text-[18px] shrink-0">warning</span><div class="font-label-code text-label-code text-text-secondary truncate"><span class="text-hazard-warning font-semibold">[ALERT]</span> AQI VECTOR CRITICAL SECTOR 07B NCR // CYCLONIC DEPRESSION BAY OF BENGAL LAT 14.2 N LON 84.8 E // INGESTING GROUND TELEMETRY...</div></div><div class="flex items-center gap-sm"><div class="hidden sm:flex items-center gap-xs px-xs py-xxs rounded bg-status-nominal/10"><span class="material-symbols-outlined text-status-nominal text-[16px]">satellite_alt</span><span class="font-label-code text-label-code text-status-nominal">INSAT-3DR ONLINE 99.8%</span></div><button class="flex items-center gap-xxs px-xs py-xxs rounded bg-surface-elevated hover:bg-surface-container-high text-text-secondary hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-hazard-warning text-[18px]">volume_up</span><span class="hidden xl:inline font-label-code text-label-code">HAZARD SIREN</span></button><button class="flex items-center gap-xxs px-sm py-xxs rounded bg-hazard-critical hover:bg-error-container text-text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">crisis_alert</span><span class="hidden md:inline font-headline-md text-body-sm font-semibold uppercase tracking-wider">BROADCAST</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-center justify-between"><nav class="flex items-center gap-xxs overflow-x-auto" data-active-classes="text-telemetry-cyan bg-surface-elevated rounded"><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="live-command-center" href="#">Live Command Center</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="node-telemetry-and-inspection" href="#">Node Telemetry &amp; Inspection</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="regional-risk-matrix" href="#">Regional Risk Matrix</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="early-warning-feed" href="#">Early Warning Feed</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="network-health-and-mesh" href="#">Network Health &amp; Mesh</a></nav><div class="hidden md:flex items-center gap-xs text-text-muted font-label-code text-label-code"><span class="">GRID: 28.6139° N, 77.2090° E</span><span class="">REFRESH: 250MS</span></div></div></div></header><aside class="fixed left-0 top-20 bottom-0 w-sidebar-width bg-surface-card z-40 hidden xl:flex flex-col justify-between p-sm overflow-y-auto"><div class="space-y-md"><div class="flex items-center justify-between pb-xs"><span class="font-metric-label text-metric-label text-text-secondary uppercase tracking-widest">CORE DIRECTORY</span><span class="font-label-code text-label-code text-telemetry-cyan">ACTIVE MESH</span></div><nav class="space-y-xxs" data-active-classes="bg-surface-elevated text-telemetry-cyan"><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="live-command-center" href="#"><span class="font-body-sm text-body-sm">Tactical Map Surface</span><span class="material-symbols-outlined text-[16px]">map</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="node-telemetry-and-inspection" href="#"><span class="font-body-sm text-body-sm">Atmospheric Sensors</span><span class="material-symbols-outlined text-[16px]">sensors</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="regional-risk-matrix" href="#"><span class="font-body-sm text-body-sm">Hazard Heatmaps</span><span class="material-symbols-outlined text-[16px]">heat_pump</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="early-warning-feed" href="#"><span class="font-body-sm text-body-sm">Crisis Dispatch Log</span><span class="material-symbols-outlined text-[16px]">notification_important</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="network-health-and-mesh" href="#"><span class="font-body-sm text-body-sm">Edge Gateway Status</span><span class="material-symbols-outlined text-[16px]">hub</span></a></nav></div><div class="p-xs rounded bg-surface-elevated space-y-xxs"><div class="flex items-center justify-between"><span class="font-label-code text-label-code text-text-secondary">BANDWIDTH LOAD</span><span class="font-label-code text-label-code text-status-nominal">142 MB/S</span></div><div class="w-full bg-surface-base h-1 rounded overflow-hidden"><div class="bg-telemetry-cyan h-full w-[64%]"></div></div><div class="flex justify-between font-label-code text-label-code text-text-muted"><span class="">ISRO GAGAN SYNC</span><span class="">NOMINAL</span></div></div></aside><div class="xl:pl-sidebar-width w-full"><main class="relative pt-20 w-full px-gutter-normal bg-surface-base min-h-screen"><div class="flex flex-col w-full pb-xl">
+<!-- Top Node Context / Alert Banner -->
+<div class="w-full bg-hazard-critical/15 px-gutter-normal py-xs mb-sm rounded-lg flex flex-wrap items-center justify-between gap-xs">
+<div class="flex items-center gap-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-hazard-critical animate-ping"></span>
+<span class="font-label-code text-label-code text-hazard-critical font-bold uppercase tracking-wider">CRITICAL INUNDATION THRESHOLD BREACH</span>
+<span class="font-label-code text-label-code text-text-secondary">|</span>
+<span class="font-label-code text-label-code text-text-primary">BASIN SECTOR #04 — DISASTER DEFCON-1 ESCALATION READY</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-label-code text-label-code text-text-secondary">TELEMETRY FRAME RATE: <span class="text-status-nominal font-bold">100Hz</span></span>
+<span class="font-label-code text-label-code text-telemetry-cyan uppercase px-xxs py-0 bg-surface-elevated rounded">PACKET LOSS 0.00%</span>
+</div>
+</div>
+<!-- Primary Node Deep Inspection Header Card -->
+<div class="w-full bg-surface-card rounded-xl p-md mb-md shadow-md">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-md">
+<div>
+<div class="flex flex-wrap items-center gap-xs mb-xxs">
+<span class="font-label-code text-label-code text-telemetry-cyan bg-surface-base px-xs py-xxs rounded">STATION // IN-ASM-042</span>
+<span class="font-label-code text-label-code text-text-secondary">GRID: 27.4728° N, 94.9120° E</span>
+<span class="font-label-code text-label-code text-hazard-warning bg-hazard-warning/10 px-xs py-xxs rounded">BRAHMAPUTRA HIGH VELOCITY SENSOR</span>
+<span class="font-label-code text-label-code text-status-nominal bg-status-nominal/10 px-xs py-xxs rounded flex items-center gap-xxs">
+<span class="w-1.5 h-1.5 rounded-full bg-status-nominal"></span>
+            SURFACE HARVESTING +380mA
+          </span>
+</div>
+<div class="flex items-baseline gap-xs">
+<h1 class="font-headline-xl text-headline-xl text-text-primary tracking-tight">Dibrugarh Riverine Outpost 42</h1>
+<span class="font-metric-label text-metric-label text-text-secondary">ELEV 102.5M MSL</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary">Assam State Disaster Management Agency (ASDMA) Dual-Path Hydrometric Station</p>
+</div>
+<!-- Live Link Array & Battery Block -->
+<div class="flex flex-wrap items-center gap-xs bg-surface-base p-xs rounded-lg">
+<div class="px-xs py-xxs bg-surface-elevated rounded">
+<div class="font-label-code text-label-code text-text-muted">LINK COMM PROTOCOL</div>
+<div class="font-metric-label text-metric-label text-status-nominal font-bold flex items-center gap-xxs">
+<span class="material-symbols-outlined text-[14px]">cell_tower</span>
+            5G RedCap + LoRaWAN
+          </div>
+</div>
+<div class="px-xs py-xxs bg-surface-elevated rounded">
+<div class="font-label-code text-label-code text-text-muted">CARRIER RSSI / SNR</div>
+<div class="font-metric-label text-metric-label text-telemetry-cyan">-68 dBm <span class="text-text-muted">/</span> 12.4 dB</div>
+</div>
+<div class="px-xs py-xxs bg-surface-elevated rounded">
+<div class="font-label-code text-label-code text-text-muted">CELL CAPACITY</div>
+<div class="font-metric-label text-metric-label text-status-nominal flex items-center gap-xxs">
+<span class="material-symbols-outlined text-[14px]">bolt</span>
+            94% LiFePO4
+          </div>
+</div>
+<div class="px-xs py-xxs bg-surface-elevated rounded">
+<div class="font-label-code text-label-code text-text-muted">UPTIME CLOCK</div>
+<div class="font-metric-label text-metric-label text-text-primary">184D:11H:42M</div>
+</div>
+</div>
+</div>
+<!-- Edge AI Micro-Status Badge Strip -->
+<div class="mt-sm pt-xs bg-surface-elevated/70 rounded-lg p-xs flex flex-wrap items-center justify-between gap-xs">
+<div class="flex items-center gap-xs">
+<div class="px-xs py-xxs rounded-full bg-edge-ai/20 flex items-center gap-xxs">
+<span class="w-2 h-2 rounded-full bg-edge-ai animate-pulse"></span>
+<span class="font-label-code text-label-code text-edge-ai font-bold uppercase tracking-wide">Edge AI: ACTIVE ACCELERATOR</span>
+</div>
+<span class="font-label-code text-label-code text-text-primary">Model: Hydrological-ResNet-v2.3</span>
+<span class="hidden sm:inline font-label-code text-label-code text-text-muted">|</span>
+<span class="hidden sm:inline font-label-code text-label-code text-text-secondary">Quantized INT8 TensorRT</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="font-label-code text-label-code text-text-secondary">INFERENCE LATENCY: <span class="text-telemetry-cyan font-semibold">18ms</span></div>
+<div class="font-label-code text-label-code text-text-secondary">MODEL CONFIDENCE: <span class="text-status-nominal font-bold">94.8%</span></div>
+<div class="font-label-code text-label-code text-hazard-critical uppercase font-bold">SURGE PREDICTION: CRITICAL</div>
+</div>
+</div>
+</div>
+<!-- Geographic Context Raster & Physical Deployment View -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-dense mb-md">
+<div class="lg:col-span-8 bg-surface-card rounded-xl p-xs flex flex-col justify-between shadow-md">
+<div class="flex items-center justify-between px-xs py-xxs mb-xxs">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-telemetry-cyan text-[18px]">satellite_alt</span>
+<span class="font-metric-label text-metric-label text-text-primary">RADAR SYNTHETIC APERTURE (SAR) OVERLAY — BRAHMAPUTRA SHORELINE</span>
+</div>
+<span class="font-label-code text-label-code text-hazard-warning bg-hazard-warning/20 px-xs py-xxs rounded">SURFACE WATER FLOOD EXTENT: +34% VS BASELINE</span>
+</div>
+<!-- Spatial Location Canvas Container -->
+<div class="w-full h-72 bg-cover bg-center rounded-lg relative overflow-hidden flex flex-col justify-between p-sm" data-location="Dibrugarh, Assam, India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBV-NMHKq4Tt-FKW6h-oEc-AEoq-KpvjhPjbpn9V5rVgQpb6kvaATpQ78TL0dA2YPNCUWAlIo4jSH_8QOElbbkgleK_FcWQLNXThLqcN-12iuz4EN8gEyF_tsAhbQYDaoABP34_eqBEIHE6JJqj3zyQXRr-1TCTy8lUZ5R4OwdAgdFJ_J4odYu5Y0xELnNDc2Bo1mktzd8KQFUQp4u-ALmfl2LPqnpDdoTr9LpbZGA_0q4nN9Ms9Kg');">
+<div class="flex justify-between items-start">
+<div class="bg-surface-base/90 backdrop-blur-md p-xs rounded shadow-md">
+<div class="font-label-code text-label-code text-text-muted">SONAR DEPTH PROBE ARRAY</div>
+<div class="font-metric-label text-metric-label text-text-primary">PIER D-4 SOUNDING DEPTH: 14.8M</div>
+<div class="font-label-code text-label-code text-hazard-critical">SCOUR VULNERABILITY: LEVEL 3</div>
+</div>
+<div class="bg-surface-base/90 backdrop-blur-md px-xs py-xxs rounded flex items-center gap-xxs shadow-md">
+<span class="w-2 h-2 rounded-full bg-status-nominal"></span>
+<span class="font-label-code text-label-code text-text-primary">ISRO RISAT-1A SYNC: 14:26:00 UTC</span>
+</div>
+</div>
+<div class="flex items-end justify-between">
+<div class="bg-surface-base/90 backdrop-blur-md px-xs py-xxs rounded font-label-code text-label-code text-text-secondary">
+            GEO: 27°28'22.1" N 94°54'43.2" E // BOGIBEEL BRIDGE SECTOR
+          </div>
+<div class="flex items-center gap-xxs bg-hazard-critical/90 text-text-primary px-xs py-xxs rounded font-label-code text-label-code font-bold">
+<span class="material-symbols-outlined text-[16px]">waves</span> HIGH TURBULENCE DRIFT DETECTED
+          </div>
+</div>
+</div>
+</div>
+<!-- Station Physical Health & Telemetry Pod Snapshot -->
+<div class="lg:col-span-4 bg-surface-card rounded-xl p-md flex flex-col justify-between shadow-md">
+<div>
+<div class="flex items-center justify-between mb-xs">
+<span class="font-metric-label text-metric-label text-text-primary">ENCLOSURE SENSORS</span>
+<span class="font-label-code text-label-code text-status-nominal">IP68 INTEGRITY SEALED</span>
+</div>
+<div class="relative w-full h-44 rounded-lg overflow-hidden mb-xs" data-alt="Ruggedized telemetry monitoring enclosure installed on a reinforced concrete river embankment with solar panels, high gain antenna, and sensor cabling overlooking swollen muddy river waters under overcast monsoon sky with scientific instrumentation glow." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCGefIFVCVSLsY0m55hT1O8Gb-8Q5-UUF0rPmzMoUkBjWeLNlNaC3i4cEy425ML5Y0pkotm7sYDm_kk0ql7OM2l_jRltuZMcctupqctjSg28fCeAbahxh3yqGaJJ53XBuvzXQa04cEE4I2_adg_CYIhQpZFoU4gGD38e7XoQBlHibu-ImVOZHrYyRrcbFguDXMHlcFEjo_Ry2eunXKR9MMWHulxJT9d_xe8GF9PX6jXWWMSXvv8DRQ');">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-base via-surface-base/30 to-transparent p-xs flex flex-col justify-end">
+<span class="font-label-code text-label-code text-telemetry-cyan">MAST #042-ALPHA TELEMETRY TOWER</span>
+<span class="font-body-sm text-body-sm text-text-primary">Field Unit In-situ Inspection Camera</span>
+</div>
+</div>
+</div>
+<div class="space-y-xxs">
+<div class="flex justify-between items-center bg-surface-base p-xxs px-xs rounded">
+<span class="font-label-code text-label-code text-text-secondary">ENCLOSURE TEMP</span>
+<span class="font-metric-label text-metric-label text-text-primary">31.2°C (THERMAL OK)</span>
+</div>
+<div class="flex justify-between items-center bg-surface-base p-xxs px-xs rounded">
+<span class="font-label-code text-label-code text-text-secondary">DESICCANT HUMIDITY</span>
+<span class="font-metric-label text-metric-label text-status-nominal">18% DRY</span>
+</div>
+<div class="flex justify-between items-center bg-surface-base p-xxs px-xs rounded">
+<span class="font-label-code text-label-code text-text-secondary">ACCELEROMETER TILT</span>
+<span class="font-metric-label text-metric-label text-text-primary">0.14° V (NO STRUCTURAL LEAN)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Streaming Sensor Metrics Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-gutter-dense mb-md">
+<!-- Metric 1: Water Level (Critical Breached) -->
+<div class="bg-surface-card rounded-xl p-md flex flex-col justify-between shadow-md relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-hazard-critical"></div>
+<div class="flex items-center justify-between mb-xs">
+<span class="font-label-code text-label-code text-hazard-critical font-bold">WATER LEVEL (SURFACE)</span>
+<span class="material-symbols-outlined text-hazard-critical text-[18px] animate-pulse">crisis_alert</span>
+</div>
+<div class="my-xxs">
+<div class="flex items-baseline gap-xxs">
+<span class="font-metric-display text-metric-display text-hazard-critical font-bold" id="metric-water-level">105.45</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-secondary">m MSL</span>
+</div>
+<div class="font-body-sm text-body-sm text-hazard-critical mt-xxs font-semibold">
+          +4.22m over Red Threshold
+        </div>
+<div class="font-label-code text-label-code text-text-muted mt-xxs">
+          RATE: <span class="text-hazard-warning font-bold">+12 cm/hr</span> surge vector
+        </div>
+</div>
+<!-- Mini Sparkline Area Chart -->
+<div class="w-full h-12 mt-xs bg-surface-base rounded p-xxs flex items-end">
+<svg class="w-full h-full text-hazard-critical" preserveAspectRatio="none" viewBox="0 0 100 30">
+<path d="M0,28 Q15,22 30,24 T60,15 T85,8 L100,2 L100,30 L0,30 Z" fill="currentColor" fill-opacity="0.25"></path>
+<path d="M0,28 Q15,22 30,24 T60,15 T85,8 L100,2" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex justify-between items-center mt-xs text-text-muted font-label-code text-label-code">
+<span class="">DANGER: 100.60 m</span>
+<span class="text-hazard-critical">EXTREME</span>
+</div>
+</div>
+<!-- Metric 2: River Flow Velocity -->
+<div class="bg-surface-card rounded-xl p-md flex flex-col justify-between shadow-md relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-hazard-warning"></div>
+<div class="flex items-center justify-between mb-xs">
+<span class="font-label-code text-label-code text-text-secondary">ACOUSTIC HYDRO VELOCITY</span>
+<span class="material-symbols-outlined text-hazard-warning text-[18px]">speed</span>
+</div>
+<div class="my-xxs">
+<div class="flex items-baseline gap-xxs">
+<span class="font-metric-display text-metric-display text-text-primary" id="metric-flow-velocity">3.49</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-secondary">m/s</span>
+</div>
+<div class="font-body-sm text-body-sm text-hazard-warning mt-xxs">
+          Severe Drag Force on Embankment
+        </div>
+<div class="font-label-code text-label-code text-text-muted mt-xxs">
+          DISCHARGE: <span class="text-text-primary">48,200 m³/s</span>
+</div>
+</div>
+<!-- Mini Flow Gauge Bar -->
+<div class="w-full bg-surface-base h-2 rounded overflow-hidden mt-xs">
+<div class="bg-hazard-warning h-full w-[85%]"></div>
+</div>
+<div class="flex justify-between items-center mt-xs text-text-muted font-label-code text-label-code">
+<span class="">PEAK EST: 4.10 m/s</span>
+<span class="text-hazard-warning">TURBULENT</span>
+</div>
+</div>
+<!-- Metric 3: Soil Pore Moisture Saturation -->
+<div class="bg-surface-card rounded-xl p-md flex flex-col justify-between shadow-md relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-hazard-critical"></div>
+<div class="flex items-center justify-between mb-xs">
+<span class="font-label-code text-label-code text-text-secondary">PORE SATURATION</span>
+<span class="material-symbols-outlined text-hazard-critical text-[18px]">water_loss</span>
+</div>
+<div class="my-xxs">
+<div class="flex items-baseline gap-xxs">
+<span class="font-metric-display text-metric-display text-hazard-critical">98.2</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-secondary">% RH</span>
+</div>
+<div class="font-body-sm text-body-sm text-hazard-critical mt-xxs font-semibold">
+          Critical Soil Liquefaction Risk
+        </div>
+<div class="font-label-code text-label-code text-text-muted mt-xxs">
+          DEPTH: <span class="text-text-primary">-1.5m probe</span> (Sub-surface)
+        </div>
+</div>
+<div class="w-full h-12 mt-xs bg-surface-base rounded p-xxs flex items-end">
+<svg class="w-full h-full text-hazard-critical" preserveAspectRatio="none" viewBox="0 0 100 30">
+<path d="M0,15 L20,14 L40,12 L60,8 L80,5 L100,3 L100,30 L0,30 Z" fill="currentColor" fill-opacity="0.2"></path>
+<path d="M0,15 L20,14 L40,12 L60,8 L80,5 L100,3" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex justify-between items-center mt-xs text-text-muted font-label-code text-label-code">
+<span class="">SLOPE SHEAR: 89 kPa</span>
+<span class="text-hazard-critical">UNSTABLE</span>
+</div>
+</div>
+<!-- Metric 4: Ambient Hydro-Meteorology -->
+<div class="bg-surface-card rounded-xl p-md flex flex-col justify-between shadow-md relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-telemetry-cyan"></div>
+<div class="flex items-center justify-between mb-xs">
+<span class="font-label-code text-label-code text-text-secondary">AMBIENT METEOROLOGY</span>
+<span class="material-symbols-outlined text-telemetry-cyan text-[18px]">thermostat</span>
+</div>
+<div class="my-xxs">
+<div class="flex items-baseline justify-between">
+<div>
+<span class="font-metric-display text-metric-display text-text-primary">28.4</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-secondary">°C</span>
+</div>
+<div>
+<span class="font-metric-display text-metric-display text-telemetry-cyan">92</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-secondary">% RH</span>
+</div>
+</div>
+<div class="font-body-sm text-body-sm text-text-secondary mt-xxs">
+          Monsoon Condensation Climax
+        </div>
+<div class="font-label-code text-label-code text-text-muted mt-xxs">
+          DEW POINT: <span class="text-text-primary">27.1°C</span> // BARO: 994 hPa
+        </div>
+</div>
+<div class="w-full bg-surface-base h-2 rounded overflow-hidden mt-xs">
+<div class="bg-telemetry-cyan h-full w-[92%]"></div>
+</div>
+<div class="flex justify-between items-center mt-xs text-text-muted font-label-code text-label-code">
+<span class="">PRECIP: 34 mm/3hr</span>
+<span class="text-telemetry-cyan">SATURATED</span>
+</div>
+</div>
+<!-- Metric 5: Air Quality & Particulates -->
+<div class="bg-surface-card rounded-xl p-md flex flex-col justify-between shadow-md relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-status-nominal"></div>
+<div class="flex items-center justify-between mb-xs">
+<span class="font-label-code text-label-code text-text-secondary">AIR PARTICULATES (PM2.5)</span>
+<span class="material-symbols-outlined text-status-nominal text-[18px]">air</span>
+</div>
+<div class="my-xxs">
+<div class="flex items-baseline gap-xxs">
+<span class="font-metric-display text-metric-display text-status-nominal">48</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-secondary">µg/m³</span>
+</div>
+<div class="font-body-sm text-body-sm text-status-nominal mt-xxs">
+          Moderate (Monsoon Scavenged)
+        </div>
+<div class="font-label-code text-label-code text-text-muted mt-xxs">
+          AQI INDEX: <span class="text-status-nominal">62 (GOOD/MOD)</span>
+</div>
+</div>
+<div class="w-full bg-surface-base h-2 rounded overflow-hidden mt-xs">
+<div class="bg-status-nominal h-full w-[38%]"></div>
+</div>
+<div class="flex justify-between items-center mt-xs text-text-muted font-label-code text-label-code">
+<span class="">CPCB NORMS: COMPLIANT</span>
+<span class="text-status-nominal">NOMINAL</span>
+</div>
+</div>
+</div>
+<!-- Real-Time Dynamic Telemetry Buffer & Prediction Engine -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-dense mb-md">
+<!-- 60-Second Real-Time Multi-Metric Stream Chart (Recharts styled SVG) -->
+<div class="lg:col-span-8 bg-surface-card rounded-xl p-md shadow-md flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-xs gap-xs">
+<div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-telemetry-cyan text-[20px]">show_chart</span>
+<span class="font-headline-md text-headline-md text-text-primary">Brahmaputra Basin Surge &amp; Hydrologic Buffer</span>
+</div>
+<span class="font-label-code text-label-code text-text-muted">60-SEC ROLLING WINDOW // OBSERVED SURGE VS HYDROLOGICAL-RESNET PREDICTION</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="flex items-center gap-xxs font-label-code text-label-code text-text-secondary">
+<span class="w-3 h-1 bg-hazard-critical rounded"></span> Actual Flood Level
+          </div>
+<div class="flex items-center gap-xxs font-label-code text-label-code text-text-secondary">
+<span class="w-3 h-1 bg-edge-ai rounded"></span> AI Predicted Peak (+30m)
+          </div>
+<div class="flex items-center gap-xxs font-label-code text-label-code text-text-secondary">
+<span class="w-3 h-0.5 bg-hazard-warning border-dashed"></span> Danger Mark (100.6m)
+          </div>
+</div>
+</div>
+<!-- Live Rolling SVG Canvas -->
+<div class="w-full h-80 bg-surface-base rounded-lg p-sm relative overflow-hidden flex flex-col justify-between mt-xs">
+<!-- Background Grid Ticks -->
+<div class="absolute inset-0 flex flex-col justify-between p-sm opacity-20 pointer-events-none">
+<div class="w-full border-b border-text-secondary flex justify-between font-label-code text-label-code"><span class="">106.00 m</span><span class="">OVERFLOW RISK</span></div>
+<div class="w-full border-b border-text-secondary flex justify-between font-label-code text-label-code"><span class="">104.00 m</span><span class="">CURRENT SURGE ZONE</span></div>
+<div class="w-full border-b border-text-secondary flex justify-between font-label-code text-label-code"><span class="">102.00 m</span><span class="">WARNING LINE</span></div>
+<div class="w-full border-b border-text-secondary flex justify-between font-label-code text-label-code"><span class="">100.00 m</span><span class="">NORMAL MONSOON BASELINE</span></div>
+</div>
+<!-- Dynamic Chart Rendering -->
+<svg class="w-full h-full z-10" preserveAspectRatio="none" viewBox="0 0 700 240">
+<defs>
+<linearGradient id="floodGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#FF3B30" stop-opacity="0.35"></stop>
+<stop offset="60%" stop-color="#FF6B35" stop-opacity="0.15"></stop>
+<stop offset="100%" stop-color="#0A0E1A" stop-opacity="0"></stop>
+</linearGradient>
+<linearGradient id="aiCurveGradient" x1="0" x2="1" y1="0" y2="0">
+<stop offset="0%" stop-color="#8B5CF6"></stop>
+<stop offset="100%" stop-color="#00D4FF"></stop>
+</linearGradient>
+</defs>
+<!-- Danger Threshold Line (100.6m -> y: 175) -->
+<line opacity="0.8" stroke="#FF6B35" stroke-dasharray="6,4" stroke-width="1" x1="0" x2="700" y1="175" y2="175"></line>
+<!-- Observed Inundation Area -->
+<path d="M0,130 Q70,125 140,118 T280,105 T420,88 T560,65 L620,52 L620,240 L0,240 Z" fill="url(#floodGradient)"></path>
+<!-- Observed Inundation Line -->
+<path d="M0,130 Q70,125 140,118 T280,105 T420,88 T560,65 L620,52" fill="none" stroke="#FF3B30" stroke-linecap="round" stroke-width="3.5"></path>
+<!-- Current Time Vertical Cursor -->
+<line stroke="#00D4FF" stroke-dasharray="2,2" stroke-width="1.5" x1="620" x2="620" y1="0" y2="240"></line>
+<circle cx="620" cy="52" fill="#FF3B30" r="5" stroke="#FFFFFF" stroke-width="2"></circle>
+<!-- Edge AI Predictive Projection Extension -->
+<path d="M620,52 Q650,42 700,32" fill="none" stroke="url(#aiCurveGradient)" stroke-dasharray="4,4" stroke-width="2.5"></path>
+<circle cx="700" cy="32" fill="#8B5CF6" r="4"></circle>
+<!-- Text Annotations inside Canvas -->
+<text class="font-label-code text-[11px] font-bold" fill="#FF3B30" x="500" y="42">104.82m (CRITICAL NOW)</text>
+<text class="font-label-code text-[11px]" fill="#8B5CF6" x="590" y="24">AI PROJECTED PEAK: 105.40m (+30M)</text>
+</svg>
+<!-- X-Axis Telemetry Timestamps -->
+<div class="flex justify-between items-center text-text-muted font-label-code text-label-code z-10 pt-xxs">
+<span class="">T - 60s</span>
+<span class="">T - 45s</span>
+<span class="">T - 30s</span>
+<span class="">T - 15s</span>
+<span class="text-telemetry-cyan font-bold">LIVE (T-0)</span>
+<span class="text-edge-ai">+15s FORECAST</span>
+<span class="text-edge-ai">+30s FORECAST</span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-xs mt-xs pt-xs bg-surface-base px-xs py-xxs rounded">
+<div class="flex items-center gap-xs font-label-code text-label-code">
+<span class="text-text-muted">SENSOR HARMONIC RESIDUE:</span>
+<span class="text-status-nominal font-bold">0.032 RMS (CALIBRATED)</span>
+</div>
+<div class="flex items-center gap-xs font-label-code text-label-code">
+<span class="text-text-muted">DISSOLVED SILT DENSITY:</span>
+<span class="text-hazard-warning font-bold">1,840 mg/L</span>
+</div>
+<div class="flex items-center gap-xs font-label-code text-label-code">
+<span class="text-text-muted">COMPUTE CORE TEMPERATURE:</span>
+<span class="text-telemetry-cyan font-bold">42.8°C</span>
+</div>
+</div>
+</div>
+<!-- Edge AI Deep Inference Stream & Payload Hex Log -->
+<div class="lg:col-span-4 bg-surface-card rounded-xl p-md shadow-md flex flex-col justify-between">
+<div class="flex items-center justify-between pb-xs">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-edge-ai text-[20px]">terminal</span>
+<span class="font-headline-md text-headline-md text-text-primary">Edge Inference Log</span>
+</div>
+<div class="flex items-center gap-xxs px-xs py-xxs bg-edge-ai/10 rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-edge-ai animate-pulse"></span>
+<span class="font-label-code text-label-code text-edge-ai font-bold">PARSER OK</span>
+</div>
+</div>
+<!-- Real-Time Scrolling Log Stream -->
+<div class="w-full h-80 bg-surface-base rounded-lg p-xs font-label-code text-label-code text-text-secondary overflow-y-auto space-y-xxs flex flex-col-reverse" id="inference-log-stream"><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:30.981]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.48%</span> sig=0x1B flow=3.51m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:28.847]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.25%</span> sig=0xA2 flow=3.50m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:26.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.58%</span> sig=0x4F flow=3.52m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:24.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.49%</span> sig=0x4F flow=3.51m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:21.252]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.25%</span> sig=0x1B flow=3.50m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:19.252]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.85%</span> sig=0x88 flow=3.48m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:17.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.22%</span> sig=0x4F flow=3.47m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:13.931]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.67%</span> sig=0x1B flow=3.45m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:11.531]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.91%</span> sig=0x1B flow=3.45m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:09.131]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.78%</span> sig=0x5C flow=3.41m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:06.730]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.31%</span> sig=0x5C flow=3.43m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:04.331]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.38%</span> sig=0x4F flow=3.44m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:38:01.931]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.82%</span> sig=0x1B flow=3.47m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:59.531]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.28%</span> sig=0x1B flow=3.47m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:57.253]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.37%</span> sig=0x1B flow=3.48m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:55.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.67%</span> sig=0xA2 flow=3.48m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:53.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.38%</span> sig=0x4F flow=3.46m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:50.254]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.37%</span> sig=0xA2 flow=3.44m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:48.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.15%</span> sig=0x1B flow=3.44m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:45.254]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.50%</span> sig=0x1B flow=3.42m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:43.253]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.78%</span> sig=0x4F flow=3.39m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:41.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.34%</span> sig=0x4F flow=3.38m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:38.254]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.48%</span> sig=0x4F flow=3.39m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:36.254]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.16%</span> sig=0x5C flow=3.38m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:33.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.12%</span> sig=0xA2 flow=3.40m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:31.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.06%</span> sig=0x5C flow=3.43m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:29.254]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.24%</span> sig=0x5C flow=3.45m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:26.251]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.42%</span> sig=0x4F flow=3.44m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:23.531]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.27%</span> sig=0x5C flow=3.45m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:21.131]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.94%</span> sig=0xA2 flow=3.45m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:18.731]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.77%</span> sig=0x5C flow=3.43m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:16.331]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.33%</span> sig=0x5C flow=3.40m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:13.930]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">95.28%</span> sig=0xA2 flow=3.42m/s</div><div class="p-xxs rounded text-text-secondary"><span class="text-text-muted">[23:37:11.530]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">94.96%</span> sig=0x88 flow=3.46m/s</div></div>
+<div class="flex items-center justify-between mt-xs pt-xs">
+<span class="font-label-code text-label-code text-text-muted">BUFFER: 2,048 FRAMES</span>
+<button class="font-label-code text-label-code text-telemetry-cyan hover:underline uppercase" id="btn-pause-stream">PAUSE STREAM</button>
+<button class="font-label-code text-label-code text-text-secondary hover:text-text-primary uppercase" id="btn-clear-log">CLEAR LOG</button>
+</div>
+</div>
+</div>
+<!-- Command, Diagnostics & Emergency Actuation Panel -->
+<div class="w-full bg-surface-card rounded-xl p-md shadow-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between pb-sm gap-xs">
+<div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-hazard-warning text-[22px]">settings_remote</span>
+<h2 class="font-headline-md text-headline-md text-text-primary">Node Hardware Control &amp; Tactical Dispatch</h2>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary">Low-latency authenticated command bus routed via encrypted RedCap / LoRa C2 channel</p>
+</div>
+<div class="flex items-center gap-xs">
+<span class="font-label-code text-label-code text-text-muted">AUTH CIPHER:</span>
+<span class="font-label-code text-label-code text-status-nominal bg-surface-base px-xs py-xxs rounded font-bold">AES-256-GCM KEY VALID</span>
+</div>
+</div>
+<!-- Actuation Button Bento Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-sm">
+<!-- Action 1: Manual Ping Sensor -->
+<div class="bg-surface-elevated p-md rounded-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-xxs">
+<span class="font-metric-label text-metric-label text-text-primary">ULTRASONIC PING</span>
+<span class="material-symbols-outlined text-telemetry-cyan text-[18px]">sensors</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mb-sm">Triggers immediate high-frequency echo sounding for instantaneous riverbed profile.</p>
+</div>
+<button class="w-full py-xs px-sm bg-telemetry-cyan hover:opacity-90 text-surface-base font-headline-md text-body-sm font-bold uppercase rounded transition-all flex items-center justify-center gap-xxs shadow-sm" id="btn-sensor-ping">
+<span class="material-symbols-outlined text-[16px]">radar</span> SEND SENSOR PING
+        </button>
+</div>
+<!-- Action 2: Reboot Edge MCU -->
+<div class="bg-surface-elevated p-md rounded-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-xxs">
+<span class="font-metric-label text-metric-label text-text-primary">MICROCONTROLLER REBOOT</span>
+<span class="material-symbols-outlined text-text-secondary text-[18px]">restart_alt</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mb-sm">Soft-restart Edge Cortex-M7 RTOS core. Radio downlink holds connection state.</p>
+</div>
+<button class="w-full py-xs px-sm bg-surface-base hover:bg-surface-container-high text-telemetry-cyan font-headline-md text-body-sm font-bold uppercase rounded transition-all flex items-center justify-center gap-xxs" id="btn-reboot-mcu">
+<span class="material-symbols-outlined text-[16px]">power_settings_new</span> REBOOT RTOS CORE
+        </button>
+</div>
+<!-- Action 3: Trigger Physical Hazard Siren -->
+<div class="bg-surface-elevated p-md rounded-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-xxs">
+<span class="font-metric-label text-metric-label text-hazard-warning">LOCAL HAZARD SIREN</span>
+<span class="material-symbols-outlined text-hazard-warning text-[18px]">campaign</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mb-sm">Sounds 120dB acoustic horn on station tower for immediate evacuation along 3km river perimeter.</p>
+</div>
+<button class="w-full py-xs px-sm bg-hazard-warning hover:opacity-90 text-surface-base font-headline-md text-body-sm font-bold uppercase rounded transition-all flex items-center justify-center gap-xxs shadow-sm" id="btn-trigger-siren">
+<span class="material-symbols-outlined text-[16px]">volume_up</span> ACTIVATE SIREN (120dB)
+        </button>
+</div>
+<!-- Action 4: Emergency Dispatch SMS (Critical) -->
+<div class="bg-surface-elevated p-md rounded-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-xxs">
+<span class="font-metric-label text-metric-label text-hazard-critical font-bold">ASDMA CRISIS DISPATCH</span>
+<span class="material-symbols-outlined text-hazard-critical text-[18px] animate-pulse">crisis_alert</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary mb-sm">Broadcasting CAP-compliant emergency SMS to Assam Disaster Response &amp; NDRF Battalion 1st Base.</p>
+</div>
+<button class="w-full py-xs px-sm bg-hazard-critical hover:bg-error-container text-text-primary font-headline-md text-body-sm font-bold uppercase rounded transition-all flex items-center justify-center gap-xxs shadow-sm" id="btn-dispatch-sms">
+<span class="material-symbols-outlined text-[16px]">emergency</span> DISPATCH CRITICAL SMS
+        </button>
+</div>
+</div>
+<!-- Status Toast / Feedback Output Bar -->
+<div class="mt-sm p-xs rounded bg-surface-base flex items-center justify-between font-label-code text-label-code" id="action-feedback-bar">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-status-nominal text-[16px]">check_circle</span>
+<span class="text-text-primary" id="feedback-message">NODE #IN-ASM-042 COMMAND INTERFACE SYNCHRONIZED — READY FOR OPERATOR INSTRUCTION</span>
+</div>
+<div class="text-text-muted">LATENCY: 14ms (VIA REDCAP CELLULAR)</div>
+</div>
+</div>
+</div>
+<!-- Inline Interactive Script for Micro-interactions and Simulated Real-Time Streaming -->
+<script>
+  (function() {
+    const waterLevelEl = document.getElementById('metric-water-level');
+    const flowVelocityEl = document.getElementById('metric-flow-velocity');
+    const logStream = document.getElementById('inference-log-stream');
+    const feedbackMsg = document.getElementById('feedback-message');
+    const btnPing = document.getElementById('btn-sensor-ping');
+    const btnReboot = document.getElementById('btn-reboot-mcu');
+    const btnSiren = document.getElementById('btn-trigger-siren');
+    const btnSms = document.getElementById('btn-dispatch-sms');
+    const btnClearLog = document.getElementById('btn-clear-log');
+    const btnPause = document.getElementById('btn-pause-stream');
+
+    let streamActive = true;
+    let baseWaterLevel = 104.82;
+    let baseVelocity = 3.40;
+
+    // Simulated Real-Time Sensor Metric Ticking
+    setInterval(() => {
+      if (!streamActive) return;
+      const deltaWater = (Math.random() * 0.04 - 0.015);
+      baseWaterLevel = Math.max(104.5, Math.min(105.5, baseWaterLevel + deltaWater));
+      if (waterLevelEl) {
+        waterLevelEl.textContent = baseWaterLevel.toFixed(2);
+      }
+
+      const deltaVelocity = (Math.random() * 0.06 - 0.03);
+      baseVelocity = Math.max(3.1, Math.min(3.8, baseVelocity + deltaVelocity));
+      if (flowVelocityEl) {
+        flowVelocityEl.textContent = baseVelocity.toFixed(2);
+      }
+    }, 1800);
+
+    // Dynamic Edge Log Generator
+    const sampleHexPrefixes = ['0x4F', '0x5C', '0xA2', '0x1B', '0x88'];
+    setInterval(() => {
+      if (!streamActive || !logStream) return;
+      const d = new Date();
+      const timeStr = d.toTimeString().split(' ')[0] + '.' + String(d.getMilliseconds()).padStart(3, '0');
+      const hexVal = sampleHexPrefixes[Math.floor(Math.random() * sampleHexPrefixes.length)];
+      const conf = (94.0 + Math.random() * 1.5).toFixed(2);
+      
+      const newEntry = document.createElement('div');
+      newEntry.className = 'p-xxs rounded text-text-secondary';
+      newEntry.innerHTML = `<span class="text-text-muted">[${timeStr}]</span> INF_STREAM: ResNet-v2.3 inference conf=<span class="text-status-nominal font-bold">${conf}%</span> sig=${hexVal} flow=${baseVelocity.toFixed(2)}m/s`;
+
+      logStream.insertBefore(newEntry, logStream.firstChild);
+
+      // Keep stream clamped to reasonable DOM nodes
+      if (logStream.children.length > 25) {
+        logStream.removeChild(logStream.lastChild);
+      }
+    }, 2400);
+
+    // Interactive Control Handlers
+    if (btnPing) {
+      btnPing.addEventListener('click', () => {
+        feedbackMsg.textContent = 'TRANSMITTING ECHO SOUNDER PING (38kHz)... RESPONSE: 14.82m PROBE DEPTH CONFIRMED [0.04ms]';
+        feedbackMsg.className = 'text-telemetry-cyan font-bold';
+      });
+    }
+
+    if (btnReboot) {
+      btnReboot.addEventListener('click', () => {
+        feedbackMsg.textContent = 'COMMAND DISPATCHED: CORTEX-M7 RTOS RESTART TRIGGERED. TELEMETRY HOLDS ON LORAWAN CACHE.';
+        feedbackMsg.className = 'text-hazard-warning font-bold';
+      });
+    }
+
+    if (btnSiren) {
+      btnSiren.addEventListener('click', () => {
+        feedbackMsg.textContent = 'HAZARD SIREN ACTIVATED: 120dB WARBLE AUDIBLE ON MAST-042. EVACUATION ZONE RADIUS 3KM ACTIVE.';
+        feedbackMsg.className = 'text-hazard-warning font-bold';
+      });
+    }
+
+    if (btnSms) {
+      btnSms.addEventListener('click', () => {
+        feedbackMsg.textContent = 'CAP EMERGENCY ALERT BROADCAST: SENT TO ASDMA DIBRUGARH HQ & NDRF 1ST BN (2,410 RECIPIENTS).';
+        feedbackMsg.className = 'text-hazard-critical font-bold';
+      });
+    }
+
+    if (btnClearLog && logStream) {
+      btnClearLog.addEventListener('click', () => {
+        logStream.innerHTML = '<div class="p-xxs rounded text-text-muted">Log stream cleared by operator. Buffer reset.</div>';
+      });
+    }
+
+    if (btnPause) {
+      btnPause.addEventListener('click', () => {
+        streamActive = !streamActive;
+        btnPause.textContent = streamActive ? 'PAUSE STREAM' : 'RESUME STREAM';
+        feedbackMsg.textContent = streamActive ? 'TELEMETRY INGESTION RESUMED' : 'TELEMETRY STREAM FROZEN FOR INSPECTION';
+      });
+    }
+  })();
+</script></main></div>
+
+</body></html>

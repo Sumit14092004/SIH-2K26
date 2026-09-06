@@ -1,0 +1,726 @@
+<!DOCTYPE html><html class="dark" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-surface-variant":"#bbc9cf","on-primary-container":"#00586b","on-secondary":"#3c0091","inverse-surface":"#dfe2f3","outline-variant":"#3c494e","tertiary-container":"#49da9f","error-container":"#93000a","text-secondary":"#94A3B8","outline":"#859398","inverse-on-surface":"#2c303d","tertiary-fixed-dim":"#4edea3","surface":"#0f131f","surface-tint":"#3cd7ff","secondary-fixed":"#e9ddff","text-primary":"#F1F5F9","primary":"#a8e8ff","error":"#ffb4ab","secondary-container":"#571bc1","background":"#0f131f","surface-base":"#0A0E1A","on-surface":"#dfe2f3","on-primary":"#003642","on-tertiary-container":"#005c3e","on-tertiary-fixed-variant":"#005236","secondary":"#d0bcff","on-error-container":"#ffdad6","surface-elevated":"#1A2233","telemetry-cyan":"#00D4FF","border-subtle":"#25314C","on-primary-fixed":"#001f27","on-background":"#dfe2f3","hazard-critical":"#FF3B30","on-primary-fixed-variant":"#004e5f","surface-container-lowest":"#0a0e1a","tertiary-fixed":"#6ffbbe","surface-variant":"#313442","surface-bright":"#353946","surface-container-low":"#171b28","on-error":"#690005","tertiary":"#6af7ba","surface-dim":"#0f131f","hazard-warning":"#FF6B35","on-secondary-fixed-variant":"#5516be","status-nominal":"#10B981","on-secondary-container":"#c4abff","on-secondary-fixed":"#23005c","secondary-fixed-dim":"#d0bcff","on-tertiary-fixed":"#002113","surface-card":"#141C2E","inverse-primary":"#00677e","surface-overlay":"#222C42","surface-container-highest":"#313442","primary-container":"#00d4ff","primary-fixed":"#b4ebff","border-glow":"#00D4FF33","primary-fixed-dim":"#3cd7ff","edge-ai":"#8B5CF6","text-muted":"#475569","surface-container":"#1b1f2c","surface-container-high":"#262a37","on-tertiary":"#003824"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"xxs":"0.25rem","xxl":"3rem","gutter-normal":"1rem","xs":"0.5rem","xl":"2rem","sidebar-width":"18rem","gutter-dense":"0.75rem","sm":"0.75rem","md":"1rem","lg":"1.5rem","telemetry-rail":"22rem"},"fontFamily":{"headline-md":["IBM Plex Sans"],"telemetry-unit":["JetBrains Mono"],"body-md":["IBM Plex Sans"],"headline-xl":["IBM Plex Sans"],"body-lg":["IBM Plex Sans"],"headline-xl-mobile":["IBM Plex Sans"],"label-code":["JetBrains Mono"],"body-sm":["IBM Plex Sans"],"metric-label":["JetBrains Mono"],"metric-display":["JetBrains Mono"],"headline-lg":["IBM Plex Sans"]},"fontSize":{"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"0em","fontWeight":"600"}],"telemetry-unit":["11px",{"lineHeight":"14px","letterSpacing":"0.05em","fontWeight":"400"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl-mobile":["28px",{"lineHeight":"34px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-code":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"metric-label":["12px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"500"}],"metric-display":["28px",{"lineHeight":"32px","letterSpacing":"-0.03em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}]}}}}</script></head><body class="bg-surface-base text-on-surface font-body-md text-body-md antialiased min-h-screen"><header class="fixed top-0 left-0 w-full z-50 bg-surface-card/95 backdrop-blur-md"><div class="h-20 w-full px-gutter-normal flex flex-col justify-between pt-xxs pb-xs"><div class="flex items-center justify-between gap-md"><div class="flex items-center gap-md"><div class="flex items-center gap-xs"><div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0"><img src="https://lh3.googleusercontent.com/aida/AEtjO1UDRr3UnDnAUmE7TA_GsOl5SiW4dxSCkpG9ZWu-3yN_5XqcFUv49-VdLoXJCR95Ug09nDW3Bp5K6Uww_5TG8OCogNipnSzDLADh__QFPqYuPkrSFMRHClW2QetiBtbPZcSl2vgz1BDNRbcbeWDN_ZnZCvneWVhnts9vPvVOjemn3-b_SktRkHPs-bowK-9zgdrn8WY_QBCexVffarosaUPAH6pgn_9kn48WLeSLpMMM6dlUNNh-7lyF5w" alt="AAPDA-KADABRA Logo" class="w-full h-full object-contain"></div><div class="flex flex-col"><span class="font-headline-md text-headline-md text-text-primary tracking-tight leading-none">AAPDA-KADABRA</span><span class="font-label-code text-label-code text-telemetry-cyan uppercase">HAZARD INTELLIGENCE &amp; EARLY WARNING</span></div></div><div class="hidden lg:flex items-center gap-xs px-xs py-xxs rounded bg-hazard-critical/15"><span class="w-2 h-2 rounded-full bg-hazard-critical animate-pulse"></span><span class="font-label-code text-label-code text-hazard-critical uppercase tracking-wider font-semibold">NDMA LEVEL: RED // 158 NODES ACTIVE</span></div><div class="hidden xl:flex items-center gap-xs px-xs py-xxs bg-surface-elevated rounded"><span class="material-symbols-outlined text-outline text-[16px]">schedule</span><span class="font-label-code text-label-code text-text-secondary">IST UTC+5:30</span><span class="font-metric-label text-metric-label text-text-primary">14:28:49</span></div></div><div class="hidden md:flex flex-1 max-w-xl mx-md items-center gap-xs px-sm py-xxs bg-surface-elevated rounded overflow-hidden"><span class="material-symbols-outlined text-hazard-warning text-[18px] shrink-0">warning</span><div class="font-label-code text-label-code text-text-secondary truncate"><span class="text-hazard-warning font-semibold">[ALERT]</span> AQI VECTOR CRITICAL SECTOR 07B NCR // CYCLONIC DEPRESSION BAY OF BENGAL LAT 14.2 N LON 84.8 E // INGESTING GROUND TELEMETRY...</div></div><div class="flex items-center gap-sm"><div class="hidden sm:flex items-center gap-xs px-xs py-xxs rounded bg-status-nominal/10"><span class="material-symbols-outlined text-status-nominal text-[16px]">satellite_alt</span><span class="font-label-code text-label-code text-status-nominal">INSAT-3DR ONLINE 99.8%</span></div><button class="flex items-center gap-xxs px-xs py-xxs rounded bg-surface-elevated hover:bg-surface-container-high text-text-secondary hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-hazard-warning text-[18px]">volume_up</span><span class="hidden xl:inline font-label-code text-label-code">HAZARD SIREN</span></button><button class="flex items-center gap-xxs px-sm py-xxs rounded bg-hazard-critical hover:bg-error-container text-text-primary transition-colors"><span class="material-symbols-outlined text-[16px]">crisis_alert</span><span class="hidden md:inline font-headline-md text-body-sm font-semibold uppercase tracking-wider">BROADCAST</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-center justify-between"><nav class="flex items-center gap-xxs overflow-x-auto" data-active-classes="text-telemetry-cyan bg-surface-elevated rounded"><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="live-command-center" href="#">Live Command Center</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="node-telemetry-and-inspection" href="#">Node Telemetry &amp; Inspection</a><a aria-current="page" class="px-xs py-xxs font-body-sm transition-colors whitespace-nowrap text-telemetry-cyan bg-surface-elevated rounded" data-path="regional-risk-matrix" href="#">Regional Risk Matrix</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="early-warning-feed" href="#">Early Warning Feed</a><a class="px-xs py-xxs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors whitespace-nowrap" data-path="network-health-and-mesh" href="#">Network Health &amp; Mesh</a></nav><div class="hidden md:flex items-center gap-xs text-text-muted font-label-code text-label-code"><span class="">GRID: 28.6139° N, 77.2090° E</span><span class="">REFRESH: 250MS</span></div></div></div></header><aside class="fixed left-0 top-20 bottom-0 w-sidebar-width bg-surface-card z-40 hidden xl:flex flex-col justify-between p-sm overflow-y-auto"><div class="space-y-md"><div class="flex items-center justify-between pb-xs"><span class="font-metric-label text-metric-label text-text-secondary uppercase tracking-widest">CORE DIRECTORY</span><span class="font-label-code text-label-code text-telemetry-cyan">ACTIVE MESH</span></div><nav class="space-y-xxs" data-active-classes="bg-surface-elevated text-telemetry-cyan"><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="live-command-center" href="#"><span class="font-body-sm text-body-sm">Tactical Map Surface</span><span class="material-symbols-outlined text-[16px]">map</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="node-telemetry-and-inspection" href="#"><span class="font-body-sm text-body-sm">Atmospheric Sensors</span><span class="material-symbols-outlined text-[16px]">sensors</span></a><a aria-current="page" class="flex items-center justify-between px-xs py-xs rounded transition-all bg-surface-elevated text-telemetry-cyan" data-path="regional-risk-matrix" href="#"><span class="font-body-sm text-body-sm">Hazard Heatmaps</span><span class="material-symbols-outlined text-[16px]">heat_pump</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="early-warning-feed" href="#"><span class="font-body-sm text-body-sm">Crisis Dispatch Log</span><span class="material-symbols-outlined text-[16px]">notification_important</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-on-surface-variant hover:bg-surface-elevated hover:text-on-surface transition-all" data-path="network-health-and-mesh" href="#"><span class="font-body-sm text-body-sm">Edge Gateway Status</span><span class="material-symbols-outlined text-[16px]">hub</span></a></nav></div><div class="p-xs rounded bg-surface-elevated space-y-xxs"><div class="flex items-center justify-between"><span class="font-label-code text-label-code text-text-secondary">BANDWIDTH LOAD</span><span class="font-label-code text-label-code text-status-nominal">142 MB/S</span></div><div class="w-full bg-surface-base h-1 rounded overflow-hidden"><div class="bg-telemetry-cyan h-full w-[64%]"></div></div><div class="flex justify-between font-label-code text-label-code text-text-muted"><span class="">ISRO GAGAN SYNC</span><span class="">NOMINAL</span></div></div></aside><div class="xl:pl-sidebar-width w-full"><main class="relative pt-20 w-full px-gutter-normal bg-surface-base min-h-screen"><div class="flex flex-col w-full">
+<div class="relative w-full overflow-hidden py-md">
+<div class="absolute -top-24 -left-20 w-96 h-96 bg-telemetry-cyan/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 right-0 w-[30rem] h-[30rem] bg-hazard-critical/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-md mb-lg">
+<div class="space-y-xs">
+<div class="flex items-center gap-xs">
+<span class="px-xs py-xxs rounded bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code uppercase tracking-widest flex items-center gap-xxs">
+<span class="w-1.5 h-1.5 rounded-full bg-hazard-critical animate-ping"></span>
+            NDMA SYNCHRONIZED MATRIX // REV 2025.10-D
+          </span>
+<span class="font-label-code text-label-code text-text-muted">| SECTOR TELEMETRY 7-ZONE CLUSTER</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-text-primary tracking-tight">
+          Regional Risk Assessment &amp; Vulnerability Matrix
+        </h1>
+<p class="font-body-md text-body-md text-text-secondary max-w-3xl">
+          Real-time planetary sensing feeds synthesizing hydrological gauge levels, satellite thermal anomalies, optical depth spectrography, and geotechnical boreholes across critical Indian hazard corridors.
+        </p>
+</div>
+<div class="flex flex-wrap items-center gap-xs">
+<div class="px-sm py-xs rounded bg-surface-card flex items-center gap-sm border-b-2 border-hazard-critical"><div class="flex flex-col"><span class="font-label-code text-label-code text-text-muted uppercase">NDMA COMPOSITE</span><span class="font-metric-label text-metric-label text-hazard-critical font-bold">ALERT LEVEL: RED</span></div><span class="material-symbols-outlined text-hazard-critical text-[24px]">shield_with_heart</span></div>
+<button class="flex items-center gap-xs px-sm py-xs rounded bg-telemetry-cyan text-surface-base font-headline-md text-body-sm font-semibold tracking-wide hover:brightness-110 active:scale-95 transition-all shadow-md shadow-telemetry-cyan/10" id="exportBriefingBtn">
+<span class="material-symbols-outlined text-[18px]">download_for_offline</span>
+<span class="">EXPORT NDMA BRIEFING (PDF/CSV)</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-sm mb-lg">
+<div class="rounded bg-surface-card p-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-elevated transition-colors">
+<div class="absolute top-0 left-0 h-0.5 w-full bg-hazard-critical"></div>
+<div class="flex items-start justify-between mb-xs">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-text-secondary uppercase">HYDROLOGICAL VECTOR</span>
+<span class="font-headline-md text-body-md text-text-primary">Flood Inundation</span>
+</div>
+<span class="px-xs py-xxs rounded-full bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code">CRITICAL</span>
+</div>
+<div class="my-xs flex items-baseline justify-between">
+<div>
+<span class="font-metric-display text-metric-display text-hazard-critical">94</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">/100</span>
+</div>
+<div class="text-right">
+<span class="font-label-code text-label-code text-hazard-critical block">ASSAM : BRAHMAPUTRA</span>
+<span class="font-label-code text-label-code text-text-muted">+4.8m ABV DANGER</span>
+</div>
+</div>
+<div class="h-10 w-full py-xxs">
+<svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 140 32">
+<path class="text-hazard-critical" d="M0,28 Q20,24 40,26 T80,18 T110,8 T140,2" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle class="text-hazard-critical" cx="140" cy="2" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+<div class="pt-xs flex items-center justify-between font-label-code text-label-code text-text-secondary bg-surface-base/40 px-xs py-xxs rounded">
+<span class="">Kerala: 68/100 (Elevated)</span>
+<span class="text-hazard-warning flex items-center gap-xxs"><span class="material-symbols-outlined text-[12px]">trending_up</span> PEAKING</span>
+</div>
+</div>
+<div class="rounded bg-surface-card p-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-elevated transition-colors">
+<div class="absolute top-0 left-0 h-0.5 w-full bg-hazard-warning"></div>
+<div class="flex items-start justify-between mb-xs">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-text-secondary uppercase">THERMAL SATELLITE</span>
+<span class="font-headline-md text-body-md text-text-primary">Wildfire &amp; Forest Heat</span>
+</div>
+<span class="px-xs py-xxs rounded-full bg-hazard-warning/15 text-hazard-warning font-label-code text-label-code">HIGH</span>
+</div>
+<div class="my-xs flex items-baseline justify-between">
+<div>
+<span class="font-metric-display text-metric-display text-hazard-warning">82</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">/100</span>
+</div>
+<div class="text-right">
+<span class="font-label-code text-label-code text-hazard-warning block">UTTARAKHAND : PURI</span>
+<span class="font-label-code text-label-code text-text-muted">418 MODIS THERM CLUSTERS</span>
+</div>
+</div>
+<div class="h-10 w-full py-xxs">
+<svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 140 32">
+<path class="text-hazard-warning" d="M0,24 Q30,22 60,16 T100,10 T120,12 T140,9" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle class="text-hazard-warning" cx="140" cy="9" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+<div class="pt-xs flex items-center justify-between font-label-code text-label-code text-text-secondary bg-surface-base/40 px-xs py-xxs rounded">
+<span class="">Himachal: 74/100 (High)</span>
+<span class="text-hazard-warning flex items-center gap-xxs"><span class="material-symbols-outlined text-[12px]">trending_up</span> RISING</span>
+</div>
+</div>
+<div class="rounded bg-surface-card p-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-elevated transition-colors">
+<div class="absolute top-0 left-0 h-0.5 w-full bg-hazard-critical"></div>
+<div class="flex items-start justify-between mb-xs">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-text-secondary uppercase">SPECTROMETRIC PM2.5</span>
+<span class="font-headline-md text-body-md text-text-primary">Atmospheric Toxicity</span>
+</div>
+<span class="px-xs py-xxs rounded-full bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code">HAZARDOUS</span>
+</div>
+<div class="my-xs flex items-baseline justify-between">
+<div>
+<span class="font-metric-display text-metric-display text-hazard-critical">96</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">/100</span>
+</div>
+<div class="text-right">
+<span class="font-label-code text-label-code text-hazard-critical block">DELHI NCR : SECTOR 04</span>
+<span class="font-label-code text-label-code text-text-muted">PM2.5 412 µg/m³</span>
+</div>
+</div>
+<div class="h-10 w-full py-xxs">
+<svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 140 32">
+<path class="text-hazard-critical" d="M0,18 Q30,12 70,16 T100,6 T125,4 T140,2" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle class="text-hazard-critical" cx="140" cy="2" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+<div class="pt-xs flex items-center justify-between font-label-code text-label-code text-text-secondary bg-surface-base/40 px-xs py-xxs rounded">
+<span class="">AQI Index: 486 (Severe+)</span>
+<span class="text-hazard-critical flex items-center gap-xxs"><span class="material-symbols-outlined text-[12px]">north_east</span> PEAKING</span>
+</div>
+</div>
+<div class="rounded bg-surface-card p-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-elevated transition-colors">
+<div class="absolute top-0 left-0 h-0.5 w-full bg-hazard-critical"></div>
+<div class="flex items-start justify-between mb-xs">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-text-secondary uppercase">GEODETIC INCLINOMETER</span>
+<span class="font-headline-md text-body-md text-text-primary">Slope Instability</span>
+</div>
+<span class="px-xs py-xxs rounded-full bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code">SEVERE</span>
+</div>
+<div class="my-xs flex items-baseline justify-between">
+<div>
+<span class="font-metric-display text-metric-display text-hazard-critical">88</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">/100</span>
+</div>
+<div class="text-right">
+<span class="font-label-code text-label-code text-hazard-critical block">UTK : CHAMOLI ZONE</span>
+<span class="font-label-code text-label-code text-text-muted">SHEAR STRAIN 14.2 mm/D</span>
+</div>
+</div>
+<div class="h-10 w-full py-xxs">
+<svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 140 32">
+<path class="text-hazard-critical" d="M0,26 Q40,24 70,20 T110,12 T130,8 T140,5" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle class="text-hazard-critical" cx="140" cy="5" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+<div class="pt-xs flex items-center justify-between font-label-code text-label-code text-text-secondary bg-surface-base/40 px-xs py-xxs rounded">
+<span class="">Joshimath: Subsidence 8.1cm</span>
+<span class="text-hazard-critical flex items-center gap-xxs"><span class="material-symbols-outlined text-[12px]">trending_up</span> ACCELERATING</span>
+</div>
+</div>
+<div class="rounded bg-surface-card p-sm flex flex-col justify-between relative overflow-hidden group hover:bg-surface-elevated transition-colors md:col-span-2 xl:col-span-1">
+<div class="absolute top-0 left-0 h-0.5 w-full bg-status-nominal"></div>
+<div class="flex items-start justify-between mb-xs">
+<div class="flex flex-col">
+<span class="font-label-code text-label-code text-text-secondary uppercase">CHEMICAL EFFLUENT</span>
+<span class="font-headline-md text-body-md text-text-primary">Industrial Toxicity</span>
+</div>
+<span class="px-xs py-xxs rounded-full bg-status-nominal/15 text-status-nominal font-label-code text-label-code">NOMINAL</span>
+</div>
+<div class="my-xs flex items-baseline justify-between">
+<div>
+<span class="font-metric-display text-metric-display text-status-nominal">54</span>
+<span class="font-telemetry-unit text-telemetry-unit text-text-muted">/100</span>
+</div>
+<div class="text-right">
+<span class="font-label-code text-label-code text-status-nominal block">GUJ : ANKLESHWAR</span>
+<span class="font-label-code text-label-code text-text-muted">SO2/NOx IN PERMITTED BAND</span>
+</div>
+</div>
+<div class="h-10 w-full py-xxs">
+<svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 140 32">
+<path class="text-status-nominal" d="M0,14 Q35,10 70,16 T105,18 T125,16 T140,15" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle class="text-status-nominal" cx="140" cy="15" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+<div class="pt-xs flex items-center justify-between font-label-code text-label-code text-text-secondary bg-surface-base/40 px-xs py-xxs rounded">
+<span class="">Maharashtra MIDC: 58/100</span>
+<span class="text-status-nominal flex items-center gap-xxs"><span class="material-symbols-outlined text-[12px]">horizontal_rule</span> STABILIZING</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-md mb-lg">
+<div class="xl:col-span-8 rounded bg-surface-card p-md flex flex-col justify-between">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-sm mb-md pb-xs bg-surface-elevated/40 p-xs rounded">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-telemetry-cyan text-[20px]">ssid_chart</span>
+<span class="font-metric-label text-metric-label text-text-primary uppercase tracking-wider">Comparative 7-Day Trajectory: Priority Geos</span>
+</div>
+<div class="flex items-center gap-xs text-label-code font-label-code">
+<span class="flex items-center gap-xxs text-hazard-critical"><span class="w-2.5 h-1 bg-hazard-critical rounded"></span> Assam (Flood)</span>
+<span class="flex items-center gap-xxs text-hazard-warning"><span class="w-2.5 h-1 bg-hazard-warning rounded"></span> Delhi NCR (AQI)</span>
+<span class="flex items-center gap-xxs text-secondary"><span class="w-2.5 h-1 bg-secondary rounded"></span> Uttarakhand (Landslide)</span>
+<span class="flex items-center gap-xxs text-status-nominal"><span class="w-2.5 h-1 bg-status-nominal rounded"></span> Odisha (Coastal)</span>
+</div>
+</div>
+<div class="relative w-full h-64 bg-surface-base/60 rounded p-sm flex flex-col justify-between">
+<div class="absolute inset-0 grid grid-rows-4 pointer-events-none p-sm">
+<div class="border-b border-white/[0.03] flex justify-end items-start pr-xxs"><span class="font-label-code text-[10px] text-text-muted">100 - MAX HAZARD</span></div>
+<div class="border-b border-white/[0.03] flex justify-end items-start pr-xxs"><span class="font-label-code text-[10px] text-text-muted">75 - SEVERE</span></div>
+<div class="border-b border-white/[0.03] flex justify-end items-start pr-xxs"><span class="font-label-code text-[10px] text-text-muted">50 - ELEVATED</span></div>
+<div class="flex justify-end items-start pr-xxs"><span class="font-label-code text-[10px] text-text-muted">25 - BASELINE</span></div>
+</div>
+<svg class="w-full h-full overflow-visible z-10" preserveAspectRatio="none" viewBox="0 0 700 200">
+<!-- Assam (Flood) -->
+<path class="text-hazard-critical" d="M0,130 C100,120 200,90 300,75 C400,60 500,30 700,12" fill="none" stroke="currentColor" stroke-width="3"></path>
+<!-- Delhi NCR (AQI) -->
+<path class="text-hazard-warning" d="M0,70 C100,90 200,65 300,40 C400,20 500,25 700,8" fill="none" stroke="currentColor" stroke-dasharray="4 2" stroke-width="2.5"></path>
+<!-- Uttarakhand (Landslide) -->
+<path class="text-secondary" d="M0,150 C120,140 250,130 380,80 C500,50 600,45 700,24" fill="none" stroke="currentColor" stroke-width="2.5"></path>
+<!-- Odisha (Cyclone/Tidal) -->
+<path class="text-status-nominal" d="M0,110 C150,120 280,145 420,150 C550,155 630,160 700,165" fill="none" stroke="currentColor" stroke-width="2"></path>
+<circle class="fill-hazard-critical animate-ping" cx="700" cy="12" r="5"></circle>
+<circle class="fill-hazard-critical" cx="700" cy="12" r="4"></circle>
+<circle class="fill-hazard-warning" cx="700" cy="8" r="4"></circle>
+<circle class="fill-secondary" cx="700" cy="24" r="4"></circle>
+<circle class="fill-status-nominal" cx="700" cy="165" r="4"></circle>
+</svg>
+<div class="flex justify-between font-label-code text-label-code text-text-muted pt-xs z-10">
+<span class="">D-7 (OCT 18)</span>
+<span class="">D-6</span>
+<span class="">D-5</span>
+<span class="">D-4</span>
+<span class="">D-3</span>
+<span class="">D-2</span>
+<span class="">D-1</span>
+<span class="text-telemetry-cyan font-bold">NOW (OCT 25)</span>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-xs mt-sm pt-xs">
+<div class="p-xs bg-surface-elevated rounded">
+<span class="font-label-code text-label-code text-text-muted block">ASSAM DISPLACEMENT EST.</span>
+<span class="font-metric-label text-metric-label text-hazard-critical font-bold">1,842,000 POP</span>
+<span class="font-label-code text-label-code text-text-secondary block">31 Relocation Hubs Active</span>
+</div>
+<div class="p-xs bg-surface-elevated rounded">
+<span class="font-label-code text-label-code text-text-muted block">DELHI NCR HOSPITAL BURDEN</span>
+<span class="font-metric-label text-metric-label text-hazard-warning font-bold">+34.8% RESPIRATORY</span>
+<span class="font-label-code text-label-code text-text-secondary block">GRAP-IV In Effect</span>
+</div>
+<div class="p-xs bg-surface-elevated rounded">
+<span class="font-label-code text-label-code text-text-muted block">CHAMOLI CORRIDOR READINESS</span>
+<span class="font-metric-label text-metric-label text-secondary font-bold">SDRF RED CON-1</span>
+<span class="font-label-code text-label-code text-text-secondary block">NH-07 Traffic Rerouted</span>
+</div>
+<div class="p-xs bg-surface-elevated rounded">
+<span class="font-label-code text-label-code text-text-muted block">ODISHA COASTAL RADAR</span>
+<span class="font-metric-label text-metric-label text-status-nominal font-bold">RELAXING (-14%)</span>
+<span class="font-label-code text-label-code text-text-secondary block">Paradip Port Clearance High</span>
+</div>
+</div>
+</div>
+<div class="xl:col-span-4 rounded bg-surface-card p-md flex flex-col justify-between">
+<div class="flex items-center justify-between pb-xs bg-surface-elevated/40 p-xs rounded">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-hazard-warning text-[20px]">public</span>
+<span class="font-metric-label text-metric-label text-text-primary uppercase tracking-wider">Multi-Zone Vulnerability Index</span>
+</div>
+<span class="font-label-code text-label-code text-telemetry-cyan">7 STATES</span>
+</div>
+<div class="space-y-xs my-sm">
+<div class="space-y-xxs">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-primary">Assam (Brahmaputra Valley)</span>
+<span class="text-hazard-critical font-bold">94% Threat Load</span>
+</div>
+<div class="w-full bg-surface-base h-2 rounded-full overflow-hidden">
+<div class="bg-hazard-critical h-full w-[94%] transition-all"></div>
+</div>
+</div>
+<div class="space-y-xxs">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-primary">Delhi NCR (National Capital Region)</span>
+<span class="text-hazard-critical font-bold">96% Air Stagnation</span>
+</div>
+<div class="w-full bg-surface-base h-2 rounded-full overflow-hidden">
+<div class="bg-hazard-critical h-full w-[96%] transition-all"></div>
+</div>
+</div>
+<div class="space-y-xxs">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-primary">Uttarakhand (Alaknanda Basin)</span>
+<span class="text-hazard-critical font-bold">88% Geomorphic Stress</span>
+</div>
+<div class="w-full bg-surface-base h-2 rounded-full overflow-hidden">
+<div class="bg-hazard-critical h-full w-[88%] transition-all"></div>
+</div>
+</div>
+<div class="space-y-xxs">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-primary">Himachal Pradesh (Beas Catchment)</span>
+<span class="text-hazard-warning font-bold">74% Fire / Thermal</span>
+</div>
+<div class="w-full bg-surface-base h-2 rounded-full overflow-hidden">
+<div class="bg-hazard-warning h-full w-[74%] transition-all"></div>
+</div>
+</div>
+<div class="space-y-xxs">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-primary">Kerala (Western Ghats Flank)</span>
+<span class="text-hazard-warning font-bold">68% Water Saturation</span>
+</div>
+<div class="w-full bg-surface-base h-2 rounded-full overflow-hidden">
+<div class="bg-hazard-warning h-full w-[68%] transition-all"></div>
+</div>
+</div>
+<div class="space-y-xxs">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-primary">Maharashtra (Coastal Urban Strip)</span>
+<span class="text-text-secondary font-bold">58% Heat / Drainage</span>
+</div>
+<div class="w-full bg-surface-base h-2 rounded-full overflow-hidden">
+<div class="bg-text-secondary h-full w-[58%] transition-all"></div>
+</div>
+</div>
+<div class="space-y-xxs">
+<div class="flex justify-between font-label-code text-label-code">
+<span class="text-text-primary">Odisha (Mahanadi Delta Coast)</span>
+<span class="text-status-nominal font-bold">42% Moderate Cyclonic</span>
+</div>
+<div class="w-full bg-surface-base h-2 rounded-full overflow-hidden">
+<div class="bg-status-nominal h-full w-[42%] transition-all"></div>
+</div>
+</div>
+</div>
+<div class="p-xs rounded bg-surface-elevated flex items-center justify-between text-text-secondary font-label-code text-label-code">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-telemetry-cyan text-[18px]">satellite</span>
+<span class="">ISRO Cartosat + GIS Inundation Model v4.1</span>
+</div>
+<span class="text-status-nominal">LIVE FED</span>
+</div>
+</div>
+</div>
+<!-- NDMA Table Section -->
+<div class="w-full rounded bg-surface-card p-md">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-md pb-md">
+<div class="space-y-xxs">
+<div class="flex items-center gap-xs">
+<span class="font-headline-md text-headline-md text-text-primary">High-Density District Heat Matrix</span>
+<span class="px-xs py-xxs rounded bg-telemetry-cyan/15 text-telemetry-cyan font-label-code text-label-code">7 PRIORITY DISTRICTS</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary">Granular breakdown of environmental severity indices, population footprint exposed, and command deployment.</p>
+</div>
+<!-- Hazard Filters & Matrix Controls -->
+<div class="flex flex-wrap items-center gap-xs">
+<div class="flex items-center bg-surface-base p-xxs rounded text-label-code font-label-code">
+<span class="px-xs py-xxs text-text-muted">FILTER:</span>
+<button class="hazard-filter px-xs py-xxs rounded bg-surface-elevated text-telemetry-cyan font-semibold hover:bg-surface-elevated transition-colors" data-filter="ALL">ALL</button>
+<button class="hazard-filter px-xs py-xxs rounded text-text-secondary hover:text-text-primary transition-colors" data-filter="FLOOD">FLOOD</button>
+<button class="hazard-filter px-xs py-xxs rounded text-text-secondary hover:text-text-primary transition-colors" data-filter="FIRE">FIRE</button>
+<button class="hazard-filter px-xs py-xxs rounded text-text-secondary hover:text-text-primary transition-colors" data-filter="AQI">AQI</button>
+<button class="hazard-filter px-xs py-xxs rounded text-text-secondary hover:text-text-primary transition-colors" data-filter="LANDSLIDE">LANDSLIDE</button>
+</div>
+<div class="flex items-center bg-surface-base px-xs py-xxs rounded gap-xs">
+<span class="material-symbols-outlined text-text-muted text-[16px]">sort</span>
+<select class="bg-transparent font-label-code text-label-code text-telemetry-cyan focus:outline-none cursor-pointer" id="matrixSort">
+<option class="bg-surface-card text-on-surface" value="score-desc">THREAT SCORE (HIGH-LOW)</option>
+<option class="bg-surface-card text-on-surface" value="score-asc">THREAT SCORE (LOW-HIGH)</option>
+<option class="bg-surface-card text-on-surface" value="pop-desc">POPULATION AT RISK</option>
+<option class="bg-surface-card text-on-surface" value="alpha">DISTRICT (A-Z)</option>
+</select>
+</div>
+</div>
+</div>
+<!-- High Density Table -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-sm text-body-sm" id="riskTable">
+<thead>
+<tr class="bg-surface-base text-text-muted font-label-code text-label-code tracking-wider uppercase">
+<th class="py-xs px-sm">District / Hub</th>
+<th class="py-xs px-sm">State</th>
+<th class="py-xs px-sm">Active Sensors</th>
+<th class="py-xs px-sm">Primary Hazard</th>
+<th class="py-xs px-sm text-center">Threat Score</th>
+<th class="py-xs px-sm text-right">Population at Risk</th>
+<th class="py-xs px-sm text-center">Alert Badge</th>
+<th class="py-xs px-sm text-center">7-Day Curve</th>
+<th class="py-xs px-sm text-right">Operational Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/[0.04]" id="riskTableBody">
+<!-- Dibrugarh -->
+<tr class="district-row hover:bg-surface-elevated/60 transition-colors group" data-hazard="FLOOD" data-name="Dibrugarh" data-pop="680000" data-score="95">
+<td class="py-sm px-sm font-semibold text-text-primary flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-hazard-critical animate-ping"></span>
+<span class="">Dibrugarh</span>
+</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">Assam</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">
+<span class="text-status-nominal font-bold">48/48</span> Telemetry Nodes
+              </td>
+<td class="py-sm px-sm">
+<span class="px-xs py-xxs rounded bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code font-bold uppercase">Riverine Flood</span>
+</td>
+<td class="py-sm px-sm text-center font-metric-label text-metric-label text-hazard-critical font-bold">
+                95 <span class="text-[10px] text-text-muted font-normal">/100</span>
+</td>
+<td class="py-sm px-sm text-right font-label-code text-label-code text-text-primary">680,000</td>
+<td class="py-sm px-sm text-center">
+<span class="px-xs py-xxs rounded-full bg-hazard-critical text-surface-base font-label-code text-label-code font-bold">RED TIER-1</span>
+</td>
+<td class="py-sm px-sm text-center">
+<svg class="w-20 h-6 inline-block overflow-visible" viewBox="0 0 60 20">
+<path class="text-hazard-critical" d="M0,18 L15,16 L30,12 L45,6 L60,2" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</td>
+<td class="py-sm px-sm text-right">
+<span class="px-xs py-xxs rounded bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code">NDRF EVAC IN PROGRESS</span>
+</td>
+</tr>
+<!-- Anand Vihar (Delhi) -->
+<tr class="district-row hover:bg-surface-elevated/60 transition-colors group" data-hazard="AQI" data-name="Anand Vihar" data-pop="1240000" data-score="96">
+<td class="py-sm px-sm font-semibold text-text-primary flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-hazard-critical animate-ping"></span>
+<span class="">Anand Vihar</span>
+</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">Delhi NCR</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">
+<span class="text-status-nominal font-bold">32/32</span> BAM PM Sensors
+              </td>
+<td class="py-sm px-sm">
+<span class="px-xs py-xxs rounded bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code font-bold uppercase">Severe AQI Toxicity</span>
+</td>
+<td class="py-sm px-sm text-center font-metric-label text-metric-label text-hazard-critical font-bold">
+                96 <span class="text-[10px] text-text-muted font-normal">/100</span>
+</td>
+<td class="py-sm px-sm text-right font-label-code text-label-code text-text-primary">1,240,000</td>
+<td class="py-sm px-sm text-center">
+<span class="px-xs py-xxs rounded-full bg-hazard-critical text-surface-base font-label-code text-label-code font-bold">CRITICAL AQI</span>
+</td>
+<td class="py-sm px-sm text-center">
+<svg class="w-20 h-6 inline-block overflow-visible" viewBox="0 0 60 20">
+<path class="text-hazard-critical" d="M0,14 L15,10 L30,6 L45,3 L60,1" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</td>
+<td class="py-sm px-sm text-right">
+<span class="px-xs py-xxs rounded bg-hazard-warning/15 text-hazard-warning font-label-code text-label-code">GRAP STAGE IV ENFORCED</span>
+</td>
+</tr>
+<!-- Chamoli -->
+<tr class="district-row hover:bg-surface-elevated/60 transition-colors group" data-hazard="LANDSLIDE" data-name="Chamoli" data-pop="195000" data-score="88">
+<td class="py-sm px-sm font-semibold text-text-primary flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-hazard-warning"></span>
+<span class="">Chamoli</span>
+</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">Uttarakhand</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">
+<span class="text-status-nominal font-bold">19/20</span> Geophone Arrays
+              </td>
+<td class="py-sm px-sm">
+<span class="px-xs py-xxs rounded bg-secondary/20 text-secondary font-label-code text-label-code font-bold uppercase">Landslide / Debris Flow</span>
+</td>
+<td class="py-sm px-sm text-center font-metric-label text-metric-label text-hazard-warning font-bold">
+                88 <span class="text-[10px] text-text-muted font-normal">/100</span>
+</td>
+<td class="py-sm px-sm text-right font-label-code text-label-code text-text-primary">195,000</td>
+<td class="py-sm px-sm text-center">
+<span class="px-xs py-xxs rounded-full bg-hazard-warning text-surface-base font-label-code text-label-code font-bold">HIGH ALERT</span>
+</td>
+<td class="py-sm px-sm text-center">
+<svg class="w-20 h-6 inline-block overflow-visible" viewBox="0 0 60 20">
+<path class="text-secondary" d="M0,16 L15,15 L30,12 L45,7 L60,3" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</td>
+<td class="py-sm px-sm text-right">
+<span class="px-xs py-xxs rounded bg-surface-elevated text-secondary font-label-code text-label-code">BORDER ROADS BRIGADE STANDBY</span>
+</td>
+</tr>
+<!-- Joshimath -->
+<tr class="district-row hover:bg-surface-elevated/60 transition-colors group" data-hazard="LANDSLIDE" data-name="Joshimath" data-pop="42000" data-score="84">
+<td class="py-sm px-sm font-semibold text-text-primary flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-hazard-warning"></span>
+<span class="">Joshimath</span>
+</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">Uttarakhand</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">
+<span class="text-status-nominal font-bold">24/24</span> Crack Gauge / GNSS
+              </td>
+<td class="py-sm px-sm">
+<span class="px-xs py-xxs rounded bg-secondary/20 text-secondary font-label-code text-label-code font-bold uppercase">Bedrock Subsidence</span>
+</td>
+<td class="py-sm px-sm text-center font-metric-label text-metric-label text-hazard-warning font-bold">
+                84 <span class="text-[10px] text-text-muted font-normal">/100</span>
+</td>
+<td class="py-sm px-sm text-right font-label-code text-label-code text-text-primary">42,000</td>
+<td class="py-sm px-sm text-center">
+<span class="px-xs py-xxs rounded-full bg-hazard-warning text-surface-base font-label-code text-label-code font-bold">ORANGE WATCH</span>
+</td>
+<td class="py-sm px-sm text-center">
+<svg class="w-20 h-6 inline-block overflow-visible" viewBox="0 0 60 20">
+<path class="text-secondary" d="M0,17 L15,16 L30,13 L45,9 L60,6" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</td>
+<td class="py-sm px-sm text-right">
+<span class="px-xs py-xxs rounded bg-surface-elevated text-text-secondary font-label-code text-label-code">SUB-TERRAIN RADAR SURVEY</span>
+</td>
+</tr>
+<!-- Cachar -->
+<tr class="district-row hover:bg-surface-elevated/60 transition-colors group" data-hazard="FLOOD" data-name="Cachar" data-pop="510000" data-score="79">
+<td class="py-sm px-sm font-semibold text-text-primary flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-hazard-warning"></span>
+<span class="">Cachar (Silchar)</span>
+</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">Assam</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">
+<span class="text-status-nominal font-bold">38/40</span> Ultrasonic Hydros
+              </td>
+<td class="py-sm px-sm">
+<span class="px-xs py-xxs rounded bg-hazard-critical/15 text-hazard-critical font-label-code text-label-code font-bold uppercase">Barak Basin Overflow</span>
+</td>
+<td class="py-sm px-sm text-center font-metric-label text-metric-label text-hazard-warning font-bold">
+                79 <span class="text-[10px] text-text-muted font-normal">/100</span>
+</td>
+<td class="py-sm px-sm text-right font-label-code text-label-code text-text-primary">510,000</td>
+<td class="py-sm px-sm text-center">
+<span class="px-xs py-xxs rounded-full bg-hazard-warning text-surface-base font-label-code text-label-code font-bold">ORANGE WATCH</span>
+</td>
+<td class="py-sm px-sm text-center">
+<svg class="w-20 h-6 inline-block overflow-visible" viewBox="0 0 60 20">
+<path class="text-hazard-warning" d="M0,15 L15,14 L30,11 L45,8 L60,5" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</td>
+<td class="py-sm px-sm text-right">
+<span class="px-xs py-xxs rounded bg-surface-elevated text-hazard-warning font-label-code text-label-code">DYKE REINFORCEMENT ACTIVE</span>
+</td>
+</tr>
+<!-- Wayanad -->
+<tr class="district-row hover:bg-surface-elevated/60 transition-colors group" data-hazard="LANDSLIDE" data-name="Wayanad" data-pop="270000" data-score="68">
+<td class="py-sm px-sm font-semibold text-text-primary flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-hazard-warning"></span>
+<span class="">Wayanad</span>
+</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">Kerala</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">
+<span class="text-status-nominal font-bold">29/30</span> Soil Moisture Probes
+              </td>
+<td class="py-sm px-sm">
+<span class="px-xs py-xxs rounded bg-hazard-warning/15 text-hazard-warning font-label-code text-label-code font-bold uppercase">Slope Saturation</span>
+</td>
+<td class="py-sm px-sm text-center font-metric-label text-metric-label text-hazard-warning font-bold">
+                68 <span class="text-[10px] text-text-muted font-normal">/100</span>
+</td>
+<td class="py-sm px-sm text-right font-label-code text-label-code text-text-primary">270,000</td>
+<td class="py-sm px-sm text-center">
+<span class="px-xs py-xxs rounded-full bg-hazard-warning/80 text-surface-base font-label-code text-label-code font-bold">ELEVATED</span>
+</td>
+<td class="py-sm px-sm text-center">
+<svg class="w-20 h-6 inline-block overflow-visible" viewBox="0 0 60 20">
+<path class="text-hazard-warning" d="M0,10 L15,12 L30,11 L45,10 L60,9" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</td>
+<td class="py-sm px-sm text-right">
+<span class="px-xs py-xxs rounded bg-surface-elevated text-text-secondary font-label-code text-label-code">HILL TRACT TRAVEL RESTRICTED</span>
+</td>
+</tr>
+<!-- Kendrapara -->
+<tr class="district-row hover:bg-surface-elevated/60 transition-colors group" data-hazard="FLOOD" data-name="Kendrapara" data-pop="380000" data-score="42">
+<td class="py-sm px-sm font-semibold text-text-primary flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-status-nominal"></span>
+<span class="">Kendrapara</span>
+</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">Odisha</td>
+<td class="py-sm px-sm font-label-code text-label-code text-text-secondary">
+<span class="text-status-nominal font-bold">22/22</span> Tidal Radar Buoys
+              </td>
+<td class="py-sm px-sm">
+<span class="px-xs py-xxs rounded bg-status-nominal/15 text-status-nominal font-label-code text-label-code font-bold uppercase">Coastal Storm Surge</span>
+</td>
+<td class="py-sm px-sm text-center font-metric-label text-metric-label text-status-nominal font-bold">
+                42 <span class="text-[10px] text-text-muted font-normal">/100</span>
+</td>
+<td class="py-sm px-sm text-right font-label-code text-label-code text-text-primary">380,000</td>
+<td class="py-sm px-sm text-center">
+<span class="px-xs py-xxs rounded-full bg-status-nominal text-surface-base font-label-code text-label-code font-bold">NOMINAL</span>
+</td>
+<td class="py-sm px-sm text-center">
+<svg class="w-20 h-6 inline-block overflow-visible" viewBox="0 0 60 20">
+<path class="text-status-nominal" d="M0,8 L15,10 L30,13 L45,15 L60,16" fill="none" stroke="currentColor" stroke-width="2"></path>
+</svg>
+</td>
+<td class="py-sm px-sm text-right">
+<span class="px-xs py-xxs rounded bg-surface-elevated text-status-nominal font-label-code text-label-code">SHELTERS MAINTAINED (STANDBY)</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-md pt-sm flex flex-col sm:flex-row items-center justify-between gap-sm text-text-muted font-label-code text-label-code bg-surface-base/40 p-xs rounded">
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-status-nominal"></span>
+<span class="">SATELLITE DOWNLINK: INSAT-3DR GVF &amp; SENTINEL-1 SAR PASS COMPLETE</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="">LATENCY: 120ms</span>
+<span class="">HASH: 0x9FD8...34EA</span>
+<span class="">NDMA AP-SOUTH-1 BRIDGE</span>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-surface-base/80 backdrop-blur-sm hidden" id="exportModal">
+<div class="rounded bg-surface-card p-lg max-w-lg w-full mx-md space-y-md shadow-2xl">
+<div class="flex items-start justify-between">
+<div class="space-y-xxs">
+<span class="font-label-code text-label-code text-telemetry-cyan uppercase">NDMA DIRECT SECURE DISPATCH</span>
+<h3 class="font-headline-md text-headline-md text-text-primary">Export Threat Briefing Package</h3>
+</div>
+<button class="text-text-muted hover:text-text-primary" id="closeModalBtn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-text-secondary">
+        Compiles classified environmental sensor matrix, current population exposures, and 7-day hydrological/atmospheric telemetry vectors for emergency disaster management council.
+      </p>
+<div class="space-y-xs bg-surface-base p-sm rounded font-label-code text-label-code">
+<div class="flex justify-between">
+<span class="text-text-muted">FORMAT:</span>
+<span class="text-telemetry-cyan">NDMA STANDARD SPEC v4.2 (PDF/CSV BUNDLE)</span>
+</div>
+<div class="flex justify-between">
+<span class="text-text-muted">TIMESTAMPS:</span>
+<span class="text-text-primary">2025-10-25 14:28:49 IST</span>
+</div>
+<div class="flex justify-between">
+<span class="text-text-muted">CHANNELS:</span>
+<span class="text-hazard-critical">ASSAM SEV-1, DELHI AIR SEV-1, CHAMOLI SEV-2</span>
+</div>
+</div>
+<div class="flex items-center justify-end gap-sm pt-xs">
+<button class="px-sm py-xs rounded bg-surface-elevated text-text-secondary font-label-code text-label-code hover:text-text-primary transition-colors" id="cancelModalBtn">CANCEL</button>
+<button class="flex items-center gap-xs px-sm py-xs rounded bg-telemetry-cyan text-surface-base font-headline-md text-body-sm font-semibold tracking-wide hover:brightness-110 transition-all" id="triggerDownloadBtn">
+<span class="material-symbols-outlined text-[18px]">file_download</span>
+<span class="">CONFIRM &amp; DOWNLOAD ZIP</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+    (function() {
+      // Filtering logic
+      const filterButtons = document.querySelectorAll('.hazard-filter');
+      const rows = document.querySelectorAll('.district-row');
+
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          filterButtons.forEach(b => {
+            b.classList.remove('bg-surface-elevated', 'text-telemetry-cyan', 'font-semibold');
+            b.classList.add('text-text-secondary');
+          });
+          this.classList.add('bg-surface-elevated', 'text-telemetry-cyan', 'font-semibold');
+          this.classList.remove('text-text-secondary');
+
+          const filter = this.getAttribute('data-filter');
+          rows.forEach(row => {
+            if (filter === 'ALL' || row.getAttribute('data-hazard') === filter) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // Sorting logic
+      const sortSelect = document.getElementById('matrixSort');
+      const tableBody = document.getElementById('riskTableBody');
+
+      sortSelect.addEventListener('change', function() {
+        const val = this.value;
+        const currentRows = Array.from(tableBody.querySelectorAll('.district-row'));
+
+        currentRows.sort((a, b) => {
+          if (val === 'score-desc') {
+            return Number(b.getAttribute('data-score')) - Number(a.getAttribute('data-score'));
+          } else if (val === 'score-asc') {
+            return Number(a.getAttribute('data-score')) - Number(b.getAttribute('data-score'));
+          } else if (val === 'pop-desc') {
+            return Number(b.getAttribute('data-pop')) - Number(a.getAttribute('data-pop'));
+          } else if (val === 'alpha') {
+            return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+          }
+          return 0;
+        });
+
+        currentRows.forEach(r => tableBody.appendChild(r));
+      });
+
+      // Modal Export logic
+      const exportBtn = document.getElementById('exportBriefingBtn');
+      const modal = document.getElementById('exportModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const cancelModalBtn = document.getElementById('cancelModalBtn');
+      const triggerDownloadBtn = document.getElementById('triggerDownloadBtn');
+
+      function openModal() {
+        modal.classList.remove('hidden');
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+      }
+
+      if (exportBtn) exportBtn.addEventListener('click', openModal);
+      if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+      if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
+      if (triggerDownloadBtn) {
+        triggerDownloadBtn.addEventListener('click', function() {
+          const originalText = this.innerHTML;
+          this.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">sync</span> GENERATING ARCHIVE...';
+          setTimeout(() => {
+            this.innerHTML = '<span class="material-symbols-outlined text-[18px]">done</span> TRANSMISSION COMPLETE';
+            setTimeout(() => {
+              closeModal();
+              this.innerHTML = originalText;
+            }, 1200);
+          }, 1500);
+        });
+      }
+    })();
+  </script>
+</div></main></div>
+
+
+
+</body></html>

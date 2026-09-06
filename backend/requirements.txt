@@ -3,3 +3,5 @@ uvicorn
 paho-mqtt
 influxdb-client
 pytz
+twilio
+python-dotenv
