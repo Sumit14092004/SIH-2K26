@@ -1,0 +1,422 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" class=""><style>body, * { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; } .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; }</style><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "inverse-primary": "#94ccff",
+          "on-secondary-fixed": "#00201d",
+          "on-tertiary-container": "#e1deff",
+          "on-tertiary": "#ffffff",
+          "on-background": "#0b1c30",
+          "tertiary-fixed-dim": "#c3c0ff",
+          "tertiary-fixed": "#e2dfff",
+          "on-secondary": "#ffffff",
+          "surface": "#f8f9ff",
+          "surface-container-high": "#dce9ff",
+          "alert-warning": "#d97706",
+          "status-nominal-subtle": "#ecfdf5",
+          "surface-container-lowest": "#ffffff",
+          "background": "#f8f9ff",
+          "primary-fixed-dim": "#94ccff",
+          "on-primary-fixed-variant": "#004b74",
+          "telemetry-indigo": "#4f46e5",
+          "on-primary-container": "#cbe4ff",
+          "surface-dim": "#cbdbf5",
+          "surface-container-highest": "#d3e4fe",
+          "text-muted": "#64748b",
+          "outline-variant": "#c0c7d1",
+          "secondary": "#006a63",
+          "surface-container-low": "#eff4ff",
+          "surface-bright": "#f8f9ff",
+          "on-surface-variant": "#40474f",
+          "on-primary-fixed": "#001d32",
+          "on-secondary-fixed-variant": "#00504a",
+          "error-container": "#ffdad6",
+          "alert-critical-subtle": "#fef2f2",
+          "on-primary": "#ffffff",
+          "status-nominal": "#059669",
+          "text-secondary": "#334155",
+          "text-primary": "#0f172a",
+          "primary-fixed": "#cde5ff",
+          "outline": "#707881",
+          "secondary-container": "#99efe5",
+          "alert-critical": "#dc2626",
+          "primary-container": "#0369a1",
+          "surface-container": "#e5eeff",
+          "tertiary": "#392cd1",
+          "inverse-surface": "#213145",
+          "on-error": "#ffffff",
+          "on-tertiary-fixed": "#0f0069",
+          "on-secondary-container": "#006f67",
+          "surface-card": "#ffffff",
+          "telemetry-cobalt": "#0284c7",
+          "error": "#ba1a1a",
+          "on-tertiary-fixed-variant": "#3323cc",
+          "secondary-fixed": "#9cf2e8",
+          "canvas-subtle": "#f1f5f9",
+          "on-error-container": "#93000a",
+          "on-surface": "#0b1c30",
+          "border-grid": "#e2e8f0",
+          "canvas-base": "#f8fafc",
+          "secondary-fixed-dim": "#80d5cb",
+          "surface-variant": "#d3e4fe",
+          "surface-tint": "#006399",
+          "primary": "#00507d",
+          "alert-warning-subtle": "#fffbeb",
+          "tertiary-container": "#534be9",
+          "inverse-on-surface": "#eaf1ff",
+          "border-strong": "#cbd5e1"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "gutter-dense": "0.5rem",
+          "lg": "1.25rem",
+          "xxs": "0.25rem",
+          "xl": "1.75rem",
+          "xs": "0.5rem",
+          "telemetry-rail": "22rem",
+          "sm": "0.75rem",
+          "xxl": "2.5rem",
+          "gutter-normal": "0.75rem",
+          "md": "1rem",
+          "sidebar-width": "18rem"
+        },
+        "fontFamily": {
+          "metric-label": [
+            "JetBrains Mono"
+          ],
+          "headline-lg": [
+            "IBM Plex Sans"
+          ],
+          "body-lg": [
+            "IBM Plex Sans"
+          ],
+          "headline-xl": [
+            "IBM Plex Sans"
+          ],
+          "headline-xl-mobile": [
+            "IBM Plex Sans"
+          ],
+          "headline-md": [
+            "IBM Plex Sans"
+          ],
+          "headline-sm": [
+            "IBM Plex Sans"
+          ],
+          "metric-display": [
+            "JetBrains Mono"
+          ],
+          "body-sm": [
+            "IBM Plex Sans"
+          ],
+          "label-code": [
+            "JetBrains Mono"
+          ],
+          "telemetry-unit": [
+            "JetBrains Mono"
+          ],
+          "body-md": [
+            "IBM Plex Sans"
+          ]
+        },
+        "fontSize": {
+          "metric-label": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "letterSpacing": "0.05em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-lg": [
+            "22px",
+            {
+              "lineHeight": "28px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "letterSpacing": "0em",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-xl": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-xl-mobile": [
+            "26px",
+            {
+              "lineHeight": "32px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-md": [
+            "18px",
+            {
+              "lineHeight": "24px",
+              "letterSpacing": "0em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-sm": [
+            "15px",
+            {
+              "lineHeight": "20px",
+              "letterSpacing": "0em",
+              "fontWeight": "600"
+            }
+          ],
+          "metric-display": [
+            "26px",
+            {
+              "lineHeight": "30px",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.01em",
+              "fontWeight": "400"
+            }
+          ],
+          "label-code": [
+            "10px",
+            {
+              "lineHeight": "12px",
+              "letterSpacing": "0.06em",
+              "fontWeight": "500"
+            }
+          ],
+          "telemetry-unit": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "letterSpacing": "0.03em",
+              "fontWeight": "500"
+            }
+          ],
+          "body-md": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "letterSpacing": "0em",
+              "fontWeight": "400"
+            }
+          ]
+        }
+      },
+    },
+  }
+</script></head><body class="bg-[#f1f5f9] text-[#0f172a] font-body-md text-body-md antialiased min-h-screen"><header class="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-[#e2e8f0] shadow-sm"><div class="h-20 w-full px-gutter-normal flex flex-col justify-between pt-xxs pb-xs"><div class="flex items-center justify-between gap-md"><div class="flex items-center gap-md"><div class="flex items-center gap-xs"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLizqU5SXEfmUZ-pug4RoDCu-rPQSgupvGS_ggACGRMJhzuX3P-l0GxnIFDWrfeqLfrTQOvwzsr-mqMiXERPOrU5tuRRBx1PPd1JkV7T-hsKM0d39XgPedStt2cZ7Rngwt319tkBLjaBEJrZGDwGVy6BaAUVpK8gGUbmwhsd6n0sv-4UU_6oZdt3Rm7C-DzMGQt8TlrIkGF-PnwZt6j992rhtvVlxWVem8v0Ys8p0VnvFRC1Ib-gBeKmW_pnWykK6P" alt="AAPDA-KADABRA Emblem" class="w-9 h-9 object-contain mr-3 flex-shrink-0"><div class="flex flex-col"><span class="font-headline-md text-headline-md text-[#0f172a] font-bold tracking-tight leading-none">AAPDA-KADABRA</span><span class="font-label-code text-label-code text-[#0284c7] font-semibold uppercase">HAZARD INTELLIGENCE &amp; EARLY WARNING</span></div></div><div class="hidden xl:flex items-center gap-xs px-xs py-xxs bg-slate-50 border border-[#e2e8f0] rounded"><span class="material-symbols-outlined text-slate-500 text-[16px]">schedule</span><span class="font-label-code text-label-code text-slate-600 font-medium">IST UTC+5:30</span><span class="font-metric-label text-metric-label text-[#0f172a] font-bold">14:28:49</span></div></div><div class="hidden lg:flex items-center gap-xs px-sm py-xxs bg-slate-50 border border-[#e2e8f0] rounded-lg text-slate-600"><span class="material-symbols-outlined text-amber-600 text-[18px]">warning</span><span class="font-body-sm text-body-sm text-slate-700">Assam Brahmaputra Inundation Alert Active</span></div><div class="flex items-center gap-sm"><button class="flex items-center gap-xxs px-xs py-xxs rounded bg-white border border-[#e2e8f0] hover:bg-slate-50 text-slate-700 hover:text-[#0f172a] shadow-xs transition-colors"><span class="material-symbols-outlined text-amber-600 text-[18px]">volume_up</span><span class="hidden xl:inline font-label-code text-label-code font-semibold">HAZARD SIREN</span></button><button class="flex items-center gap-xxs px-sm py-xxs rounded bg-[#dc2626] hover:bg-red-700 text-white shadow-xs transition-colors"><span class="material-symbols-outlined text-[16px]">crisis_alert</span><span class="hidden md:inline font-headline-md text-body-sm font-semibold uppercase tracking-wider">BROADCAST</span></button><div class="w-8 h-8 rounded-full bg-[#00507d] text-white flex items-center justify-center shrink-0 font-medium shadow-xs"><span class="material-symbols-outlined text-white text-[18px]">person</span></div></div></div><div class="flex items-center justify-between"><nav class="flex items-center gap-xxs overflow-x-auto" data-active-classes="text-[#00507d] bg-sky-50 font-semibold border-b-2 border-[#00507d]"><a aria-current="page" class="px-xs py-xxs font-body-sm transition-colors whitespace-nowrap text-[#00507d] bg-sky-50 font-semibold border-b-2 border-[#00507d]" data-path="live-command-center" href="#">Live Command Center</a><a class="px-xs py-xxs font-body-sm text-body-sm text-slate-600 hover:text-[#0f172a] hover:bg-slate-50 transition-colors whitespace-nowrap rounded" data-path="node-telemetry-and-inspection" href="#">Node Telemetry &amp; Inspection</a><a class="px-xs py-xxs font-body-sm text-body-sm text-slate-600 hover:text-[#0f172a] hover:bg-slate-50 transition-colors whitespace-nowrap rounded" data-path="regional-risk-matrix" href="#">Regional Risk Matrix</a><a class="px-xs py-xxs font-body-sm text-body-sm text-slate-600 hover:text-[#0f172a] hover:bg-slate-50 transition-colors whitespace-nowrap rounded" data-path="early-warning-feed" href="#">Early Warning Feed</a><a class="px-xs py-xxs font-body-sm text-body-sm text-slate-600 hover:text-[#0f172a] hover:bg-slate-50 transition-colors whitespace-nowrap rounded" data-path="network-health-and-mesh" href="#">Network Health &amp; Mesh</a></nav><div class="hidden md:flex items-center gap-xs text-slate-500 font-label-code text-label-code"><span class="">GRID: 28.6139° N, 77.2090° E</span></div></div></div></header><aside class="fixed left-0 top-20 bottom-0 w-sidebar-width bg-white border-r border-[#e2e8f0] z-40 hidden xl:flex flex-col justify-between p-sm overflow-y-auto"><div class="space-y-md"><div class="flex items-center justify-between pb-xs border-b border-[#e2e8f0]"><span class="font-metric-label text-metric-label text-slate-500 uppercase tracking-widest">CORE DIRECTORY</span><span class="font-label-code text-label-code text-[#0284c7] font-semibold">ACTIVE MESH</span></div><nav class="space-y-xxs" data-active-classes="bg-sky-50 text-[#00507d] font-semibold border-l-2 border-[#00507d]"><a aria-current="page" class="flex items-center justify-between px-xs py-xs rounded transition-all bg-sky-50 text-[#00507d] font-semibold border-l-2 border-[#00507d]" data-path="live-command-center" href="#"><span class="font-body-sm text-body-sm">Tactical Map Surface</span><span class="material-symbols-outlined text-[16px]">map</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-slate-600 hover:bg-slate-50 hover:text-[#0f172a] transition-all" data-path="node-telemetry-and-inspection" href="#"><span class="font-body-sm text-body-sm">Atmospheric Sensors</span><span class="material-symbols-outlined text-[16px]">sensors</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-slate-600 hover:bg-slate-50 hover:text-[#0f172a] transition-all" data-path="regional-risk-matrix" href="#"><span class="font-body-sm text-body-sm">Hazard Heatmaps</span><span class="material-symbols-outlined text-[16px]">heat_pump</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-slate-600 hover:bg-slate-50 hover:text-[#0f172a] transition-all" data-path="early-warning-feed" href="#"><span class="font-body-sm text-body-sm">Crisis Dispatch Log</span><span class="material-symbols-outlined text-[16px]">notification_important</span></a><a class="flex items-center justify-between px-xs py-xs rounded text-slate-600 hover:bg-slate-50 hover:text-[#0f172a] transition-all" data-path="network-health-and-mesh" href="#"><span class="font-body-sm text-body-sm">Edge Gateway Status</span><span class="material-symbols-outlined text-[16px]">hub</span></a></nav></div><div class="p-xs rounded bg-slate-50 border border-[#e2e8f0] space-y-xxs"><div class="flex items-center justify-between"><span class="font-label-code text-label-code text-slate-600">BANDWIDTH LOAD</span><span class="font-label-code text-label-code text-emerald-600 font-bold">142 MB/S</span></div><div class="w-full bg-[#e2e8f0] h-1.5 rounded overflow-hidden"><div class="bg-[#0284c7] h-full w-[64%]"></div></div><div class="flex justify-between font-label-code text-label-code text-slate-500"><span class="">ISRO GAGAN SYNC</span><span class="text-emerald-700 font-semibold">NOMINAL</span></div></div></aside><div class="xl:pl-sidebar-width w-full"><main class="relative pt-20 w-full px-gutter-normal bg-[#f8fafc] min-h-screen"><div class="flex flex-col w-full space-y-xs pb-xl">
+<!-- Operational Overview Telemetry Bar -->
+<section class="w-full grid grid-cols-1 md:grid-cols-3 gap-md pt-xs"><div class="bg-white border border-[#e2e8f0] shadow-xs rounded-xl p-md flex flex-col justify-between hover:border-slate-300 transition-colors"><div class="flex items-center justify-between"><div class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-emerald-600"></span><span class="font-label-code text-label-code text-slate-500 uppercase tracking-wider font-semibold">Active Node Mesh</span></div><span class="font-label-code text-label-code text-emerald-700 bg-emerald-50 border border-emerald-200 px-xs py-0.5 rounded font-semibold">98.7% ONLINE</span></div><div class="my-sm flex items-baseline gap-xs"><span class="font-metric-display text-[26px] text-[#0f172a] font-bold tracking-tight" id="live-nodes">158</span><span class="font-body-sm text-body-sm text-slate-500">of 160 active devices</span></div><div class="flex items-center justify-between text-slate-400 font-body-sm text-body-sm"><span class="">ISRO GAGAN Linked</span><span class="text-emerald-700 font-medium font-label-code text-label-code">+2 DEPLOYED TODAY</span></div></div><div class="bg-white border border-[#e2e8f0] shadow-xs rounded-xl p-md flex flex-col justify-between hover:border-slate-300 transition-colors"><div class="flex items-center justify-between"><div class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-[#dc2626] animate-pulse"></span><span class="font-label-code text-label-code text-slate-500 uppercase tracking-wider font-semibold">Critical Hazard Alerts</span></div><span class="font-label-code text-label-code text-red-700 bg-red-50 border border-red-200 px-xs py-0.5 rounded font-bold">4 ESCALATING</span></div><div class="my-sm flex items-baseline gap-xs"><span class="font-metric-display text-[26px] text-[#dc2626] font-bold tracking-tight">4</span><span class="font-body-sm text-body-sm text-slate-500">priority hazard zones active</span></div><div class="flex items-center justify-between text-slate-400 font-body-sm text-body-sm"><span class="">Peak: AQI 482 / Inundation +4.2m</span><span class="text-red-700 font-medium font-label-code text-label-code">NDRF NOTIFIED</span></div></div><div class="bg-white border border-[#e2e8f0] shadow-xs rounded-xl p-md flex flex-col justify-between hover:border-slate-300 transition-colors"><div class="flex items-center justify-between"><div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px] text-[#0284c7]">bolt</span><span class="font-label-code text-label-code text-slate-500 uppercase tracking-wider font-semibold">Edge Ingestion Latency</span></div><span class="font-label-code text-label-code text-[#00507d] bg-sky-50 border border-sky-200 px-xs py-0.5 rounded font-semibold">ISRO INSAT-L</span></div><div class="my-sm flex items-baseline gap-xs"><span class="font-metric-display text-[26px] text-[#00507d] font-bold tracking-tight">1.42</span><span class="font-body-sm text-body-sm text-slate-500">seconds mean edge dispatch</span></div><div class="flex items-center justify-between text-slate-400 font-body-sm text-body-sm"><span class="">Zero queue buffer latency</span><span class="text-emerald-700 font-medium font-label-code text-label-code">OPTIMAL SYNC</span></div></div></section>
+<!-- Query & Geo Filter Toolbar -->
+<section class="w-full bg-white border border-[#e2e8f0] shadow-xs rounded-xl px-md py-sm flex flex-wrap lg:flex-nowrap items-center justify-between gap-md"><div class="flex flex-wrap items-center gap-sm flex-1"><div class="flex items-center gap-xs bg-slate-50 border border-[#e2e8f0] px-sm py-xs rounded-lg text-slate-600 w-full sm:w-80"><span class="material-symbols-outlined text-[18px] text-[#0284c7]">search</span><input class="bg-transparent text-[#0f172a] font-body-sm text-body-sm placeholder:text-slate-400 focus:outline-none w-full" id="node-search" placeholder="Search Basin, State, or Station ID..." type="text"><span class="font-label-code text-label-code text-slate-400 bg-white border border-[#e2e8f0] px-xxs py-0.5 rounded shadow-2xs">⌘K</span></div><div class="flex items-center gap-xxs bg-slate-50 border border-[#e2e8f0] px-sm py-xs rounded-lg text-slate-700"><span class="font-label-code text-label-code text-slate-500 font-semibold">STATE:</span><select class="bg-transparent font-body-sm text-body-sm text-[#0f172a] focus:outline-none cursor-pointer font-medium"><option value="ALL">All India Coverage</option><option selected="" value="ASM">Assam Valley</option><option value="DL">Delhi NCT / NCR</option><option value="UK">Uttarakhand Spine</option><option value="OD">Odisha Coastal Rim</option></select></div><div class="flex items-center gap-xxs bg-slate-50 border border-[#e2e8f0] px-sm py-xs rounded-lg text-slate-700"><span class="font-label-code text-label-code text-slate-500 font-semibold">HAZARD:</span><select class="bg-transparent font-body-sm text-body-sm text-[#0f172a] focus:outline-none cursor-pointer font-medium"><option value="ALL">All Vectors</option><option selected="" value="FLOOD">Hydrological (Inundation)</option><option value="AQI">Atmospheric (Smog)</option><option value="SEISMIC">Seismic &amp; Landslide</option></select></div></div><div class="flex items-center gap-sm ml-auto shrink-0"><div class="flex items-center gap-xs text-body-sm text-slate-600"><span class="w-2 h-2 rounded-full bg-emerald-600"></span><span class="font-medium">154 Nominal</span><span class="text-slate-300">|</span><span class="w-2 h-2 rounded-full bg-[#dc2626] animate-ping"></span><span class="font-semibold text-red-700">4 Critical</span></div><button class="bg-[#00507d] text-white font-body-sm text-body-sm font-semibold px-md py-xs rounded-lg flex items-center gap-xs hover:bg-[#003e62] shadow-xs transition-all"><span class="material-symbols-outlined text-[16px]">download</span><span class="font-label-code text-label-code uppercase tracking-wider">Export CSV</span></button></div></section>
+<!-- Main Center Console: Tactical Map Canvas + Live Hazard Stream -->
+<div class="w-full grid grid-cols-1 xl:grid-cols-12 gap-xs items-start">
+<!-- Geospatial Tactical Command Canvas (Col 8) -->
+<div class="xl:col-span-8 bg-white border border-[#e2e8f0] shadow-xs rounded-xl overflow-hidden flex flex-col relative min-h-[640px] xl:min-h-[720px]"><div class="bg-white border-b border-[#e2e8f0] px-md py-sm flex flex-wrap items-center justify-between gap-xs z-20"><div class="flex items-center gap-sm"><span class="material-symbols-outlined text-[#0284c7] text-[20px]">public</span><div><h3 class="font-headline-md text-body-md text-[#0f172a] font-bold">Bharat Tactical Geospatial Overview</h3><p class="font-body-sm text-body-sm text-slate-500">&nbsp;Live Mesh Telemetry</p></div></div><div class="flex items-center gap-xs"><div class="flex items-center gap-xxs bg-slate-50 border border-[#e2e8f0] rounded-lg p-xxs"><button class="px-xs py-xxs rounded bg-white text-[#00507d] font-label-code text-label-code font-bold shadow-2xs">ALL LAYERS</button><button class="px-xs py-xxs rounded text-slate-600 hover:text-[#0f172a] font-label-code text-label-code font-medium">FLOOD</button><button class="px-xs py-xxs rounded text-slate-600 hover:text-[#0f172a] font-label-code text-label-code font-medium">AQI</button></div><button class="p-xs rounded-lg bg-slate-50 border border-[#e2e8f0] text-slate-600 hover:text-[#0284c7] transition-colors" title="Recenter Grid"><span class="material-symbols-outlined text-[18px]">my_location</span></button></div></div><div class="relative w-full flex-1 bg-[#f8fafc] overflow-hidden flex items-center justify-center select-none" id="tactical-canvas"><div class="absolute inset-0 w-full h-full bg-cover bg-center opacity-30 mix-blend-multiply filter contrast-110 pointer-events-none" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBUi3VOtSEyKyV4sGt-f6VKB0In2OmfjQ9fnjl7z4aX6YzOtDMHcnr7fRBOj5S7dxLNvHiI07l-omq1D6FJiHOKoCxjptxb1AZdWxjcDRFyq_yyaAcHqNZ8c1YpZMQw3OQx9AHYxWuknQIfeap36me5YG4Yz97ARKFhxEUpQDdcpl1zGii_rw4aEoD9_DeOOMuDme2b_BkKrc4oY3UOTQ-gU0cne51bYjNYZxCPfcdcqyOLotqHGMs'); filter: invert(92%) hue-rotate(180deg) contrast(105%);"></div><svg class="absolute inset-0 w-full h-full pointer-events-none stroke-[#cbd5e1]/50" xmlns="http://www.w3.org/2000/svg"><g class="mesh-links opacity-60 stroke-[#0284c7]" stroke-dasharray="3 6" stroke-width="1.5"><line x1="39%" x2="43%" y1="31%" y2="25%"></line><line x1="39%" x2="78%" y1="31%" y2="32%"></line><line x1="78%" x2="62%" y1="32%" y2="54%"></line><line x1="62%" x2="37%" y1="54%" y2="78%"></line><line x1="37%" x2="39%" y1="78%" y2="31%"></line></g></svg><div class="absolute left-[78%] top-[32%] -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer group" onclick="inspectNode('IN-ASM-042')"><div class="relative flex items-center justify-center"><span class="absolute w-12 h-12 rounded-full bg-red-500/25 animate-ping"></span><span class="w-5 h-5 rounded-full bg-[#dc2626] border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-md">!</span></div><div class="absolute bottom-7 left-1/2 -translate-x-1/2 bg-white/95 border border-[#e2e8f0] shadow-sm px-sm py-xxs rounded-lg whitespace-nowrap"><span class="font-label-code text-label-code text-red-700 font-bold">ASM-042</span><span class="font-body-sm text-body-sm text-[#0f172a] font-semibold ml-1">Dibrugarh (+4.2m)</span></div></div><div class="absolute left-[39%] top-[31%] -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer group" onclick="inspectNode('IN-DL-004')"><div class="relative flex items-center justify-center"><span class="absolute w-10 h-10 rounded-full bg-amber-500/30 animate-ping"></span><span class="w-4 h-4 rounded-full bg-amber-500 border-2 border-white flex items-center justify-center text-[9px] font-bold text-white shadow-md">!</span></div><div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 border border-[#e2e8f0] shadow-sm px-sm py-xxs rounded-lg whitespace-nowrap"><span class="font-label-code text-label-code text-amber-700 font-bold">DL-004</span><span class="font-body-sm text-body-sm text-[#0f172a] font-semibold ml-1">Delhi NCR (AQI 482)</span></div></div><div class="absolute left-[43%] top-[24%] -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer group" onclick="inspectNode('IN-UK-012')"><div class="relative flex items-center justify-center"><span class="w-3.5 h-3.5 rounded-full bg-indigo-600 border-2 border-white shadow-sm"></span></div></div><div class="absolute left-[62%] top-[54%] -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer group" onclick="inspectNode('IN-OD-055')"><div class="relative flex items-center justify-center"><span class="w-3.5 h-3.5 rounded-full bg-[#0284c7] border-2 border-white shadow-sm"></span></div></div><div class="absolute left-[37%] top-[78%] -translate-x-1/2 -translate-y-1/2 z-30 cursor-pointer"><span class="w-3 h-3 rounded-full bg-emerald-600 border border-white block shadow-sm"></span></div><div class="absolute left-[50%] top-[48%] -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600 border border-white block opacity-80"></span></div><div class="absolute left-[32%] top-[54%] -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600 border border-white block opacity-80"></span></div><div class="absolute bottom-4 left-4 right-4 z-20 bg-white/95 border border-[#e2e8f0] backdrop-blur-md px-md py-xs rounded-xl shadow-xs flex flex-wrap items-center justify-between gap-sm"><div class="flex items-center gap-md"><div class="flex items-center gap-xs"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span><span class="font-body-sm text-body-sm text-slate-600 font-medium">Nominal (154)</span></div><div class="flex items-center gap-xs"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span class="font-body-sm text-body-sm text-slate-600 font-medium">Watch / Advisory (2)</span></div><div class="flex items-center gap-xs"><span class="w-2.5 h-2.5 rounded-full bg-[#dc2626] animate-pulse"></span><span class="font-body-sm text-body-sm text-red-700 font-semibold">Critical Threat (2)</span></div></div><div class="flex items-center gap-xs font-label-code text-label-code text-slate-500"><span class="material-symbols-outlined text-[16px] text-emerald-600">verified</span><span class="font-semibold text-slate-700">ISRO Satellite Link Synchronized</span></div></div></div></div>
+<!-- Live Real-Time Hazard Alert Stream Sidebar (Col 4) -->
+<div class="xl:col-span-4 flex flex-col gap-md"><div class="bg-white border border-[#e2e8f0] shadow-xs rounded-xl p-md flex items-center justify-between"><div class="flex items-center gap-sm"><div class="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center"><span class="material-symbols-outlined text-[#dc2626] text-[20px]">emergency</span></div><div><h2 class="font-headline-md text-body-md text-[#0f172a] font-bold">Tactical Hazard Dispatch</h2><p class="font-body-sm text-body-sm text-slate-500">Active Autonomous Edge Alerts</p></div></div><span class="font-label-code text-label-code text-red-700 font-bold bg-red-50 border border-red-200 px-xs py-0.5 rounded-full animate-pulse">LIVE STREAM</span></div><div class="bg-white border border-[#e2e8f0] shadow-xs hover:border-slate-300 transition-all rounded-xl p-md flex flex-col gap-sm relative overflow-hidden"><div class="flex items-center justify-between"><span class="px-xs py-0.5 rounded font-label-code text-label-code bg-red-50 border border-red-200 text-red-700 font-bold uppercase tracking-wider flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#dc2626] animate-pulse"></span>CRITICAL FLOOD</span><span class="font-label-code text-label-code text-slate-400">12s AGO</span></div><div><h4 class="font-headline-md text-body-md text-[#0f172a] font-bold">Dibrugarh Basin, Assam</h4><p class="font-body-sm text-body-sm text-slate-600 mt-0.5">Node #IN-ASM-042 breached Level-3 Critical Inundation (+4.2m crest). Immediate evacuation suggested for lowlands.</p></div><div class="flex items-center justify-between pt-xs border-t border-[#e2e8f0]"><button class="text-[#00507d] hover:text-[#0284c7] font-body-sm text-body-sm font-semibold flex items-center gap-xxs" onclick="inspectNode('IN-ASM-042')"><span class="material-symbols-outlined text-[16px]">visibility</span><span class="">Telemetry</span></button><button class="bg-[#dc2626] hover:bg-red-700 text-white font-body-sm text-body-sm font-semibold px-md py-xs rounded-lg flex items-center gap-xxs shadow-xs transition-colors" onclick="dispatchNDRF('IN-ASM-042', 'Dibrugarh Brahmaputra')"><span class="material-symbols-outlined text-[16px]">crisis_alert</span><span class="">Dispatch NDRF</span></button></div></div><div class="bg-white border border-[#e2e8f0] shadow-xs hover:border-slate-300 transition-all rounded-xl p-md flex flex-col gap-sm relative overflow-hidden"><div class="flex items-center justify-between"><span class="px-xs py-0.5 rounded font-label-code text-label-code bg-amber-50 border border-amber-200 text-amber-700 font-bold uppercase tracking-wider flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>SEVERE AQI SMOG</span><span class="font-label-code text-label-code text-slate-400">1m AGO</span></div><div><h4 class="font-headline-md text-body-md text-[#0f172a] font-bold">Anand Vihar, Delhi NCT</h4><p class="font-body-sm text-body-sm text-slate-600 mt-0.5">Node #IN-DL-004 detected severe inversion. PM2.5 spike at 482 µg/m³ (48x WHO Guideline). GRAP Stage IV active.</p></div><div class="flex items-center justify-between pt-xs border-t border-[#e2e8f0]"><button class="text-[#00507d] hover:text-[#0284c7] font-body-sm text-body-sm font-semibold flex items-center gap-xxs" onclick="inspectNode('IN-DL-004')"><span class="material-symbols-outlined text-[16px]">visibility</span><span class="">Telemetry</span></button><button class="bg-amber-600 hover:bg-amber-700 text-white font-body-sm text-body-sm font-semibold px-md py-xs rounded-lg flex items-center gap-xxs shadow-xs transition-colors"><span class="material-symbols-outlined text-[16px]">podcasts</span><span class="">Broadcast CPCB</span></button></div></div><div class="bg-white border border-[#e2e8f0] shadow-xs hover:border-slate-300 transition-all rounded-xl p-md flex flex-col gap-sm relative overflow-hidden"><div class="flex items-center justify-between"><span class="px-xs py-0.5 rounded font-label-code text-label-code bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold uppercase tracking-wider">LANDSLIDE WATCH</span><span class="font-label-code text-label-code text-slate-400">4m AGO</span></div><div><h4 class="font-headline-md text-body-md text-[#0f172a] font-bold">Joshimath Slopes, UK</h4><p class="font-body-sm text-body-sm text-slate-600 mt-0.5">Node #IN-UK-012 inclinometer logging 2.8 mm/hr crest displacement with continuous micro-seismic tremors.</p></div><div class="flex items-center justify-between pt-xs border-t border-[#e2e8f0]"><button class="text-[#00507d] hover:text-[#0284c7] font-body-sm text-body-sm font-semibold flex items-center gap-xxs" onclick="inspectNode('IN-UK-012')"><span class="material-symbols-outlined text-[16px]">visibility</span><span class="">Inspect Telemetry</span></button><button class="bg-slate-100 hover:bg-slate-200 text-[#0f172a] font-body-sm text-body-sm font-semibold px-md py-xs rounded-lg transition-colors">Examine Inclinometer</button></div></div></div>
+</div>
+<!-- Telemetry Drilldown Modal / Inspector Overlay (Hidden by Default) -->
+<div class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm items-center justify-center p-md hidden" id="inspector-modal">
+<div class="bg-white border border-[#e2e8f0] w-full max-w-2xl rounded-xl p-lg flex flex-col gap-md shadow-2xl relative">
+<div class="flex items-center justify-between pb-xs bg-slate-50 border-b border-[#e2e8f0] -mx-lg -mt-lg px-lg pt-md rounded-t-xl">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[#0284c7]">sensors</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-[#0f172a] font-bold" id="modal-node-title">Telemetry Inspector: Node #IN-ASM-042</h3>
+<span class="font-label-code text-label-code text-slate-500" id="modal-node-sub">ISRO-GAGAN GEOSPATIAL VECTOR TELEMETRY STREAM // ACTIVE</span>
+</div>
+</div>
+<button class="text-slate-400 hover:text-[#0f172a] p-xxs" onclick="closeInspector()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-xs font-label-code text-label-code">
+<div class="bg-slate-50 border border-[#e2e8f0] p-xs rounded">
+<div class="text-slate-500">BATTERY / SOLAR</div>
+<div class="text-emerald-700 font-bold text-body-sm">96.4% // 4.1V</div>
+</div>
+<div class="bg-slate-50 border border-[#e2e8f0] p-xs rounded">
+<div class="text-slate-500">SAMPLING FREQ</div>
+<div class="text-[#0284c7] font-bold text-body-sm">250 MS</div>
+</div>
+<div class="bg-slate-50 border border-[#e2e8f0] p-xs rounded">
+<div class="text-slate-500">SIGNAL SNR</div>
+<div class="text-[#00507d] font-bold text-body-sm">-78 dBm</div>
+</div>
+<div class="bg-slate-50 border border-[#e2e8f0] p-xs rounded">
+<div class="text-slate-500">HARDWARE REV</div>
+<div class="text-[#0f172a] font-bold text-body-sm">ISRO-EM-v4</div>
+</div>
+</div>
+<!-- Real-time Sensor Oscillogram / Metric Stream -->
+<div class="bg-slate-50 border border-[#e2e8f0] p-sm rounded flex flex-col gap-xs">
+<div class="flex justify-between items-center">
+<span class="font-label-code text-label-code text-slate-700 font-semibold">ROLLING ACCELEROMETER / WATER STAGE OSCILLATION</span>
+<span class="font-label-code text-label-code text-red-700 font-bold bg-red-50 border border-red-200 px-xxs py-0.5 rounded">ANOMALOUS AMPLITUDE</span>
+</div>
+<svg class="w-full h-24 stroke-[#00507d] fill-none" viewBox="0 0 500 80">
+<path d="M 0 40 L 40 40 L 60 38 L 80 42 L 110 39 L 140 40 L 170 30 L 190 60 L 210 10 L 230 70 L 250 15 L 270 65 L 290 25 L 320 40 L 350 38 L 380 40 L 420 41 L 460 39 L 500 40" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex items-center justify-between pt-xs">
+<span class="font-label-code text-label-code text-slate-500">FIRMWARE: VER-2024.11-SEC-SHA256</span>
+<div class="flex gap-xs">
+<button class="px-sm py-xxs rounded bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#0f172a] font-label-code text-label-code font-semibold shadow-2xs" onclick="closeInspector()">DISMISS</button>
+<button class="px-sm py-xxs rounded bg-[#00507d] hover:bg-[#003e62] text-white font-label-code text-label-code font-bold shadow-xs" onclick="triggerEmergencyCalibration()">PING RE-CALIBRATE</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Dispatch NDRF Broadcast Toast/Banner -->
+<div class="fixed bottom-6 right-6 z-50 bg-[#dc2626] text-white px-md py-sm rounded-lg shadow-2xl flex items-center gap-sm transform translate-y-24 opacity-0 transition-all duration-300" id="dispatch-toast">
+<span class="material-symbols-outlined text-[24px]">crisis_alert</span>
+<div>
+<div class="font-headline-md text-body-sm font-bold tracking-tight">NDRF HIGH-ALERT DISPATCHED</div>
+<div class="font-label-code text-label-code text-white/95" id="dispatch-msg">Disaster Response Unit notified via SATCOM.</div>
+</div>
+<button class="ml-sm text-white/80 hover:text-white" onclick="hideDispatchToast()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+</div>
+<script>
+  // Tactical Timeline Slider Micro-interaction
+  const timeSlider = document.getElementById('time-slider');
+  const timelineTime = document.getElementById('timeline-time');
+  const playbackBtn = document.getElementById('playback-btn');
+  let isPlaying = false;
+  let playInterval = null;
+
+  if (timeSlider && timelineTime) {
+    timeSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      const hours = Math.floor(val / 60).toString().padStart(2, '0');
+      const mins = (val % 60).toString().padStart(2, '0');
+      timelineTime.textContent = `${hours}:${mins}:00 IST`;
+    });
+  }
+
+  if (playbackBtn) {
+    playbackBtn.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        playbackBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">pause</span>';
+        playbackBtn.classList.add('bg-[#00507d]', 'text-white');
+        playInterval = setInterval(() => {
+          let curr = parseInt(timeSlider.value);
+          if (curr >= 1440) curr = 0;
+          timeSlider.value = curr + 15;
+          const hours = Math.floor(timeSlider.value / 60).toString().padStart(2, '0');
+          const mins = (timeSlider.value % 60).toString().padStart(2, '0');
+          timelineTime.textContent = `${hours}:${mins}:00 IST`;
+        }, 300);
+      } else {
+        playbackBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">play_arrow</span>';
+        playbackBtn.classList.remove('bg-[#00507d]', 'text-white');
+        clearInterval(playInterval);
+      }
+    });
+  }
+
+  // Interactive Layer Toggles
+  document.querySelectorAll('.layer-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      if (btn.classList.contains('active')) {
+        btn.classList.remove('bg-slate-50/90', 'text-slate-600');
+        btn.classList.add('bg-white/95', 'text-[#00507d]', 'font-semibold');
+      } else {
+        btn.classList.remove('bg-white/95', 'text-[#00507d]', 'font-semibold');
+        btn.classList.add('bg-slate-50/90', 'text-slate-600');
+      }
+    });
+  });
+
+  // Modal Inspector Interactions
+  function inspectNode(nodeId) {
+    const modal = document.getElementById('inspector-modal');
+    const title = document.getElementById('modal-node-title');
+    const sub = document.getElementById('modal-node-sub');
+    if (modal && title && sub) {
+      title.textContent = `Telemetry Inspector: Node #${nodeId}`;
+      sub.textContent = `ISRO-GAGAN GEOSPATIAL VECTOR TELEMETRY STREAM // ACTIVE`;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  function selectNode(id, loc, type, reading, severity) {
+    inspectNode(id);
+  }
+
+  function closeInspector() {
+    const modal = document.getElementById('inspector-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  function triggerEmergencyCalibration() {
+    alert("ISRO Telemetry Ping Transmitted. Sensor recalibration delta: +0.02mm.");
+    closeInspector();
+  }
+
+  // NDRF Emergency Dispatch Simulation
+  function dispatchNDRF(nodeId, region) {
+    const toast = document.getElementById('dispatch-toast');
+    const msg = document.getElementById('dispatch-msg');
+    if (toast && msg) {
+      msg.textContent = `Batch Order: NDRF Battalion deployed to ${region} (#${nodeId})`;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        hideDispatchToast();
+      }, 5000);
+    }
+  }
+
+  function hideDispatchToast() {
+    const toast = document.getElementById('dispatch-toast');
+    if (toast) {
+      toast.classList.add('translate-y-24', 'opacity-0');
+      toast.classList.remove('translate-y-0', 'opacity-100');
+    }
+  }
+
+  // Simulated Sensor Counter Micro-tick
+  setInterval(() => {
+    const nodeEl = document.getElementById('live-nodes');
+    if (nodeEl && Math.random() > 0.7) {
+      const val = Math.random() > 0.5 ? 158 : 159;
+      nodeEl.textContent = val;
+    }
+  }, 4000);
+</script></main></div>
+
+
+</body></html>

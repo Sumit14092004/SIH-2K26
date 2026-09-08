@@ -1,0 +1,501 @@
+import React, { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react';
+import { CANONICAL_NODES, getNodeById } from '../data/canonicalNodes';
+import { getSeverityAssessment, getNodeSeverity } from '../data/severityTiers';
+import { sirenManager } from '../components/audio/SirenManager';
+import { formatIstTime } from '../utils/istTime';
+
+const HazardAlertContext = createContext(null);
+
+// Initialize initial active alerts from canonical dataset (nodes that are warning, abnormal, or critical)
+const buildInitialAlerts = () => {
+  return CANONICAL_NODES.filter(
+    (n) => n.severity !== 'nominal' && n.severity !== 'offline' && n.status !== 'offline'
+  ).map((n) => ({
+    alertId: `${n.id}-initial`,
+    id: n.id,
+    displayId: n.displayId,
+    name: n.name,
+    location: n.location,
+    state: n.state,
+    hazard: n.hazard,
+    hazardType: n.hazardType,
+    severity: n.severity,
+    keyMetric: n.keyMetric,
+    subtext: n.subtext,
+    directive: n.directive,
+    lastUpdated: n.lastUpdated,
+    isRemoving: false,
+    source: 'canonical_stream',
+  }));
+};
+
+export function HazardAlertProvider({ children }) {
+  // 1. Central Live Nodes dictionary: key = nodeId, value = full live node object
+  const [nodesMap, setNodesMap] = useState(() => {
+    const map = {};
+    CANONICAL_NODES.forEach((node) => {
+      map[node.id] = { ...node };
+      if (node.displayId) map[node.displayId] = { ...node };
+    });
+    return map;
+  });
+
+  // 2. Active Alerts feed (Warning, Abnormal, Critical)
+  const [activeAlerts, setActiveAlerts] = useState(buildInitialAlerts);
+
+  // 3. Node-specific activity audit logs: key = nodeId, value = Array<{ time, message, highlight }>
+  const [auditTrails, setAuditTrails] = useState(() => {
+    const initialTrails = {};
+    CANONICAL_NODES.forEach((n) => {
+      initialTrails[n.id] = [
+        {
+          time: formatIstTime(new Date(Date.now() - 30 * 60 * 1000)),
+          message: `Station telemetry baseline established via ${n.network.backhaul}. Initial state: ${(n.severity || 'NOMINAL').toUpperCase()}.`,
+          highlight: false,
+        },
+      ];
+    });
+    return initialTrails;
+  });
+
+  // 4. Central Chronological System Audit Trail (Crisis Dispatch Log)
+  const [systemAuditLogs, setSystemAuditLogs] = useState(() => [
+    {
+      id: 'sys-log-init',
+      time: formatIstTime(new Date(Date.now() - 15 * 60 * 1000)),
+      nodeId: 'NETWORK-HUB',
+      location: 'National Intelligence Grid',
+      action: 'INITIALIZE',
+      message: 'Multi-hazard spatial mesh synchronized across 160 sensor telemetry nodes.',
+      severity: 'nominal',
+    },
+  ]);
+
+  // 5. Critical Visual Flashing & Siren State
+  const [isVisualFlashing, setIsVisualFlashing] = useState(false);
+  const [isSirenActive, setIsSirenActive] = useState(false);
+  const flashTimeoutRef = useRef(null);
+
+  // 6. Deduplicated emergency Twilio SMS tracker
+  const criticalSmsSentRef = useRef(new Set(['IN-ASM-042', 'IN-DL-004']));
+
+  /**
+   * Appends an audit entry to a node's audit history and the central system log
+   */
+  const logNodeAudit = useCallback((nodeId, message, highlight = false, action = 'STATUS_CHANGE', severity = 'nominal') => {
+    const timestamp = formatIstTime(new Date());
+    setAuditTrails((prev) => ({
+      ...prev,
+      [nodeId]: [
+        ...(prev[nodeId] || []),
+        { time: timestamp, message, highlight },
+      ],
+    }));
+
+    setSystemAuditLogs((prev) => [
+      {
+        id: `sys-log-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        time: timestamp,
+        nodeId,
+        location: nodesMap[nodeId]?.location || nodeId,
+        action,
+        message,
+        severity,
+      },
+      ...prev.slice(0, 49), // retain last 50 entries
+    ]);
+  }, [nodesMap]);
+
+  /**
+   * Retrieves live node by ID or display ID
+   */
+  const getNode = useCallback(
+    (nodeId) => {
+      if (!nodeId) return CANONICAL_NODES[0];
+      const cleaned = nodeId.trim().toUpperCase();
+      return (
+        nodesMap[cleaned] ||
+        nodesMap[nodeId] ||
+        CANONICAL_NODES.find(
+          (n) =>
+            n.id.toUpperCase() === cleaned ||
+            (n.displayId && n.displayId.toUpperCase() === cleaned)
+        ) ||
+        CANONICAL_NODES[0]
+      );
+    },
+    [nodesMap]
+  );
+
+  /**
+   * Updates a node's telemetry values and recalculates its state in the central store
+   */
+  const updateNodeTelemetry = useCallback((nodeId, updates) => {
+    setNodesMap((prev) => {
+      const current = prev[nodeId] || getNodeById(nodeId);
+      const updatedSensors = {
+        ...(current.latestSensors || {}),
+        ...(updates.latestSensors || {}),
+      };
+
+      const updated = {
+        ...current,
+        ...updates,
+        latestSensors: updatedSensors,
+        lastUpdated: formatIstTime(new Date()),
+      };
+
+      // Recalculate severity assessment with updated sensor data
+      const assessment = getSeverityAssessment(updated);
+      updated.severity = assessment.activeTier;
+      updated.riskScore = assessment.riskScore;
+
+      const next = { ...prev, [nodeId]: updated };
+      if (updated.displayId) next[updated.displayId] = updated;
+      return next;
+    });
+  }, []);
+
+  /**
+   * UNIFIED ALERT TRIGGER FUNCTION
+   * Used by live telemetry streaming and disaster simulations
+   */
+  const triggerHazardAlert = useCallback(
+    async ({
+      nodeId,
+      hazardType = 'FLOOD',
+      severity = 'critical',
+      metric = '+3.85m crest',
+      location = '',
+      directive = '',
+      subtext = '',
+      source = 'simulation',
+      rawSensors = null,
+    }) => {
+      const canonical = getNode(nodeId);
+      const targetLocation = location || canonical?.location || 'Operational Sector';
+      const isCritical = severity.toLowerCase() === 'critical';
+      const istTimestamp = formatIstTime(new Date());
+
+      // 1. Update node state in the central store
+      setNodesMap((prev) => {
+        const current = prev[nodeId] || canonical;
+        const newSensors = {
+          ...(current.latestSensors || {}),
+          ...(rawSensors || {}),
+          primaryValue: metric,
+        };
+
+        if (hazardType.toUpperCase() === 'FLOOD') {
+          const mMatch = metric.match(/[-+]?([0-9.]+)/);
+          if (mMatch) newSensors.waterLevelCm = parseFloat(mMatch[1]) * 100;
+        } else if (hazardType.toUpperCase() === 'FIRE') {
+          const tMatch = metric.match(/([0-9.]+)°?C?/);
+          if (tMatch) newSensors.temperature = parseFloat(tMatch[1]);
+        } else if (hazardType.toUpperCase() === 'AQI') {
+          const aMatch = metric.match(/(\d+)/);
+          if (aMatch) newSensors.pm25 = parseFloat(aMatch[1]);
+        }
+
+        const updated = {
+          ...current,
+          hazardType: hazardType.toUpperCase(),
+          severity: severity.toLowerCase(),
+          keyMetric: metric,
+          subtext: subtext || current.subtext,
+          directive: directive || current.directive,
+          latestSensors: newSensors,
+          lastUpdated: istTimestamp,
+          status: 'online',
+          isPulsing: isCritical,
+        };
+
+        const assessment = getSeverityAssessment(updated);
+        updated.severity = assessment.activeTier;
+        updated.riskScore = assessment.riskScore;
+
+        const next = { ...prev, [nodeId]: updated };
+        if (updated.displayId) next[updated.displayId] = updated;
+        return next;
+      });
+
+      // 2. Create/update dynamic alert card
+      const alertId = `${nodeId}-${Date.now()}`;
+      const newAlert = {
+        alertId,
+        id: nodeId,
+        displayId: canonical?.displayId || nodeId,
+        name: canonical?.name || targetLocation,
+        location: targetLocation,
+        state: canonical?.state || 'India',
+        hazard: canonical?.hazard || `${hazardType} Event`,
+        hazardType: hazardType.toUpperCase(),
+        severity: severity.toLowerCase(),
+        keyMetric: metric,
+        subtext: subtext || canonical?.subtext || `${hazardType} threshold breached.`,
+        directive: directive || canonical?.directive || 'Deploy tactical response unit immediately.',
+        lastUpdated: istTimestamp,
+        isRemoving: false,
+        source,
+      };
+
+      setActiveAlerts((prev) => {
+        const filtered = prev.filter((a) => a.id !== nodeId);
+        return [newAlert, ...filtered];
+      });
+
+      // 3. Log alert occurrence
+      logNodeAudit(
+        nodeId,
+        `⚠️ ${severity.toUpperCase()} THRESHOLD BREACHED: ${metric} [Source: ${source.toUpperCase()}]`,
+        isCritical,
+        'HAZARD_ALERT',
+        severity.toLowerCase()
+      );
+
+      // 4. Critical Audio Siren & Flashing Visual Alert
+      if (isCritical) {
+        sirenManager.playCriticalSiren(7000);
+        setIsSirenActive(!sirenManager.isMuted);
+
+        setIsVisualFlashing(true);
+        if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+        flashTimeoutRef.current = setTimeout(() => {
+          setIsVisualFlashing(false);
+          setIsSirenActive(false);
+        }, 7000);
+
+        // Emergency Twilio SMS escalation (deduplicated)
+        if (!criticalSmsSentRef.current.has(nodeId)) {
+          criticalSmsSentRef.current.add(nodeId);
+
+          try {
+            fetch('http://localhost:8000/api/notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                node_id: nodeId,
+                location: targetLocation,
+                hazard_type: hazardType.toUpperCase(),
+                severity: 'critical',
+                key_metric: metric,
+                action_type: 'emergency_critical',
+                notes: `Automated critical detection from ${source} at ${istTimestamp}`,
+              }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                logNodeAudit(
+                  nodeId,
+                  `📲 Twilio Emergency SMS dispatched to responder (${data.status || 'dispatched'}).`,
+                  false,
+                  'SMS_DISPATCH'
+                );
+              })
+              .catch(() => {
+                logNodeAudit(nodeId, `📲 Emergency broadcast simulated locally.`, false, 'SMS_SIMULATED');
+              });
+          } catch {
+            // Silently handle backend offline
+          }
+        }
+      }
+
+      return newAlert;
+    },
+    [getNode, logNodeAudit]
+  );
+
+  /**
+   * RESOLVE HAZARD ALERT ON 'DISPATCH ACTION' CLICK
+   * Smoothly animates card out, reverts node state to NOMINAL, updates all counters,
+   * logs resolution audit trail, and DOES NOT send any SMS.
+   */
+  const resolveHazardAlert = useCallback(
+    (nodeId) => {
+      const canonical = getNode(nodeId);
+      const targetLocation = canonical?.location || nodeId;
+      const istTimestamp = formatIstTime(new Date());
+
+      // 1. Mark alert as removing for smooth animation
+      setActiveAlerts((prev) =>
+        prev.map((alert) =>
+          alert.id === nodeId ? { ...alert, isRemoving: true } : alert
+        )
+      );
+
+      // 2. Remove after animation
+      setTimeout(() => {
+        setActiveAlerts((prev) => prev.filter((alert) => alert.id !== nodeId));
+      }, 350);
+
+      // 3. Reset node state to NOMINAL in the central store
+      setNodesMap((prev) => {
+        const current = prev[nodeId] || canonical;
+        let nominalMetric = 'Operating within safe specifications';
+        const nominalSensors = { ...(current.latestSensors || {}) };
+
+        if (current.hazardType === 'FLOOD') {
+          nominalMetric = '+0.25m crest (Safe)';
+          nominalSensors.waterLevelCm = 25.0;
+          nominalSensors.primaryValue = '+0.25';
+        } else if (current.hazardType === 'AQI') {
+          nominalMetric = 'AQI 65 (Good)';
+          nominalSensors.pm25 = 28.0;
+          nominalSensors.primaryValue = 65;
+        } else if (current.hazardType === 'FIRE') {
+          nominalMetric = '32.5°C forest canopy (Safe)';
+          nominalSensors.temperature = 32.5;
+          nominalSensors.primaryValue = '32.5°';
+          nominalSensors.mq135Ppm = 110.0;
+          nominalSensors.flameDetected = false;
+        } else if (current.hazardType === 'SEISMIC') {
+          nominalMetric = '0.15 mm/hr creep (Stable)';
+          nominalSensors.primaryValue = '0.15';
+        } else if (current.hazardType === 'CYCLONE') {
+          nominalMetric = '32 km/h calm (1008 hPa)';
+          nominalSensors.windSpeedKmh = 32.0;
+          nominalSensors.primaryValue = '1008.0';
+        }
+
+        const updated = {
+          ...current,
+          severity: 'nominal',
+          status: 'online',
+          keyMetric: nominalMetric,
+          latestSensors: nominalSensors,
+          isPulsing: false,
+          directive: 'Station operating nominally under ambient baseline.',
+          riskScore: 15,
+          lastUpdated: istTimestamp,
+        };
+
+        const next = { ...prev, [nodeId]: updated };
+        if (updated.displayId) next[updated.displayId] = updated;
+        return next;
+      });
+
+      // 4. Remove from critical SMS sent set to allow future alerts if needed
+      criticalSmsSentRef.current.delete(nodeId);
+
+      // 5. Log the resolution to activity history and central audit log
+      logNodeAudit(
+        nodeId,
+        `✅ ALERT RESOLVED: Ground team dispatched for ${targetLocation}. Node reverted to NOMINAL.`,
+        false,
+        'DISPATCH_ACTION',
+        'nominal'
+      );
+
+      // Stop flashing if no critical alerts remain
+      setTimeout(() => {
+        setActiveAlerts((current) => {
+          const hasCritical = current.some((a) => a.severity === 'critical' && !a.isRemoving);
+          if (!hasCritical) {
+            setIsVisualFlashing(false);
+            sirenManager.stop();
+            setIsSirenActive(false);
+          }
+          return current;
+        });
+      }, 360);
+    },
+    [getNode, logNodeAudit]
+  );
+
+  // Toggle siren mute
+  const toggleSirenMute = useCallback(() => {
+    const nextMuted = !sirenManager.isMuted;
+    sirenManager.setMuted(nextMuted);
+    setIsSirenActive(!nextMuted && sirenManager.isPlaying);
+    return nextMuted;
+  }, []);
+
+  // Compute live counts across all 5 states from the central store
+  const allNodesList = useMemo(() => {
+    return CANONICAL_NODES.map((base) => nodesMap[base.id] || base);
+  }, [nodesMap]);
+
+  const {
+    offlineCount,
+    criticalCount,
+    abnormalCount,
+    warningCount,
+    nominalCount,
+    totalNodesCount,
+  } = useMemo(() => {
+    let off = 0;
+    let crit = 0;
+    let abn = 0;
+    let warn = 0;
+    let nom = 0;
+
+    allNodesList.forEach((n) => {
+      const assessment = getSeverityAssessment(n);
+      const tier = assessment.activeTier;
+      if (tier === 'offline') off += 1;
+      else if (tier === 'critical') crit += 1;
+      else if (tier === 'abnormal') abn += 1;
+      else if (tier === 'warning') warn += 1;
+      else nom += 1;
+    });
+
+    const totalFleet = 160;
+    // Scale nominal nodes to fill fleet representation (160 - non-nominal)
+    const activeNonNominal = off + crit + abn + warn;
+    const fleetNominal = Math.max(0, totalFleet - activeNonNominal);
+
+    return {
+      offlineCount: off,
+      criticalCount: crit,
+      abnormalCount: abn,
+      warningCount: warn,
+      nominalCount: fleetNominal,
+      totalNodesCount: totalFleet,
+    };
+  }, [allNodesList]);
+
+  const activeHazardsCount = criticalCount + abnormalCount + warningCount;
+
+  return (
+    <HazardAlertContext.Provider
+      value={{
+        nodes: nodesMap,
+        allNodesList,
+        activeAlerts,
+        auditTrails,
+        systemAuditLogs,
+        isVisualFlashing,
+        isSirenActive,
+        // 5-Tier Operational Distribution
+        offlineCount,
+        criticalCount,
+        abnormalCount,
+        warningCount,
+        nominalCount,
+        totalNodesCount,
+        activeHazardsCount,
+        // Evaluators & Actions
+        getNode,
+        getNodeSeverity,
+        getSeverityAssessment,
+        updateNodeTelemetry,
+        triggerHazardAlert,
+        resolveHazardAlert,
+        logNodeAudit,
+        toggleSirenMute,
+        setIsVisualFlashing,
+      }}
+    >
+      {children}
+    </HazardAlertContext.Provider>
+  );
+}
+
+export function useHazardAlerts() {
+  const ctx = useContext(HazardAlertContext);
+  if (!ctx) {
+    throw new Error('useHazardAlerts must be used within a HazardAlertProvider');
+  }
+  return ctx;
+}

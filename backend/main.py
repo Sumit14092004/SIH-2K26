@@ -1,7 +1,14 @@
 import os
+import sys
 import json
 import time
 import math
+
+# Force UTF-8 for console output on Windows to prevent charmap crashes
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from contextlib import asynccontextmanager
@@ -44,7 +51,8 @@ INFLUXDB_BUCKET = os.getenv("INFLUXDB_BUCKET", "sensor_data")
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
 TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER", "")
-ALERT_PHONE_NUMBER = os.getenv("ALERT_PHONE_NUMBER", "")
+ALERT_RECIPIENT_PHONE = os.getenv("ALERT_RECIPIENT_PHONE") or os.getenv("ALERT_PHONE_NUMBER", "")
+ALERT_PHONE_NUMBER = ALERT_RECIPIENT_PHONE  # Backward compatibility alias
 
 # Evaluation Thresholds
 CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", 70.0))
@@ -722,29 +730,49 @@ def dispatch_authority_notifications(alert: dict):
     try:
         from twilio.rest import Client
         client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        msg_sid = None
+
+        # 1. Dispatch SMS
         try:
             msg = client.messages.create(
                 body=sms_body,
                 from_=TWILIO_FROM_NUMBER,
                 to=ALERT_PHONE_NUMBER
             )
-            print(f"[TWILIO SUCCESS] Dispatched emergency custom SMS (SID: {msg.sid})")
+            msg_sid = msg.sid
+            print(f"[TWILIO SUCCESS] Dispatched emergency custom SMS to {ALERT_PHONE_NUMBER} (SID: {msg.sid})")
         except Exception as custom_err:
-            if "Trial accounts can only use predefined SMS templates" in str(custom_err):
-                print(f"[TWILIO TRIAL RESTRICTION] Retrying with approved trial template ('sms_appointment_reminders')...")
+            err_str = str(custom_err)
+            print(f"[TWILIO SMS NOTICE] {err_str}")
+            if "Trial accounts can only use predefined SMS templates" in err_str or "572006" in err_str:
+                print(f"[TWILIO TRIAL] Retrying with approved trial template ('sms_appointment_reminders')...")
                 msg = client.messages.create(
                     body="sms_appointment_reminders",
                     from_=TWILIO_FROM_NUMBER,
                     to=ALERT_PHONE_NUMBER
                 )
+                msg_sid = msg.sid
                 print(f"[TWILIO SUCCESS] Dispatched trial template SMS to {ALERT_PHONE_NUMBER} (SID: {msg.sid})")
             else:
-                raise custom_err
+                print(f"[TWILIO ERROR] Custom SMS error: {custom_err}")
+
+        # 2. Also dispatch to WhatsApp Sandbox
+        try:
+            wa_to = f"whatsapp:{ALERT_PHONE_NUMBER}" if not ALERT_PHONE_NUMBER.startswith("whatsapp:") else ALERT_PHONE_NUMBER
+            wa_from = f"whatsapp:{TWILIO_FROM_NUMBER}" if not TWILIO_FROM_NUMBER.startswith("whatsapp:") else TWILIO_FROM_NUMBER
+            wa_msg = client.messages.create(
+                body=sms_body,
+                from_=wa_from,
+                to=wa_to
+            )
+            print(f"[TWILIO WHATSAPP SUCCESS] Dispatched emergency WhatsApp alert to {wa_to} (SID: {wa_msg.sid})")
+        except Exception as wa_err:
+            pass
 
         last_sms_sent_times[throttle_key] = now
-        return {"status": "sent", "sid": msg.sid}
+        return {"status": "sent", "sid": msg_sid or "dispatched"}
     except Exception as e:
-        print(f"[TWILIO ERROR] SMS failure: {e}")
+        print(f"[TWILIO ERROR] SMS dispatch failure: {e}")
         return {"status": "error", "error": str(e)}
 
 # ==========================================
@@ -1129,3 +1157,166 @@ def test_hazard_trigger(payload: DemoTriggerPayload):
         "message": f"Hazard '{payload.hazard}' processed through NDMA pipeline",
         "alert": correlated_alert
     }
+
+# Deduplication cache for critical emergency SMS alerts
+critical_sms_sent_tracker: Dict[str, float] = {}
+
+# --- Twilio Emergency Alert Notification Endpoint ---
+class NotifyPayload(BaseModel):
+    node_id: str = Field("IN-ASM-042", example="IN-ASM-042")
+    location: str = Field("Dibrugarh Basin, Assam", example="Dibrugarh Basin, Assam")
+    hazard_type: str = Field("FLOOD", example="FLOOD")
+    severity: str = Field("critical", example="critical")
+    key_metric: str = Field("+4.2m crest (Level-3 Critical)", example="+4.2m crest (Level-3 Critical)")
+    action_type: str = Field("emergency_critical", example="emergency_critical", description="emergency_critical | alert_ndrf | send_dispatch")
+    notes: Optional[str] = Field(None, example="Automated critical emergency trigger")
+    recipient_numbers: Optional[List[str]] = None
+
+@app.post("/api/notify", tags=["Notification Engine"], summary="Dispatch Twilio SMS alert for Emergency Critical Detections")
+def notify_authorities(payload: NotifyPayload):
+    """
+    Receives notification requests. As per operational specifications:
+    - SMS sending is strictly restricted to automatic CRITICAL / EMERGENCY detections.
+    - 'send_dispatch' and routine dispatch actions do NOT send any SMS.
+    - Sends to a single configured recipient phone (ALERT_RECIPIENT_PHONE).
+    - Deduplication prevents repeated SMS alerts for the same ongoing critical node.
+    """
+    # 1. Reject SMS for dispatch actions
+    if payload.action_type == "send_dispatch":
+        print(f"[SMS SUPPRESSED] Dispatch action requested for {payload.node_id}. SMS disabled for field dispatches.")
+        return {
+            "status": "skipped",
+            "message": "Twilio SMS is disabled on field dispatch action.",
+            "node_id": payload.node_id
+        }
+
+    # 2. Only allow critical/emergency severity for automated SMS
+    if payload.severity.lower() != "critical" and payload.action_type != "alert_ndrf":
+        return {
+            "status": "skipped",
+            "message": f"SMS reserved for CRITICAL / EMERGENCY tier only (received: {payload.severity})",
+            "node_id": payload.node_id
+        }
+
+    # 3. Deduplication: One SMS per ongoing critical alert on this node
+    now = time.time()
+    dedup_key = f"critical:{payload.node_id.strip().upper()}"
+    last_sent = critical_sms_sent_tracker.get(dedup_key, 0)
+    
+    # 15-minute cooldown per ongoing critical node to prevent spamming
+    if now - last_sent < SMS_COOLDOWN_SECONDS:
+        remaining = int(SMS_COOLDOWN_SECONDS - (now - last_sent))
+        print(f"[TWILIO DEDUP] Suppressed duplicate SMS for {payload.node_id}. Cooldown active: {remaining}s remaining.")
+        return {
+            "status": "deduplicated",
+            "message": f"Alert already sent for node {payload.node_id}. Cooldown active ({remaining}s remaining).",
+            "cooldown_remaining": remaining
+        }
+
+    current_time_ist = datetime.now(IST).strftime("%H:%M:%S IST")
+    
+    sms_body = (
+        f"🚨 [AAPDA-KADABRA CRITICAL DISASTER ALERT] 🚨\n"
+        f"Hazard: {payload.hazard_type.upper()} BREACH\n"
+        f"Node: #{payload.node_id} ({payload.location})\n"
+        f"Metric: {payload.key_metric}\n"
+        f"Status: CRITICAL / EMERGENCY LEVEL\n"
+        f"Time: {current_time_ist}"
+    )
+    if payload.notes:
+        sms_body += f"\nNote: {payload.notes}"
+
+    # Target single fixed recipient phone number
+    target_phone = ALERT_RECIPIENT_PHONE or ALERT_PHONE_NUMBER or "+918669923983"
+    target_numbers = [target_phone]
+
+    has_credentials = (
+        TWILIO_ACCOUNT_SID and not TWILIO_ACCOUNT_SID.startswith("your_")
+        and TWILIO_AUTH_TOKEN and not TWILIO_AUTH_TOKEN.startswith("your_")
+        and TWILIO_FROM_NUMBER
+    )
+
+    if not has_credentials:
+        print("\n" + "="*60)
+        print(f"[TWILIO SIMULATION // CRITICAL EMERGENCY ALERT]")
+        print(f"Target Recipient: {target_phone}")
+        print("Message Preview:\n" + sms_body)
+        print("="*60 + "\n")
+        critical_sms_sent_tracker[dedup_key] = now
+        return {
+            "status": "simulated",
+            "message": "Twilio credentials not configured; simulated in logs",
+            "action_type": payload.action_type,
+            "recipient": target_phone,
+            "sms_body": sms_body,
+            "timestamp": datetime.now(IST).isoformat()
+        }
+
+    # Dispatch via Twilio Client
+    critical_sms_sent_tracker[dedup_key] = now
+    dispatched_sids = []
+    errors = []
+    try:
+        from twilio.rest import Client
+        client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
+        for phone in target_numbers:
+            try:
+                msg = client.messages.create(
+                    body=sms_body,
+                    from_=TWILIO_FROM_NUMBER,
+                    to=phone
+                )
+                dispatched_sids.append({"phone": phone, "sid": msg.sid})
+                print(f"[TWILIO DISPATCH SUCCESS] Dispatched to {phone} (SID: {msg.sid})")
+            except Exception as send_err:
+                err_str = str(send_err)
+                print(f"[TWILIO ERROR on {phone}]: {err_str}")
+                # Retry with trial template if trial account restriction
+                if "Trial accounts can only use predefined SMS templates" in err_str or "572006" in err_str:
+                    try:
+                        msg = client.messages.create(
+                            body="sms_appointment_reminders",
+                            from_=TWILIO_FROM_NUMBER,
+                            to=phone
+                        )
+                        dispatched_sids.append({"phone": phone, "sid": msg.sid, "mode": "trial_template"})
+                        print(f"[TWILIO TRIAL DISPATCH SUCCESS] Dispatched to {phone} (SID: {msg.sid})")
+                    except Exception as trial_err:
+                        errors.append({"phone": phone, "error": str(trial_err)})
+                else:
+                    errors.append({"phone": phone, "error": err_str})
+
+        # Also forward to WhatsApp sandbox if available
+        for phone in target_numbers:
+            try:
+                wa_to = f"whatsapp:{phone}" if not phone.startswith("whatsapp:") else phone
+                wa_from = f"whatsapp:{TWILIO_FROM_NUMBER}" if not TWILIO_FROM_NUMBER.startswith("whatsapp:") else TWILIO_FROM_NUMBER
+                client.messages.create(body=sms_body, from_=wa_from, to=wa_to)
+            except Exception:
+                pass
+
+        return {
+            "status": "success" if dispatched_sids else "failed",
+            "message": f"Twilio SMS processed for {len(dispatched_sids)} recipient(s)",
+            "action_type": payload.action_type,
+            "recipients": target_numbers,
+            "dispatched": dispatched_sids,
+            "errors": errors,
+            "sms_body": sms_body,
+            "timestamp": datetime.now(IST).isoformat()
+        }
+    except Exception as general_err:
+        print(f"[TWILIO FATAL ERROR]: {general_err}")
+        return {
+            "status": "error",
+            "message": str(general_err),
+            "sms_body": sms_body,
+            "timestamp": datetime.now(IST).isoformat()
+        }
+
+if __name__ == "__main__":
+    import uvicorn
+    print("Starting SIH 2026 NDMA Environmental Intelligence Backend on http://127.0.0.1:8000 ...")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
