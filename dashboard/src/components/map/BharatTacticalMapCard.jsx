@@ -405,6 +405,10 @@ export default function BharatTacticalMapCard({
   onInspectNode,
   onTriggerNotification,
   showSimulationConsole = true,
+  searchQuery: propSearchQuery,
+  selectedState: propSelectedState,
+  selectedHazard: propSelectedHazard,
+  onResetFilters: propResetFilters,
 }) {
   const [selectedLayer, setSelectedLayer] = useState('ALL');
   const [mapStyle, setMapStyle] = useState('topo'); // 'topo' | 'dark' | 'satellite'
@@ -413,6 +417,7 @@ export default function BharatTacticalMapCard({
   const [simulationStatus, setSimulationStatus] = useState('');
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [filteredCount, setFilteredCount] = useState(12);
 
   const {
     allNodesList,
@@ -423,7 +428,29 @@ export default function BharatTacticalMapCard({
     criticalCount,
     nominalCount,
     triggerHazardAlert,
+    searchQuery: contextSearchQuery,
+    selectedState: contextSelectedState,
+    selectedHazard: contextSelectedHazard,
+    clearFilters: contextClearFilters,
+    isFilterActive: contextIsFilterActive,
   } = useHazardAlerts();
+
+  const searchQuery = propSearchQuery !== undefined ? propSearchQuery : (contextSearchQuery || '');
+  const selectedState = propSelectedState !== undefined ? propSelectedState : (contextSelectedState || 'ALL');
+  const selectedHazard = propSelectedHazard !== undefined ? propSelectedHazard : (contextSelectedHazard || 'ALL');
+  const onResetFilters = propResetFilters || contextClearFilters;
+  const isFilterActive = contextIsFilterActive || Boolean((searchQuery || '').trim() || (selectedState && selectedState !== 'ALL') || (selectedHazard && selectedHazard !== 'ALL'));
+
+  // Synchronize top hazard dropdown with map layer buttons
+  useEffect(() => {
+    if (selectedHazard && selectedHazard !== 'ALL') {
+      if (['FLOOD', 'AQI', 'SEISMIC'].includes(selectedHazard)) {
+        setSelectedLayer(selectedHazard);
+      }
+    } else if (selectedHazard === 'ALL') {
+      setSelectedLayer('ALL');
+    }
+  }, [selectedHazard]);
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -538,6 +565,7 @@ export default function BharatTacticalMapCard({
       return;
 
     const L = window.L;
+    const map = mapInstanceRef.current;
     const nodeLayer = nodeLayerGroupRef.current;
     const meshLayer = meshLayerGroupRef.current;
     const zonesLayer = zonesLayerGroupRef.current;
@@ -579,12 +607,56 @@ export default function BharatTacticalMapCard({
         threatRadiusMeters,
       };
     }).filter((node) => {
-      if (selectedLayer === 'ALL') return true;
-      if (selectedLayer === 'FLOOD') return node.hazardType === 'FLOOD';
-      if (selectedLayer === 'AQI') return node.hazardType === 'AQI';
-      if (selectedLayer === 'SEISMIC') return node.hazardType === 'SEISMIC';
+      // 1. Text Search Filter (node ID, code, displayId, name, location, state, hazard)
+      const q = (searchQuery || '').trim().toLowerCase();
+      if (q) {
+        const matchesQuery =
+          (node.id && node.id.toLowerCase().includes(q)) ||
+          (node.code && node.code.toLowerCase().includes(q)) ||
+          (node.displayId && node.displayId.toLowerCase().includes(q)) ||
+          (node.name && node.name.toLowerCase().includes(q)) ||
+          (node.location && node.location.toLowerCase().includes(q)) ||
+          (node.state && node.state.toLowerCase().includes(q)) ||
+          (node.hazard && node.hazard.toLowerCase().includes(q));
+        if (!matchesQuery) return false;
+      }
+
+      // 2. State Filter
+      if (selectedState && selectedState !== 'ALL') {
+        const targetState = selectedState.toLowerCase();
+        const nodeState = (node.state || '').toLowerCase();
+        const nodeLocation = (node.location || '').toLowerCase();
+        const matchesState = nodeState.includes(targetState) || nodeLocation.includes(targetState);
+        if (!matchesState) return false;
+      }
+
+      // 3. Hazard Filter (selectedHazard or layer toggle)
+      const activeHazard = selectedHazard && selectedHazard !== 'ALL' ? selectedHazard : selectedLayer;
+      if (activeHazard !== 'ALL') {
+        if (node.hazardType !== activeHazard) return false;
+      }
+
       return true;
     });
+
+    setFilteredCount(visibleNodes.length);
+
+    // Auto-focus if user is filtering to specific search query or state
+    const hasFilter = Boolean((searchQuery || '').trim() || (selectedState && selectedState !== 'ALL'));
+    if (hasFilter && map && visibleNodes.length > 0) {
+      try {
+        if (visibleNodes.length === 1) {
+          map.setView([visibleNodes[0].lat, visibleNodes[0].lng], 8, { animate: false });
+        } else {
+          const bounds = L.latLngBounds(visibleNodes.map((n) => [n.lat, n.lng]));
+          if (bounds.isValid && bounds.isValid()) {
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8, animate: false });
+          }
+        }
+      } catch (err) {
+        console.warn('Map bounds fit warning:', err);
+      }
+    }
 
     // Mesh Network Topology
     if (visibleNodes.length >= 2) {
@@ -788,7 +860,7 @@ export default function BharatTacticalMapCard({
         </div>
       `);
     });
-  }, [selectedLayer, mapStyle, onInspectNode, allNodesList, getNodeSeverity]);
+  }, [selectedLayer, mapStyle, onInspectNode, allNodesList, getNodeSeverity, searchQuery, selectedState, selectedHazard]);
 
   // 4. Render Active Simulation Boundaries
   useEffect(() => {
@@ -999,6 +1071,18 @@ export default function BharatTacticalMapCard({
           <span className="hidden md:inline-block font-label-code text-[11px] text-slate-400 font-mono">
             LAT {cursorCoords.lat}° N, LON {cursorCoords.lng}° E
           </span>
+          {isFilterActive && (
+            <div className="flex items-center gap-xs px-xs py-0.5 rounded bg-sky-950/80 border border-sky-400/40 text-sky-300 text-[10.5px] font-mono">
+              <span className="font-bold">MATCH: {filteredCount} OF {allNodesList.length} NODES</span>
+              <button
+                onClick={onResetFilters}
+                className="text-sky-200 hover:text-red-300 font-bold ml-1 cursor-pointer bg-sky-900/60 px-1 rounded text-[9.5px] uppercase"
+                title="Clear all filters and show entire fleet"
+              >
+                ✕ Clear
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-xs flex-wrap">

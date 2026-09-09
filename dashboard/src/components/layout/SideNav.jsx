@@ -1,6 +1,9 @@
 import React from 'react';
+import { useHazardAlerts } from '../../context/HazardAlertContext';
 
 export default function SideNav({ activePath, onNavigate }) {
+  const { bandwidthLoad, isroGaganSync } = useHazardAlerts();
+
   const menuItems = [
     { id: 'live-command-center', label: 'Tactical Map Surface', icon: 'map' },
     { id: 'disaster-scenario-simulation', label: 'Disaster Simulation', icon: 'crisis_alert' },
@@ -45,18 +48,29 @@ export default function SideNav({ activePath, onNavigate }) {
         </nav>
       </div>
 
-      {/* Network Telemetry Status Card */}
+      {/* Live Network Telemetry Status Card */}
       <div className="p-xs rounded bg-canvas-subtle border border-border-grid space-y-xxs">
         <div className="flex items-center justify-between">
           <span className="font-label-code text-label-code text-text-secondary">BANDWIDTH LOAD</span>
-          <span className="font-label-code text-label-code text-status-nominal font-bold">142 MB/S</span>
+          <span className={`font-label-code text-label-code ${bandwidthLoad?.tone || 'text-status-nominal'} font-bold transition-colors`}>
+            {bandwidthLoad?.formatted || '142.4 MB/S'}
+          </span>
         </div>
         <div className="w-full bg-border-grid h-1.5 rounded overflow-hidden">
-          <div className="bg-telemetry-cobalt h-full w-[64%] transition-all duration-500"></div>
+          <div
+            className="bg-telemetry-cobalt h-full transition-all duration-700 ease-out"
+            style={{ width: `${bandwidthLoad?.percentage || 65}%` }}
+          />
         </div>
-        <div className="flex justify-between font-label-code text-label-code text-text-muted">
-          <span>ISRO GAGAN SYNC</span>
-          <span className="text-status-nominal font-semibold">NOMINAL</span>
+        <div className="flex justify-between items-center font-label-code text-label-code text-text-muted">
+          <span title="ISRO GAGAN Satellite Augmented Constellation">ISRO GAGAN SYNC</span>
+          <span
+            className={`${isroGaganSync?.tone || 'text-status-nominal'} font-semibold flex items-center gap-1`}
+            title={isroGaganSync?.subtext}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${isroGaganSync?.dotTone || 'bg-status-nominal'} animate-pulse-subtle`} />
+            {isroGaganSync?.label || 'NOMINAL'}
+          </span>
         </div>
       </div>
     </aside>

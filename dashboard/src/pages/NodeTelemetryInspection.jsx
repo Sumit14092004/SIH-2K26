@@ -25,7 +25,7 @@ export default function NodeTelemetryInspection({
   );
   const [feedbackTone, setFeedbackTone] = useState('text-text-secondary');
 
-  const { getNode, getNodeSeverity, auditTrails, logNodeAudit } = useHazardAlerts();
+  const { getNode, getNodeSeverity, auditTrails, logNodeAudit, searchQuery, selectedState } = useHazardAlerts();
 
   // Action states for independent NDRF and Dispatch workflows
   const [ndrfAlerted, setNdrfAlerted] = useState(false);
@@ -147,14 +147,23 @@ export default function NodeTelemetryInspection({
 
   // Filter nodes for the quick-switcher bar
   const filteredNodes = CANONICAL_NODES.filter((n) => {
-    const q = searchFilter.trim().toLowerCase();
-    return (
+    const q = (searchFilter || searchQuery || '').trim().toLowerCase();
+    const matchesSearch =
       !q ||
       n.id.toLowerCase().includes(q) ||
+      (n.displayId && n.displayId.toLowerCase().includes(q)) ||
       n.name.toLowerCase().includes(q) ||
       n.location.toLowerCase().includes(q) ||
-      n.hazard.toLowerCase().includes(q)
-    );
+      (n.state && n.state.toLowerCase().includes(q)) ||
+      n.hazard.toLowerCase().includes(q);
+
+    const matchesState =
+      !selectedState ||
+      selectedState === 'ALL' ||
+      (n.state && n.state.toLowerCase().includes(selectedState.toLowerCase())) ||
+      (n.location && n.location.toLowerCase().includes(selectedState.toLowerCase()));
+
+    return matchesSearch && matchesState;
   });
 
   return (

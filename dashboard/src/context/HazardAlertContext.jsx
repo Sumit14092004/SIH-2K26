@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { CANONICAL_NODES, getNodeById } from '../data/canonicalNodes';
 import { getSeverityAssessment, getNodeSeverity } from '../data/severityTiers';
 import { sirenManager } from '../components/audio/SirenManager';
@@ -78,6 +78,32 @@ export function HazardAlertProvider({ children }) {
 
   // 6. Deduplicated emergency Twilio SMS tracker
   const criticalSmsSentRef = useRef(new Set(['IN-ASM-042', 'IN-DL-004']));
+
+  // 7. Central Geospatial & Query Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedState, setSelectedState] = useState('ALL');
+  const [selectedHazard, setSelectedHazard] = useState('ALL');
+
+  const clearFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedState('ALL');
+    setSelectedHazard('ALL');
+  }, []);
+
+  const isFilterActive = useMemo(() => {
+    return Boolean(searchQuery.trim() || selectedState !== 'ALL' || selectedHazard !== 'ALL');
+  }, [searchQuery, selectedState, selectedHazard]);
+
+  // 8. Live Bandwidth Load Micro-Jitter (simulated live telemetry fluctuation)
+  const [bandwidthJitter, setBandwidthJitter] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Periodic subtle fluctuation between -1.8 and +2.2 MB/s
+      setBandwidthJitter((Math.random() * 4 - 1.8));
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
 
   /**
    * Appends an audit entry to a node's audit history and the central system log
@@ -457,6 +483,91 @@ export function HazardAlertProvider({ children }) {
 
   const activeHazardsCount = criticalCount + abnormalCount + warningCount;
 
+  // 9. Dynamic Bandwidth Load calculation tied to live node telemetry throughput
+  const bandwidthLoad = useMemo(() => {
+    // Throughput formula: nominal: ~0.82 MB/s, warning: ~2.4 MB/s, abnormal: ~4.6 MB/s, critical: ~8.8 MB/s
+    const baseThroughput = (
+      nominalCount * 0.82 +
+      warningCount * 2.4 +
+      abnormalCount * 4.6 +
+      criticalCount * 8.8
+    );
+    const liveVal = Math.max(75, Math.min(195, baseThroughput + bandwidthJitter));
+    const rounded = parseFloat(liveVal.toFixed(1));
+    const percentage = Math.min(100, Math.max(10, Math.round((rounded / 200) * 100)));
+
+    let tone = 'text-status-nominal';
+    if (percentage > 85) tone = 'text-alert-critical';
+    else if (percentage > 72) tone = 'text-alert-warning';
+
+    return {
+      value: rounded,
+      formatted: `${rounded.toFixed(1)} MB/S`,
+      percentage,
+      tone,
+    };
+  }, [nominalCount, warningCount, abnormalCount, criticalCount, bandwidthJitter]);
+
+  // 10. Dynamic ISRO GAGAN Satellite Augmented Constellation Sync status
+  const isroGaganSync = useMemo(() => {
+    // Find all satellite-linked nodes in the current fleet
+    const satNodes = allNodesList.filter((n) => {
+      const bh = (n.network?.backhaul || '').toLowerCase();
+      return bh.includes('isro gagan') || bh.includes('satcom') || bh.includes('satellite');
+    });
+
+    const totalSat = satNodes.length || 12;
+    const onlineSat = satNodes.filter((n) => n.status !== 'offline').length;
+    const syncRatio = onlineSat / totalSat;
+    const pct = Math.round(syncRatio * 100);
+
+    if (syncRatio >= 1.0) {
+      return {
+        status: 'NOMINAL',
+        label: 'NOMINAL (100%)',
+        percentage: 100,
+        tone: 'text-status-nominal',
+        dotTone: 'bg-status-nominal',
+        subtext: 'GSAT-15 PRN 128 Constellation Locked',
+        syncedCount: onlineSat,
+        totalCount: totalSat,
+      };
+    } else if (syncRatio >= 0.8) {
+      return {
+        status: 'OPTIMAL',
+        label: `OPTIMAL (${onlineSat}/${totalSat})`,
+        percentage: pct,
+        tone: 'text-status-nominal',
+        dotTone: 'bg-status-nominal',
+        subtext: `1 node in cryo-hold (${onlineSat}/${totalSat} locked)`,
+        syncedCount: onlineSat,
+        totalCount: totalSat,
+      };
+    } else if (syncRatio >= 0.5) {
+      return {
+        status: 'DEGRADED',
+        label: `DEGRADED (${pct}%)`,
+        percentage: pct,
+        tone: 'text-alert-warning',
+        dotTone: 'bg-alert-warning',
+        subtext: 'Multiple sat-nodes unreachable',
+        syncedCount: onlineSat,
+        totalCount: totalSat,
+      };
+    } else {
+      return {
+        status: 'CRITICAL',
+        label: 'SYNC LOST',
+        percentage: pct,
+        tone: 'text-alert-critical',
+        dotTone: 'bg-alert-critical',
+        subtext: 'Satellite downlink telemetry offline',
+        syncedCount: onlineSat,
+        totalCount: totalSat,
+      };
+    }
+  }, [allNodesList]);
+
   return (
     <HazardAlertContext.Provider
       value={{
@@ -475,6 +586,18 @@ export function HazardAlertProvider({ children }) {
         nominalCount,
         totalNodesCount,
         activeHazardsCount,
+        // Live Network Stats
+        bandwidthLoad,
+        isroGaganSync,
+        // Central Query & Filter States
+        searchQuery,
+        setSearchQuery,
+        selectedState,
+        setSelectedState,
+        selectedHazard,
+        setSelectedHazard,
+        clearFilters,
+        isFilterActive,
         // Evaluators & Actions
         getNode,
         getNodeSeverity,

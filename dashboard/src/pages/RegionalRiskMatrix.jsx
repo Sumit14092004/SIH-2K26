@@ -2,14 +2,23 @@ import React, { useState, useMemo } from 'react';
 import { useHazardAlerts } from '../context/HazardAlertContext';
 
 export default function RegionalRiskMatrix({ onInspectNode }) {
-  const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('score-desc');
-  const [hazardFilter, setHazardFilter] = useState('ALL');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportComplete, setExportComplete] = useState(false);
 
-  const { allNodesList, getNodeSeverity } = useHazardAlerts();
+  const {
+    allNodesList,
+    getNodeSeverity,
+    searchQuery,
+    setSearchQuery,
+    selectedState,
+    setSelectedState,
+    selectedHazard,
+    setSelectedHazard,
+    clearFilters,
+    isFilterActive,
+  } = useHazardAlerts();
 
   // Combine live node attributes with dynamically evaluated severity assessments
   const liveRegions = useMemo(() => {
@@ -29,7 +38,7 @@ export default function RegionalRiskMatrix({ onInspectNode }) {
   const filteredRegions = useMemo(() => {
     return liveRegions
       .filter((r) => {
-        const q = searchQuery.trim().toLowerCase();
+        const q = (searchQuery || '').trim().toLowerCase();
         const matchesSearch =
           !q ||
           r.name.toLowerCase().includes(q) ||
@@ -39,11 +48,18 @@ export default function RegionalRiskMatrix({ onInspectNode }) {
           (r.displayId && r.displayId.toLowerCase().includes(q)) ||
           r.hazard.toLowerCase().includes(q);
 
-        const matchesHazard =
-          hazardFilter === 'ALL' ||
-          r.hazardType === hazardFilter;
+        const matchesState =
+          !selectedState ||
+          selectedState === 'ALL' ||
+          (r.state && r.state.toLowerCase().includes(selectedState.toLowerCase())) ||
+          (r.location && r.location.toLowerCase().includes(selectedState.toLowerCase()));
 
-        return matchesSearch && matchesHazard;
+        const matchesHazard =
+          !selectedHazard ||
+          selectedHazard === 'ALL' ||
+          r.hazardType === selectedHazard;
+
+        return matchesSearch && matchesState && matchesHazard;
       })
       .sort((a, b) => {
         if (sortBy === 'score-desc') return b.liveRiskScore - a.liveRiskScore;
@@ -52,7 +68,7 @@ export default function RegionalRiskMatrix({ onInspectNode }) {
         if (sortBy === 'alpha') return a.location.localeCompare(b.location);
         return 0;
       });
-  }, [liveRegions, searchQuery, hazardFilter, sortBy]);
+  }, [liveRegions, searchQuery, selectedState, selectedHazard, sortBy]);
 
   const handleExportMatrix = () => {
     setExporting(true);
@@ -114,12 +130,35 @@ export default function RegionalRiskMatrix({ onInspectNode }) {
             />
           </div>
 
+          {/* State Filter */}
+          <div className="flex items-center gap-xxs bg-canvas-subtle border border-border-grid px-sm py-xs rounded-lg text-text-secondary">
+            <span className="font-label-code text-label-code text-text-muted font-semibold">STATE:</span>
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className="bg-transparent font-body-sm text-body-sm text-text-primary focus:outline-none cursor-pointer font-medium"
+            >
+              <option value="ALL">All India Coverage</option>
+              <option value="Assam">Assam Basin</option>
+              <option value="Delhi">Delhi NCT / NCR</option>
+              <option value="Uttarakhand">Uttarakhand Spine</option>
+              <option value="Bihar">Bihar Floodplain</option>
+              <option value="Odisha">Odisha Coastal Rim</option>
+              <option value="Kerala">Kerala Western Ghats</option>
+              <option value="Maharashtra">Maharashtra / Mumbai</option>
+              <option value="West Bengal">West Bengal Delta</option>
+              <option value="Telangana">Telangana / Deccan</option>
+              <option value="Ladakh">Ladakh / Karakoram</option>
+              <option value="Tamil Nadu">Tamil Nadu / Tidal Rim</option>
+            </select>
+          </div>
+
           {/* Hazard Filter */}
           <div className="flex items-center gap-xxs bg-canvas-subtle border border-border-grid px-sm py-xs rounded-lg text-text-secondary">
             <span className="font-label-code text-label-code text-text-muted font-semibold">HAZARD:</span>
             <select
-              value={hazardFilter}
-              onChange={(e) => setHazardFilter(e.target.value)}
+              value={selectedHazard}
+              onChange={(e) => setSelectedHazard(e.target.value)}
               className="bg-transparent font-body-sm text-body-sm text-text-primary focus:outline-none cursor-pointer font-medium"
             >
               <option value="ALL">All Hazard Vectors</option>
@@ -130,6 +169,18 @@ export default function RegionalRiskMatrix({ onInspectNode }) {
               <option value="CYCLONE">Coastal Cyclone</option>
             </select>
           </div>
+
+          {/* Reset Filters Chip */}
+          {isFilterActive && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-1 text-xs text-text-muted hover:text-alert-critical border border-border-grid hover:border-alert-critical/40 bg-surface-card px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+              title="Clear active filters"
+            >
+              <span className="material-symbols-outlined text-[14px]">filter_alt_off</span>
+              <span className="font-label-code uppercase tracking-wider font-semibold">Clear</span>
+            </button>
+          )}
 
           {/* Sort Control */}
           <div className="flex items-center gap-xxs bg-canvas-subtle border border-border-grid px-sm py-xs rounded-lg text-text-secondary">

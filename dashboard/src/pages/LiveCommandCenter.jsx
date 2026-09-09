@@ -9,9 +9,6 @@ export default function LiveCommandCenter({
   onTriggerNotification,
 }) {
   const [liveNodes, setLiveNodes] = useState(158);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedState, setSelectedState] = useState('ALL');
-  const [selectedHazard, setSelectedHazard] = useState('ALL');
 
   const {
     activeAlerts,
@@ -22,6 +19,14 @@ export default function LiveCommandCenter({
     offlineCount,
     nominalCount,
     resolveHazardAlert,
+    searchQuery,
+    setSearchQuery,
+    selectedState,
+    setSelectedState,
+    selectedHazard,
+    setSelectedHazard,
+    clearFilters,
+    isFilterActive,
   } = useHazardAlerts();
 
   // Simulated node count jitter
@@ -36,20 +41,23 @@ export default function LiveCommandCenter({
 
   // Filter dispatch stream based on search and filters
   const filteredHazards = activeAlerts.filter((node) => {
-    const query = searchQuery.trim().toLowerCase();
+    if (!node) return false;
+    const query = (searchQuery || '').trim().toLowerCase();
     const matchesQuery =
       !query ||
-      node.id.toLowerCase().includes(query) ||
+      (node.id && node.id.toLowerCase().includes(query)) ||
       (node.name && node.name.toLowerCase().includes(query)) ||
       (node.location && node.location.toLowerCase().includes(query)) ||
       (node.state && node.state.toLowerCase().includes(query)) ||
       (node.hazard && node.hazard.toLowerCase().includes(query));
 
     const matchesState =
+      !selectedState ||
       selectedState === 'ALL' ||
       (node.state && node.state.toLowerCase().includes(selectedState.toLowerCase()));
 
     const matchesHazard =
+      !selectedHazard ||
       selectedHazard === 'ALL' ||
       node.hazardType === selectedHazard;
 
@@ -208,6 +216,11 @@ export default function LiveCommandCenter({
               <option value="Bihar">Bihar Floodplain</option>
               <option value="Odisha">Odisha Coastal Rim</option>
               <option value="Kerala">Kerala Western Ghats</option>
+              <option value="Maharashtra">Maharashtra / Mumbai</option>
+              <option value="West Bengal">West Bengal Delta</option>
+              <option value="Telangana">Telangana / Deccan</option>
+              <option value="Ladakh">Ladakh / Karakoram</option>
+              <option value="Tamil Nadu">Tamil Nadu / Tidal Rim</option>
             </select>
           </div>
 
@@ -227,6 +240,18 @@ export default function LiveCommandCenter({
               <option value="CYCLONE">Coastal Cyclone</option>
             </select>
           </div>
+
+          {/* Reset Filters Chip */}
+          {isFilterActive && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center gap-1 text-xs text-text-muted hover:text-alert-critical border border-border-grid hover:border-alert-critical/40 bg-surface-card px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+              title="Clear all active filters"
+            >
+              <span className="material-symbols-outlined text-[14px]">filter_alt_off</span>
+              <span className="font-label-code uppercase tracking-wider font-semibold">Clear Filters</span>
+            </button>
+          )}
         </div>
 
         {/* Right Action Counters & CSV Export */}
@@ -258,6 +283,10 @@ export default function LiveCommandCenter({
             onInspectNode={onInspectNode}
             onTriggerNotification={onTriggerNotification}
             showSimulationConsole={false}
+            searchQuery={searchQuery}
+            selectedState={selectedState}
+            selectedHazard={selectedHazard}
+            onResetFilters={clearFilters}
           />
         </div>
 

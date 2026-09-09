@@ -1,6 +1,7 @@
 import React from 'react';
 import { useIstClock } from '../../utils/istTime';
 import { useHazardAlerts } from '../../context/HazardAlertContext';
+import NavTab from './NavTab';
 
 export default function TopHeader({ activePath, onNavigate, onBroadcastClick, onInspectNode }) {
   const istTime = useIstClock();
@@ -33,7 +34,7 @@ export default function TopHeader({ activePath, onNavigate, onBroadcastClick, on
     <header className={`fixed top-0 left-0 w-full z-50 bg-surface-card/95 backdrop-blur-md border-b border-border-grid shadow-sm transition-all duration-300 ${
       isVisualFlashing ? 'bg-red-950/20 border-alert-critical ring-2 ring-alert-critical/40' : ''
     }`}>
-      <div className="h-20 w-full px-gutter-normal flex flex-col justify-between pt-xxs pb-xs">
+      <div className="h-20 w-full px-gutter-normal flex flex-col justify-between pt-1.5 pb-1">
         {/* Top Operational Bar */}
         <div className="flex items-center justify-between gap-md">
           {/* Brand & Team Logo */}
@@ -126,27 +127,24 @@ export default function TopHeader({ activePath, onNavigate, onBroadcastClick, on
         </div>
 
         {/* Sub-Bar: Nav Tabs & Geospatial Coordinate Readout */}
-        <div className="flex items-center justify-between">
-          <nav className="flex items-center gap-xxs overflow-x-auto py-0.5">
-            {navItems.map((item) => {
-              const isActive = activePath === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => onNavigate(item.id)}
-                  className={`px-xs py-xxs font-body-sm transition-colors whitespace-nowrap rounded ${
-                    isActive
-                      ? 'text-primary bg-sky-50 font-semibold border-b-2 border-primary'
-                      : 'text-text-muted hover:text-text-primary hover:bg-canvas-subtle'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
+        <div className="flex items-center justify-between gap-md">
+          <nav
+            className="flex items-center gap-gutter-dense overflow-x-auto py-0.5 no-scrollbar"
+            role="tablist"
+            aria-label="Institutional Navigation Tabs"
+          >
+            {navItems.map((item) => (
+              <NavTab
+                key={item.id}
+                id={item.id}
+                label={item.label}
+                isActive={activePath === item.id}
+                onClick={() => onNavigate(item.id)}
+              />
+            ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-xs text-text-muted font-label-code text-label-code">
+          <div className="hidden 2xl:flex items-center gap-xs text-text-muted font-label-code text-label-code shrink-0">
             <span>GRID: 28.6139° N, 77.2090° E</span>
           </div>
         </div>
