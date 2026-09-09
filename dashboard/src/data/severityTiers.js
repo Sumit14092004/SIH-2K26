@@ -122,10 +122,34 @@ export function evaluateSensorReading(reading) {
     return { tier: 'nominal', riskScore: 10, statusText: 'Stable Baseline' };
   }
 
-  if (type === 'flood' || type === 'rainfall') {
-    if (val >= 35) return { tier: 'critical', riskScore: 94, statusText: 'Torrential Downpour' };
-    if (val >= 7.5) return { tier: 'warning', riskScore: 50, statusText: 'Moderate Rainfall' };
-    return { tier: 'nominal', riskScore: 10, statusText: 'Light / Nil Rain' };
+  if (type === 'pressure' || type === 'barometric' || type === 'atmospheric') {
+    // Atmospheric / Barometric Pressure in hPa
+    if (val < 940 && val >= 500) return { tier: 'critical', riskScore: 95, statusText: 'Severe Cyclone Depression' };
+    if (val < 960 && val >= 500) return { tier: 'abnormal', riskScore: 75, statusText: 'Deep Low Pressure System' };
+    if (val < 980 && val >= 500) return { tier: 'warning', riskScore: 45, statusText: 'Barometric Drop Advisory' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Standard Barometric Baseline' };
+  }
+
+  if (type === 'distance' || type === 'dist_cm' || type === 'bat_radar' || type === 'ultrasonic' || type === 'clearance') {
+    // Ultrasonic echo clearance (distance down to water/floor): Safe > 50cm, Warning 25-50cm, Abnormal 10-25cm, Critical <= 10cm
+    if (val > 0 && val <= 10) return { tier: 'critical', riskScore: 96, statusText: 'Imminent Flood Overflow' };
+    if (val > 0 && val <= 25) return { tier: 'abnormal', riskScore: 75, statusText: 'Flood Crest Danger' };
+    if (val > 0 && val <= 50) return { tier: 'warning', riskScore: 48, statusText: 'Rising Flood Clearance' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Safe Clearance Baseline' };
+  }
+
+  if (type === 'tds' || type === 'water_quality' || type === 'tds_ppm') {
+    // TDS Water Purity in ppm (BIS IS 10500 standard)
+    if (val >= 1200) return { tier: 'critical', riskScore: 95, statusText: 'Toxic / Severely Contaminated' };
+    if (val >= 900) return { tier: 'abnormal', riskScore: 75, statusText: 'Poor Water Quality' };
+    if (val >= 600) return { tier: 'warning', riskScore: 50, statusText: 'Moderate Mineral / TDS' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Optimal Drinking Baseline' };
+  }
+
+  if (type === 'flood' || type === 'rainfall' || type === 'rain') {
+    if (val >= 80) return { tier: 'critical', riskScore: 94, statusText: 'Torrential Downpour' };
+    if (val >= 40) return { tier: 'warning', riskScore: 50, statusText: 'Moderate Precipitation' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Dry / Nil Precipitation' };
   }
 
   return { tier: 'nominal', riskScore: 10, statusText: 'Operating Normally' };
@@ -203,7 +227,7 @@ export function getSeverityAssessment(node) {
       metricDiagnostic: worstReading && worstTier !== 'nominal'
         ? `${worstTier.toUpperCase()} — ${worstReading.label} (${worstReading.value} ${worstReading.unit}) [${worstReading.statusText}]`
         : `NOMINAL — All ${activeReadings.length} active sensors reporting within baseline`,
-      thresholdRange: 'Multi-hazard integrated environmental matrix (6 sensor channels)',
+      thresholdRange: `Multi-hazard integrated environmental matrix (${node.readings?.length || activeReadings.length} sensor channels)`,
       riskScore: maxRisk || 15,
       readingValue: worstReading ? `${worstReading.value} ${worstReading.unit}` : 'NORMAL',
       unit: worstReading ? worstReading.unit : '',

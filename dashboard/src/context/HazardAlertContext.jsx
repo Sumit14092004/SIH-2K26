@@ -134,10 +134,24 @@ export function HazardAlertProvider({ children }) {
             if (backendNode.latest_sensors && existing.readings && Array.isArray(existing.readings)) {
               merged.readings = existing.readings.map((r) => {
                 const sensorKey = r.id;
+                const hazardKey = r.hazard_type;
+                let newVal = r.value;
                 if (backendNode.latest_sensors[sensorKey] !== undefined && backendNode.latest_sensors[sensorKey] !== null) {
-                  return { ...r, value: backendNode.latest_sensors[sensorKey] };
+                  newVal = backendNode.latest_sensors[sensorKey];
+                } else if (hazardKey && backendNode.latest_sensors[hazardKey] !== undefined && backendNode.latest_sensors[hazardKey] !== null) {
+                  newVal = backendNode.latest_sensors[hazardKey];
                 }
-                return r;
+                // Specific alias fallbacks
+                if (sensorKey === 'tds' && backendNode.latest_sensors['tds_ppm'] !== undefined) {
+                  newVal = backendNode.latest_sensors['tds_ppm'];
+                }
+                if ((sensorKey === 'dist_cm' || sensorKey === 'distance') && backendNode.latest_sensors['dist_cm'] !== undefined) {
+                  newVal = backendNode.latest_sensors['dist_cm'];
+                }
+                if (sensorKey === 'pressure' && (backendNode.latest_sensors['pressure'] !== undefined || backendNode.latest_sensors['pres'] !== undefined)) {
+                  newVal = backendNode.latest_sensors['pressure'] !== undefined ? backendNode.latest_sensors['pressure'] : backendNode.latest_sensors['pres'];
+                }
+                return { ...r, value: newVal };
               });
             }
             if (backendNode.latest_sensors) {
@@ -795,10 +809,20 @@ export function HazardAlertProvider({ children }) {
                     const sensorKey = r.id;
                     const hazardKey = r.hazard_type;
                     let newVal = r.value;
-                    if (sensors[sensorKey] !== undefined) {
+                    if (sensors[sensorKey] !== undefined && sensors[sensorKey] !== null) {
                       newVal = sensors[sensorKey];
-                    } else if (sensors[hazardKey] !== undefined) {
+                    } else if (hazardKey && sensors[hazardKey] !== undefined && sensors[hazardKey] !== null) {
                       newVal = sensors[hazardKey];
+                    }
+                    // Specific alias fallbacks
+                    if (sensorKey === 'tds' && sensors['tds_ppm'] !== undefined) {
+                      newVal = sensors['tds_ppm'];
+                    }
+                    if ((sensorKey === 'dist_cm' || sensorKey === 'distance') && sensors['dist_cm'] !== undefined) {
+                      newVal = sensors['dist_cm'];
+                    }
+                    if (sensorKey === 'pressure' && (sensors['pressure'] !== undefined || sensors['pres'] !== undefined)) {
+                      newVal = sensors['pressure'] !== undefined ? sensors['pressure'] : sensors['pres'];
                     }
                     return {
                       ...r,

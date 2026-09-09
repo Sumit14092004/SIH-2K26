@@ -247,10 +247,18 @@ class NodeRegistry:
                 "key_metric": "All sensors nominal (TinyML Edge AI)",
                 "latest_sensors": {
                     "aqi": 35,
-                    "temperature": 28.5,
-                    "humidity": 50.8,
+                    "temperature": 28.0,
+                    "humidity": 51.5,
+                    "pressure": 1013.2,
+                    "pres": 1013.2,
+                    "dist_cm": 172.6,
+                    "distance": 172.6,
+                    "crest_m": 0.27,
+                    "water_level_m": 0.27,
+                    "tds": 0,
+                    "tds_ppm": 0,
                     "soil_moisture": 0.0,
-                    "vibration": 0.08,
+                    "vibration": 0.05,
                     "rainfall": 0.0
                 }
             }
@@ -1344,8 +1352,11 @@ def process_esp32_reading(payload: dict) -> dict:
     if "hum" in payload and "humidity" not in sensors:
         try: sensors["humidity"] = float(payload["hum"])
         except (ValueError, TypeError): pass
-    if "pres" in payload and "pressure" not in sensors:
-        try: sensors["pressure"] = float(payload["pres"])
+    if "pres" in payload:
+        try:
+            p_val = float(payload["pres"])
+            sensors["pres"] = p_val
+            sensors["pressure"] = p_val
         except (ValueError, TypeError): pass
     if "soil_pct" in payload and "soil_moisture" not in sensors:
         try: sensors["soil_moisture"] = float(payload["soil_pct"])
@@ -1353,8 +1364,11 @@ def process_esp32_reading(payload: dict) -> dict:
     if "rain_pct" in payload and "rainfall" not in sensors:
         try: sensors["rainfall"] = float(payload["rain_pct"])
         except (ValueError, TypeError): pass
-    if "tds_ppm" in payload and "tds_ppm" not in sensors:
-        try: sensors["tds_ppm"] = float(payload["tds_ppm"])
+    if "tds_ppm" in payload:
+        try:
+            t_val = float(payload["tds_ppm"])
+            sensors["tds_ppm"] = t_val
+            sensors["tds"] = t_val
         except (ValueError, TypeError): pass
     if "pir_active" in payload and "pir_active" not in sensors:
         sensors["pir_active"] = bool(payload["pir_active"])
@@ -1369,6 +1383,7 @@ def process_esp32_reading(payload: dict) -> dict:
         try:
             d_cm = float(d_val)
             sensors["dist_cm"] = d_cm
+            sensors["distance"] = d_cm
             # Standard mounting clearance is 200 cm (2.0 meters standard bridge / test rig)
             crest = max(0.0, round((200.0 - d_cm) / 100.0, 2))
             sensors["crest_m"] = crest

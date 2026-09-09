@@ -267,7 +267,7 @@ export default function BharatTacticalMapCard({
   // Synchronize top hazard dropdown with map layer buttons
   useEffect(() => {
     if (selectedHazard && selectedHazard !== 'ALL') {
-      if (['FLOOD', 'AQI', 'SEISMIC', 'FIRE', 'CYCLONE'].includes(selectedHazard)) {
+      if (['FLOOD', 'AQI', 'SEISMIC', 'FIRE', 'CYCLONE', 'PRESSURE'].includes(selectedHazard)) {
         setSelectedLayer(selectedHazard);
       }
     } else if (selectedHazard === 'ALL') {
@@ -905,6 +905,7 @@ export default function BharatTacticalMapCard({
               { id: 'ALL', label: 'All', icon: 'layers' },
               { id: 'FLOOD', label: 'Flood', icon: 'water' },
               { id: 'AQI', label: 'AQI', icon: 'air' },
+              { id: 'PRESSURE', label: 'Pressure', icon: 'compress' },
               { id: 'SEISMIC', label: 'Seismic', icon: 'landscape' },
               { id: 'FIRE', label: 'Fire', icon: 'local_fire_department' },
               { id: 'CYCLONE', label: 'Cyclone', icon: 'cyclone' },

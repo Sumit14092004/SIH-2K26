@@ -321,7 +321,7 @@ export default function NodeTelemetryInspection({
             <div className="flex items-center justify-between pb-1 border-b border-subtle">
               <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[16px]">hub</span>
-                Integrated Sensor Rig (6 Telemetry Channels)
+                Integrated Sensor Rig ({node.readings?.length || 9} Telemetry Channels)
               </span>
               <span className="text-[10.5px] text-muted font-mono">
                 ESP32 Hardware Uplink

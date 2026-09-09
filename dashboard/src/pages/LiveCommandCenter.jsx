@@ -289,6 +289,8 @@ export default function LiveCommandCenter({
               <option value="ALL" className="bg-surface text-primary">All Hazards</option>
               <option value="FLOOD" className="bg-surface text-primary">Hydrological (Flood / Surge)</option>
               <option value="AQI" className="bg-surface text-primary">Atmospheric (Smog / AQI)</option>
+              <option value="PRESSURE" className="bg-surface text-primary">Barometric (Atmospheric Pressure)</option>
+              <option value="WATER_QUALITY" className="bg-surface text-primary">Water Quality (TDS Purity)</option>
               <option value="SEISMIC" className="bg-surface text-primary">Geotechnical (Landslide)</option>
               <option value="FIRE" className="bg-surface text-primary">Thermal (Wildfire)</option>
               <option value="CYCLONE" className="bg-surface text-primary">Coastal Cyclone</option>

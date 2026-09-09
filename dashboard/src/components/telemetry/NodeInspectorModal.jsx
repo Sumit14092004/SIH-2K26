@@ -164,7 +164,7 @@ export default function NodeInspectorModal({
             <div className="flex items-center justify-between border-b border-subtle pb-1">
               <span className="text-xs font-semibold text-primary flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[16px]">hub</span>
-                Integrated Sensor Rig (6 Channels)
+                Integrated Sensor Rig ({canonicalNode.readings?.length || 9} Channels)
               </span>
               <span className="text-[10.5px] text-muted font-mono">
                 ESP32 Uplink

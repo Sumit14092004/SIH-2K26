@@ -175,6 +175,8 @@ export default function RegionalRiskMatrix({ onInspectNode }) {
               <option value="ALL">All Hazards</option>
               <option value="FLOOD">Hydrological (Flood)</option>
               <option value="AQI">Atmospheric (Smog)</option>
+              <option value="PRESSURE">Barometric (Pressure)</option>
+              <option value="WATER_QUALITY">Water Quality (TDS)</option>
               <option value="SEISMIC">Geotechnical (Landslide)</option>
               <option value="FIRE">Thermal (Wildfire)</option>
               <option value="CYCLONE">Coastal Cyclone</option>
