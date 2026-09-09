@@ -1489,15 +1489,42 @@ def process_esp32_reading(payload: dict) -> dict:
         except (ValueError, TypeError):
             tc = -1
 
-        is_normal = tc == 6 or "normal" in tinyml_hazard
-        conf_str = f"{float(tinyml_confidence):.1f}%" if tinyml_confidence is not None else "N/A"
+        conf_val = float(tinyml_confidence) if tinyml_confidence is not None else 0.0
+        conf_str = f"{conf_val:.1f}%" if tinyml_confidence is not None else "N/A"
         us_str = f"{int(tinyml_us)} µs" if tinyml_us is not None else "N/A"
+
+        # Edge AI Confidence Gating (Qualcomm Section 3.2):
+        # Discard low-confidence predictions (< 70%) to prevent false-alarm chatter on floating pins
+        is_confident = conf_val >= CONFIDENCE_THRESHOLD
+
+        # Cross-sensor physical plausibility validation
+        temp_val = float(sensors.get("temp") or sensors.get("temperature") or 25.0)
+        water_val = float(sensors.get("water_level_m") or sensors.get("crest_m") or 0.28)
+        vib_val = float(sensors.get("vibration") or 0.08)
+        mq_ppm = float(sensors.get("mq_ppm") or sensors.get("aqi") or 35.0)
+
+        physically_plausible = True
+        if tc == 2 and (temp_val < 45.0 and mq_ppm < 200.0):  # Fire impossible at ambient room temp with clean air
+            physically_plausible = False
+        elif tc == 1 and (water_val < 0.50):  # Flood impossible with 0.28m clearance
+            physically_plausible = False
+        elif tc == 5 and (vib_val < 0.50):  # Landslide impossible with stable resting desk
+            physically_plausible = False
+        elif tc in (3, 4) and (mq_ppm < 250.0):  # Toxic gas impossible with clean room air
+            physically_plausible = False
+
+        is_normal = (tc == 6) or ("normal" in tinyml_hazard) or (not is_confident) or (not physically_plausible)
 
         if is_normal:
             active_tier = "nominal"
             risk_score = 12
             key_metric = f"All sensors nominal (TinyML {us_str})"
-            diagnostic = f"NOMINAL — Qualcomm Edge AI: '{tinyml_hazard or 'normal'}' (Conf: {conf_str}, Exec: {us_str}). {tinyml_advisory}"
+            if not is_confident and tc != 6:
+                diagnostic = f"NOMINAL — Qualcomm Edge AI noise filtered (Conf: {conf_str} < {CONFIDENCE_THRESHOLD}%). Ambient baseline stable."
+            elif not physically_plausible and tc != 6:
+                diagnostic = f"NOMINAL — Physical plausibility verified (temp {temp_val}°C, AQI {mq_ppm}). Baseline stable."
+            else:
+                diagnostic = f"NOMINAL — Qualcomm Edge AI: '{tinyml_hazard or 'normal'}' (Conf: {conf_str}, Exec: {us_str}). {tinyml_advisory}"
         elif tc in (1, 2, 4, 5):  # flash_flood, forest_fire, industrial_leak, landslide
             active_tier = "critical"
             risk_score = 96

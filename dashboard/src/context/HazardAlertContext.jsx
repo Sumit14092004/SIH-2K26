@@ -151,6 +151,29 @@ export function HazardAlertProvider({ children }) {
             }
             next[nid] = merged;
             if (merged.displayId) next[merged.displayId] = merged;
+
+            // Strict Siren & Alert Sync: if node is nominal, clear any stale alert and silence siren
+            if (merged.severity === 'nominal' || merged.severity === 'offline') {
+              warningSmsSentRef.current.delete(nid);
+              criticalSmsSentRef.current.delete(nid);
+              setActiveAlerts((prevAlerts) => {
+                if (!prevAlerts.some((a) => a.id === nid || a.displayId === nid || (merged.displayId && a.id === merged.displayId))) {
+                  return prevAlerts;
+                }
+                const nextAlerts = prevAlerts.filter((a) => a.id !== nid && a.displayId !== nid && (!merged.displayId || a.id !== merged.displayId));
+                const hasSirens = nextAlerts.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+                if (!hasSirens) {
+                  sirenManager.stop();
+                  setIsSirenActive(false);
+                  setIsVisualFlashing(false);
+                  if (flashTimeoutRef.current) {
+                    clearTimeout(flashTimeoutRef.current);
+                    flashTimeoutRef.current = null;
+                  }
+                }
+                return nextAlerts;
+              });
+            }
           });
           return next;
         });
@@ -303,141 +326,179 @@ export function HazardAlertProvider({ children }) {
         return next;
       });
 
-      // 2. Create/update dynamic alert card
-      const alertId = `${nodeId}-${Date.now()}`;
-      const newAlert = {
-        alertId,
-        id: nodeId,
-        displayId: canonical?.displayId || nodeId,
-        name: canonical?.name || targetLocation,
-        location: targetLocation,
-        state: canonical?.state || 'India',
-        hazard: canonical?.hazard || `${hazardType} Event`,
-        hazardType: hazardType.toUpperCase(),
-        severity: severity.toLowerCase(),
-        keyMetric: metric,
-        subtext: subtext || canonical?.subtext || `${hazardType} threshold breached.`,
-        directive: directive || canonical?.directive || 'Deploy tactical response unit immediately.',
-        lastUpdated: istTimestamp,
-        isRemoving: false,
-        source,
-      };
+      const isNominal = severity.toLowerCase() === 'nominal' || severity.toLowerCase() === 'offline';
 
-      setActiveAlerts((prev) => {
-        const filtered = prev.filter((a) => a.id !== nodeId);
-        return [newAlert, ...filtered];
-      });
+      if (!isNominal) {
+        // 2. Create/update dynamic alert card
+        const alertId = `${nodeId}-${Date.now()}`;
+        const newAlert = {
+          alertId,
+          id: nodeId,
+          displayId: canonical?.displayId || nodeId,
+          name: canonical?.name || targetLocation,
+          location: targetLocation,
+          state: canonical?.state || 'India',
+          hazard: canonical?.hazard || `${hazardType} Event`,
+          hazardType: hazardType.toUpperCase(),
+          severity: severity.toLowerCase(),
+          keyMetric: metric,
+          subtext: subtext || canonical?.subtext || `${hazardType} threshold breached.`,
+          directive: directive || canonical?.directive || 'Deploy tactical response unit immediately.',
+          lastUpdated: istTimestamp,
+          isRemoving: false,
+          source,
+        };
 
-      // 3. Log alert occurrence
-      logNodeAudit(
-        nodeId,
-        `⚠️ ${severity.toUpperCase()} THRESHOLD BREACHED: ${metric} [Source: ${source.toUpperCase()}]`,
-        isCritical,
-        'HAZARD_ALERT',
-        severity.toLowerCase()
-      );
+        setActiveAlerts((prev) => {
+          const filtered = prev.filter((a) => a.id !== nodeId && a.displayId !== nodeId);
+          return [newAlert, ...filtered];
+        });
 
-      // 4. Critical vs Warning Audio-Visual & SMS Alert Handling
-      if (isCritical) {
-        // Critical Tier: Audible siren + viewport flashing
-        sirenManager.playCriticalSiren(7000);
-        setIsSirenActive(!sirenManager.isMuted);
+        // 3. Log alert occurrence
+        logNodeAudit(
+          nodeId,
+          `⚠️ ${severity.toUpperCase()} THRESHOLD BREACHED: ${metric} [Source: ${source.toUpperCase()}]`,
+          isCritical,
+          'HAZARD_ALERT',
+          severity.toLowerCase()
+        );
 
-        setIsVisualFlashing(true);
-        if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
-        flashTimeoutRef.current = setTimeout(() => {
-          setIsVisualFlashing(false);
-          setIsSirenActive(false);
-        }, 7000);
+        // 4. Siren condition: strictly triggered ONLY when severity reaches ABNORMAL or CRITICAL tier!
+        const shouldTriggerSiren = severity.toLowerCase() === 'abnormal' || severity.toLowerCase() === 'critical';
 
-        // Emergency Twilio Critical SMS escalation (deduplicated per transition into Critical)
-        if (!criticalSmsSentRef.current.has(nodeId)) {
-          criticalSmsSentRef.current.add(nodeId);
+        if (shouldTriggerSiren) {
+          // Abnormal / Critical Tier: Audible siren + viewport flashing
+          sirenManager.playCriticalSiren(7000);
+          setIsSirenActive(!sirenManager.isMuted);
 
-          try {
-            fetch(`${getApiBaseUrl()}/api/notify`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                node_id: nodeId,
-                location: targetLocation,
-                hazard_type: hazardType.toUpperCase(),
-                severity: 'critical',
-                key_metric: metric,
-                action_type: 'emergency_critical',
-                notes: `Automated critical detection from ${source} at ${istTimestamp}`,
-              }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                logNodeAudit(
-                  nodeId,
-                  `📲 Twilio Emergency SMS dispatched to responder (${data.status || 'dispatched'}).`,
-                  false,
-                  'SMS_DISPATCH',
-                  'critical'
-                );
-                if (data.voice_call && (data.voice_call.status === 'success' || data.voice_call.call_sid)) {
+          setIsVisualFlashing(true);
+          if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+          flashTimeoutRef.current = setTimeout(() => {
+            setIsVisualFlashing(false);
+            setIsSirenActive(false);
+          }, 7000);
+
+          // Emergency Twilio Critical SMS escalation (deduplicated per transition into Critical)
+          if (severity.toLowerCase() === 'critical' && !criticalSmsSentRef.current.has(nodeId)) {
+            criticalSmsSentRef.current.add(nodeId);
+
+            try {
+              fetch(`${getApiBaseUrl()}/api/notify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  node_id: nodeId,
+                  location: targetLocation,
+                  hazard_type: hazardType.toUpperCase(),
+                  severity: 'critical',
+                  key_metric: metric,
+                  action_type: 'emergency_critical',
+                  notes: `Automated critical detection from ${source} at ${istTimestamp}`,
+                }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
                   logNodeAudit(
                     nodeId,
-                    `📞 Automated Twilio Voice Call placed to responder (+918669923983) [SID: ${data.voice_call.call_sid}].`,
+                    `📲 Twilio Emergency SMS dispatched to responder (${data.status || 'dispatched'}).`,
                     false,
-                    'VOICE_CALL',
+                    'SMS_DISPATCH',
                     'critical'
                   );
-                }
-              })
-              .catch(() => {
-                logNodeAudit(nodeId, `📲 Emergency broadcast simulated locally.`, false, 'SMS_SIMULATED', 'critical');
-              });
-          } catch {
-            // Silently handle backend offline
+                  if (data.voice_call && (data.voice_call.status === 'success' || data.voice_call.call_sid)) {
+                    logNodeAudit(
+                      nodeId,
+                      `📞 Automated Twilio Voice Call placed to responder (+918669923983) [SID: ${data.voice_call.call_sid}].`,
+                      false,
+                      'VOICE_CALL',
+                      'critical'
+                    );
+                  }
+                })
+                .catch(() => {
+                  logNodeAudit(nodeId, `📲 Emergency broadcast simulated locally.`, false, 'SMS_SIMULATED', 'critical');
+                });
+            } catch {
+              // Silently handle backend offline
+            }
           }
-        }
-      } else if (severity.toLowerCase() === 'warning') {
-        // Warning Tier: SILENT (NO siren, NO screen flash to prevent alert fatigue)
-        // Dedicated Warning Advisory SMS (deduplicated per transition into Warning)
-        if (!warningSmsSentRef.current.has(nodeId)) {
-          warningSmsSentRef.current.add(nodeId);
+        } else if (severity.toLowerCase() === 'warning') {
+          // Warning Tier: SILENT (NO siren, NO screen flash to prevent alert fatigue)
+          // Ensure siren is stopped if no other abnormal/critical alerts exist
+          setActiveAlerts((prev) => {
+            const hasSirens = prev.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving && a.id !== nodeId);
+            if (!hasSirens) {
+              sirenManager.stop();
+              setIsSirenActive(false);
+              setIsVisualFlashing(false);
+              if (flashTimeoutRef.current) {
+                clearTimeout(flashTimeoutRef.current);
+                flashTimeoutRef.current = null;
+              }
+            }
+            return prev;
+          });
 
-          try {
-            fetch(`${getApiBaseUrl()}/api/notify`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                node_id: nodeId,
-                location: targetLocation,
-                hazard_type: hazardType.toUpperCase(),
-                severity: 'warning',
-                key_metric: metric,
-                action_type: 'warning_advisory',
-                notes: `Automated warning advisory detection from ${source} at ${istTimestamp}`,
-              }),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                logNodeAudit(
-                  nodeId,
-                  `⚠️ Twilio Warning Advisory SMS dispatched to responder (${data.status || 'dispatched'}).`,
-                  false,
-                  'SMS_DISPATCH',
-                  'warning'
-                );
+          // Dedicated Warning Advisory SMS (deduplicated per transition into Warning)
+          if (!warningSmsSentRef.current.has(nodeId)) {
+            warningSmsSentRef.current.add(nodeId);
+
+            try {
+              fetch(`${getApiBaseUrl()}/api/notify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  node_id: nodeId,
+                  location: targetLocation,
+                  hazard_type: hazardType.toUpperCase(),
+                  severity: 'warning',
+                  key_metric: metric,
+                  action_type: 'warning_advisory',
+                  notes: `Automated warning advisory detection from ${source} at ${istTimestamp}`,
+                }),
               })
-              .catch(() => {
-                logNodeAudit(nodeId, `⚠️ Warning advisory broadcast simulated locally.`, false, 'SMS_SIMULATED', 'warning');
-              });
-          } catch {
-            // Silently handle backend offline
+                .then((res) => res.json())
+                .then((data) => {
+                  logNodeAudit(
+                    nodeId,
+                    `⚠️ Twilio Warning Advisory SMS dispatched to responder (${data.status || 'dispatched'}).`,
+                    false,
+                    'SMS_DISPATCH',
+                    'warning'
+                  );
+                })
+                .catch(() => {
+                  logNodeAudit(nodeId, `⚠️ Warning advisory broadcast simulated locally.`, false, 'SMS_SIMULATED', 'warning');
+                });
+            } catch {
+              // Silently handle backend offline
+            }
           }
         }
-      } else if (severity.toLowerCase() === 'nominal') {
-        // When returned to nominal, re-arm deduplication trackers for both warning and critical
+
+        return newAlert;
+      } else {
+        // Nominal or Offline: STRICTLY SILENCE SIREN & CLEAR ACTIVE ALERTS
         warningSmsSentRef.current.delete(nodeId);
         criticalSmsSentRef.current.delete(nodeId);
-      }
 
-      return newAlert;
+        setActiveAlerts((prev) => {
+          const filtered = prev.filter((a) => a.id !== nodeId && a.displayId !== nodeId);
+          const hasSirens = filtered.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+          if (!hasSirens) {
+            sirenManager.stop();
+            setIsSirenActive(false);
+            setIsVisualFlashing(false);
+            if (flashTimeoutRef.current) {
+              clearTimeout(flashTimeoutRef.current);
+              flashTimeoutRef.current = null;
+            }
+          }
+          return filtered;
+        });
+
+        return null;
+      }
     },
     [getNode, logNodeAudit]
   );
@@ -524,14 +585,18 @@ export function HazardAlertProvider({ children }) {
         'nominal'
       );
 
-      // Stop flashing if no critical alerts remain
+      // Stop flashing and siren if no abnormal or critical alerts remain
       setTimeout(() => {
         setActiveAlerts((current) => {
-          const hasCritical = current.some((a) => a.severity === 'critical' && !a.isRemoving);
-          if (!hasCritical) {
+          const hasSirens = current.some((a) => (a.severity === 'critical' || a.severity === 'abnormal') && !a.isRemoving);
+          if (!hasSirens) {
             setIsVisualFlashing(false);
             sirenManager.stop();
             setIsSirenActive(false);
+            if (flashTimeoutRef.current) {
+              clearTimeout(flashTimeoutRef.current);
+              flashTimeoutRef.current = null;
+            }
           }
           return current;
         });
@@ -778,10 +843,14 @@ export function HazardAlertProvider({ children }) {
                 severity || 'nominal'
               );
 
-              // 3. If elevated alert is generated
-              if (severity && severity !== 'nominal' && severity !== 'offline') {
-                const isCrit = severity === 'critical';
-                const isWarn = severity === 'warning';
+              // 3. If elevated alert is generated (Warning, Abnormal, Critical)
+              const sev = (severity || 'nominal').toLowerCase();
+              const isCrit = sev === 'critical';
+              const isAbnormal = sev === 'abnormal';
+              const isWarn = sev === 'warning';
+              const shouldHitSiren = isCrit || isAbnormal;
+
+              if (sev !== 'nominal' && sev !== 'offline') {
                 const newAlert = {
                   alertId: alert?.identifier || `${node_id}-${Date.now()}`,
                   id: node_id,
@@ -791,21 +860,22 @@ export function HazardAlertProvider({ children }) {
                   state: data.state || 'India',
                   hazard: alert?.info?.event || `${hazard_type} Telemetry Trigger`,
                   hazardType: (hazard_type || 'FLOOD').toUpperCase(),
-                  severity: severity.toLowerCase(),
+                  severity: sev,
                   keyMetric: key_metric,
                   subtext: alert?.info?.description || `${key_metric} breached operational threshold.`,
-                  directive: alert?.info?.instruction || (isCrit ? 'Immediate evacuation and tactical NDRF response.' : 'Field standby and enhanced monitoring.'),
+                  directive: alert?.info?.instruction || (shouldHitSiren ? 'Immediate evacuation and tactical NDRF response.' : 'Field standby and enhanced monitoring.'),
                   lastUpdated: istTime,
                   isRemoving: false,
                   source: 'esp32_hardware',
                 };
 
                 setActiveAlerts((prev) => {
-                  const filtered = prev.filter((a) => a.id !== node_id);
+                  const filtered = prev.filter((a) => a.id !== node_id && a.displayId !== node_id);
                   return [newAlert, ...filtered];
                 });
 
-                if (isCrit) {
+                if (shouldHitSiren) {
+                  // Strictly trigger siren on Abnormal or Critical state
                   sirenManager.playCriticalSiren(7000);
                   setIsSirenActive(!sirenManager.isMuted);
                   setIsVisualFlashing(true);
@@ -815,8 +885,8 @@ export function HazardAlertProvider({ children }) {
                     setIsSirenActive(false);
                   }, 7000);
 
-                  // Send Critical SMS and Voice Call if not sent
-                  if (!criticalSmsSentRef.current.has(node_id)) {
+                  // Send Critical SMS and Voice Call if critical and not sent
+                  if (isCrit && !criticalSmsSentRef.current.has(node_id)) {
                     criticalSmsSentRef.current.add(node_id);
                     fetch(`${getApiBaseUrl()}/api/notify`, {
                       method: 'POST',
@@ -853,6 +923,21 @@ export function HazardAlertProvider({ children }) {
                       .catch(() => {});
                   }
                 } else if (isWarn) {
+                  // Warning Tier: SILENT (NO siren, NO screen flash to prevent alert fatigue)
+                  setActiveAlerts((prev) => {
+                    const hasSirens = prev.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving && a.id !== node_id);
+                    if (!hasSirens) {
+                      sirenManager.stop();
+                      setIsSirenActive(false);
+                      setIsVisualFlashing(false);
+                      if (flashTimeoutRef.current) {
+                        clearTimeout(flashTimeoutRef.current);
+                        flashTimeoutRef.current = null;
+                      }
+                    }
+                    return prev;
+                  });
+
                   // Send Warning SMS if not sent (SILENT: NO siren, NO flashing screen)
                   if (!warningSmsSentRef.current.has(node_id)) {
                     warningSmsSentRef.current.add(node_id);
@@ -871,9 +956,25 @@ export function HazardAlertProvider({ children }) {
                     }).catch(() => {});
                   }
                 }
-              } else if (severity === 'nominal') {
+              } else if (sev === 'nominal' || sev === 'offline') {
+                // Nominal or offline: STRICTLY SILENCE SIREN & CLEAR ACTIVE ALERTS
                 warningSmsSentRef.current.delete(node_id);
                 criticalSmsSentRef.current.delete(node_id);
+
+                setActiveAlerts((prev) => {
+                  const filtered = prev.filter((a) => a.id !== node_id && a.displayId !== node_id);
+                  const hasSirens = filtered.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+                  if (!hasSirens) {
+                    sirenManager.stop();
+                    setIsSirenActive(false);
+                    setIsVisualFlashing(false);
+                    if (flashTimeoutRef.current) {
+                      clearTimeout(flashTimeoutRef.current);
+                      flashTimeoutRef.current = null;
+                    }
+                  }
+                  return filtered;
+                });
               }
             } else if (type === 'voice_call_dispatched' && data) {
               const { node_id, recipient, call_sid, status } = data;
@@ -898,6 +999,22 @@ export function HazardAlertProvider({ children }) {
                 const next = { ...prev, [node_id]: updated };
                 if (updated.displayId) next[updated.displayId] = updated;
                 return next;
+              });
+
+              // Stop siren if no other abnormal/critical alerts
+              setActiveAlerts((prev) => {
+                const filtered = prev.filter((a) => a.id !== node_id && a.displayId !== node_id);
+                const hasSirens = filtered.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+                if (!hasSirens) {
+                  sirenManager.stop();
+                  setIsSirenActive(false);
+                  setIsVisualFlashing(false);
+                  if (flashTimeoutRef.current) {
+                    clearTimeout(flashTimeoutRef.current);
+                    flashTimeoutRef.current = null;
+                  }
+                }
+                return filtered;
               });
 
               logNodeAudit(
