@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,102 +8,98 @@ export default {
   theme: {
     extend: {
       colors: {
-        "surface": "#f8f9ff",
-        "surface-dim": "#cbdbf5",
-        "surface-bright": "#f8f9ff",
-        "surface-container-lowest": "#ffffff",
-        "surface-container-low": "#eff4ff",
-        "surface-container": "#e5eeff",
-        "surface-container-high": "#dce9ff",
-        "surface-container-highest": "#d3e4fe",
-        "on-surface": "#0b1c30",
-        "on-surface-variant": "#40474f",
-        "inverse-surface": "#213145",
-        "inverse-on-surface": "#eaf1ff",
-        "outline": "#707881",
-        "outline-variant": "#c0c7d1",
-        "surface-tint": "#006399",
-        "primary": "#00507d",
+        // Theme Surfaces & Canvas (dynamically swapped via CSS variables)
+        "canvas": "var(--bg-canvas)",
+        "surface": "var(--bg-surface)",
+        "surface-alt": "var(--bg-surface-alt)",
+        "surface-card": "var(--bg-surface)",
+        "surface-raised": "var(--bg-surface-alt)",
+        "canvas-base": "var(--bg-canvas)",
+        "canvas-subtle": "var(--bg-surface-alt)",
+
+        // Hairline Borders & Dividers
+        "border-subtle": "var(--border-subtle)",
+        "border-strong": "var(--border-strong)",
+        "border-grid": "var(--border-subtle)",
+        "outline": "var(--border-strong)",
+        "outline-variant": "var(--border-subtle)",
+
+        // High-Contrast Restrained Typography
+        "primary": "var(--text-primary)",
+        "secondary": "var(--text-muted)",
+        "muted": "var(--text-muted)",
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-muted)",
+        "text-muted": "var(--text-muted)",
+        "on-surface": "var(--text-primary)",
+        "on-surface-variant": "var(--text-muted)",
+        "background": "var(--bg-canvas)",
+        "on-background": "var(--text-primary)",
+
+        // Calm Institutional Blue Accent (Zero Neon)
+        "accent": "var(--accent)",
+        "accent-hover": "var(--accent-hover)",
+        "accent-subtle": "var(--accent-subtle)",
+        "accent-contrast": "#ffffff",
         "on-primary": "#ffffff",
-        "primary-container": "#0369a1",
-        "on-primary-container": "#cbe4ff",
-        "inverse-primary": "#94ccff",
-        "secondary": "#006a63",
-        "on-secondary": "#ffffff",
-        "secondary-container": "#99efe5",
-        "on-secondary-container": "#006f67",
-        "tertiary": "#392cd1",
-        "on-tertiary": "#ffffff",
-        "tertiary-container": "#534be9",
-        "on-tertiary-container": "#e1deff",
-        "error": "#ba1a1a",
+        "primary-container": "var(--accent-subtle)",
+        "on-primary-container": "var(--accent)",
+        "inverse-primary": "var(--accent)",
+        "surface-tint": "var(--accent)",
+
+        // Muted Semantic Severity Alerts (Desaturated, Zero Neon)
+        "alert-critical": "var(--status-critical)",
+        "alert-critical-subtle": "var(--status-critical-bg)",
+        "alert-warning": "var(--status-warning)",
+        "alert-warning-subtle": "var(--status-warning-bg)",
+        "status-nominal": "var(--status-nominal)",
+        "status-nominal-subtle": "var(--status-nominal-bg)",
+
+        // Legacy compatibility aliases
+        "telemetry-cobalt": "var(--accent)",
+        "telemetry-indigo": "var(--accent)",
+        "error": "var(--status-critical)",
         "on-error": "#ffffff",
-        "error-container": "#ffdad6",
-        "on-error-container": "#93000a",
-        "primary-fixed": "#cde5ff",
-        "primary-fixed-dim": "#94ccff",
-        "on-primary-fixed": "#001d32",
-        "on-primary-fixed-variant": "#004b74",
-        "secondary-fixed": "#9cf2e8",
-        "secondary-fixed-dim": "#80d5cb",
-        "on-secondary-fixed": "#00201d",
-        "on-secondary-fixed-variant": "#00504a",
-        "tertiary-fixed": "#e2dfff",
-        "tertiary-fixed-dim": "#c3c0ff",
-        "on-tertiary-fixed": "#0f0069",
-        "on-tertiary-fixed-variant": "#3323cc",
-        "background": "#f8f9ff",
-        "on-background": "#0b1c30",
-        "surface-variant": "#d3e4fe",
-        "canvas-base": "#f8fafc",
-        "canvas-subtle": "#f1f5f9",
-        "surface-card": "#ffffff",
-        "surface-raised": "#f1f5f9",
-        "border-grid": "#e2e8f0",
-        "border-strong": "#cbd5e1",
-        "text-primary": "#0f172a",
-        "text-secondary": "#334155",
-        "text-muted": "#64748b",
-        "alert-critical": "#dc2626",
-        "alert-critical-subtle": "#fef2f2",
-        "alert-warning": "#d97706",
-        "alert-warning-subtle": "#fffbeb",
-        "status-nominal": "#059669",
-        "status-nominal-subtle": "#ecfdf5",
-        "telemetry-cobalt": "#0284c7",
-        "telemetry-indigo": "#4f46e5"
+      },
+      spacing: {
+        xxs: "2px",
+        xs: "4px",
+        sm: "8px",
+        md: "16px",
+        lg: "24px",
+        xl: "32px",
       },
       borderRadius: {
-        DEFAULT: "0.125rem",
         none: "0px",
-        sm: "0.0625rem",
-        md: "0.125rem",
-        lg: "0.25rem",
-        xl: "0.5rem",
-        "2xl": "0.75rem",
+        xs: "4px",
+        sm: "6px",
+        DEFAULT: "6px",
+        md: "8px",
+        lg: "8px",
+        xl: "8px",
+        "2xl": "8px",
         full: "9999px"
       },
       fontFamily: {
-        sans: ["IBM Plex Sans", "system-ui", "sans-serif"],
+        sans: ["IBM Plex Sans", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"]
       },
-      spacing: {
-        "sidebar-width": "18rem",
-        "telemetry-rail": "22rem",
-        "gutter-dense": "0.5rem",
-        "gutter-normal": "0.75rem"
-      },
       fontSize: {
-        "2xs": ["0.625rem", { lineHeight: "0.875rem" }],
-        "xs": ["0.6875rem", { lineHeight: "1rem" }],
-        "sm": ["0.75rem", { lineHeight: "1.125rem" }],
-        "base": ["0.8125rem", { lineHeight: "1.25rem" }],
-        "lg": ["0.9375rem", { lineHeight: "1.375rem" }],
-        "xl": ["1.125rem", { lineHeight: "1.5rem" }],
-        "2xl": ["1.375rem", { lineHeight: "1.75rem" }],
-        "3xl": ["1.75rem", { lineHeight: "2.25rem" }]
+        "2xs": ["0.75rem", { lineHeight: "1rem" }],        // 12px
+        "xs": ["0.8125rem", { lineHeight: "1.125rem" }],  // 13px
+        "sm": ["0.875rem", { lineHeight: "1.25rem" }],    // 14px
+        "base": ["0.9375rem", { lineHeight: "1.375rem" }],// 15px
+        "lg": ["1.0625rem", { lineHeight: "1.5rem" }],    // 17px
+        "xl": ["1.1875rem", { lineHeight: "1.625rem" }],  // 19px
+        "2xl": ["1.375rem", { lineHeight: "1.75rem" }],   // 22px
+        "3xl": ["1.625rem", { lineHeight: "2rem" }],      // 26px
+      },
+      boxShadow: {
+        none: "none",
+        xs: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
       }
     }
   },
-  plugins: []
-};
+  plugins: [],
+}

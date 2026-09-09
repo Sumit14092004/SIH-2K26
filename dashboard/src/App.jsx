@@ -1,20 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ShellLayout from './components/layout/ShellLayout';
 import LiveCommandCenter from './pages/LiveCommandCenter';
-import DisasterScenarioSimulation from './pages/DisasterScenarioSimulation';
+import SimulationTacticalMap from './pages/SimulationTacticalMap';
+import SimulationProfiles from './pages/SimulationProfiles';
+import StationTelemetryCockpit from './pages/StationTelemetryCockpit';
+import FleetDiagnostics from './pages/FleetDiagnostics';
 import EarlyWarningFeed from './pages/EarlyWarningFeed';
 import RegionalRiskMatrix from './pages/RegionalRiskMatrix';
 import NetworkHealthMesh from './pages/NetworkHealthMesh';
-import NodeTelemetryInspection from './pages/NodeTelemetryInspection';
 import NodeInspectorModal from './components/telemetry/NodeInspectorModal';
 import ToastNotification from './components/telemetry/ToastNotification';
 import { HazardAlertProvider, useHazardAlerts } from './context/HazardAlertContext';
+import { getApiBaseUrl } from './utils/apiConfig';
 
 function AppContent() {
-  const [activePath, setActivePath] = useState('live-command-center');
+  const getInitialTab = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam) return tabParam;
+      const hash = window.location.hash.replace('#', '');
+      if (hash) return hash;
+    }
+    return 'live-command-center';
+  };
+  const [activePath, setActivePath] = useState(getInitialTab);
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) setActivePath(hash);
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  const handleTabNavigate = (path) => {
+    setActivePath(path);
+    if (typeof window !== 'undefined') {
+      window.location.hash = path;
+    }
+  };
   const [selectedNodeId, setSelectedNodeId] = useState('IN-ASM-042');
-  const [inspectorNodeId, setInspectorNodeId] = useState(null);
-  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
+  const [inspectorNodeId, setInspectorNodeId] = useState('IN-ASM-042');
+  const [isInspectorOpen, setIsInspectorOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('modal') === 'true';
+    }
+    return false;
+  });
   const [toast, setToast] = useState({ show: false, title: '', message: '' });
 
   const { isVisualFlashing } = useHazardAlerts();
@@ -28,7 +62,7 @@ function AppContent() {
   const handleDispatchNDRF = async (nodeId, region) => {
     // Dispatch to Python backend to trigger real Twilio SMS if backend is active
     try {
-      fetch('http://localhost:8000/api/test/trigger', {
+      fetch(`${getApiBaseUrl()}/api/test/trigger`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -70,11 +104,12 @@ function AppContent() {
   return (
     <ShellLayout
       activePath={activePath}
-      onNavigate={(path) => setActivePath(path)}
+      onNavigate={handleTabNavigate}
       onBroadcastClick={handleBroadcastClick}
       onInspectNode={handleInspectNode}
     >
       {/* 6 Screen Views */}
+      {/* 8 Focused Screen Views (Zero Vertical Scroll) */}
       {activePath === 'live-command-center' && (
         <LiveCommandCenter
           onInspectNode={handleInspectNode}
@@ -92,8 +127,24 @@ function AppContent() {
         />
       )}
 
-      {activePath === 'disaster-scenario-simulation' && (
-        <DisasterScenarioSimulation
+      {(activePath === 'simulation-map' || activePath === 'disaster-scenario-simulation') && (
+        <SimulationTacticalMap
+          onInspectNode={handleInspectNode}
+          onTriggerNotification={(notif) => {
+            setToast({
+              show: true,
+              title: notif.title,
+              message: notif.message,
+            });
+            setTimeout(() => {
+              setToast((prev) => ({ ...prev, show: false }));
+            }, 5000);
+          }}
+        />
+      )}
+
+      {activePath === 'simulation-profiles' && (
+        <SimulationProfiles
           onInspectNode={handleInspectNode}
           onDispatchNDRF={handleDispatchNDRF}
           onTriggerNotification={(notif) => {
@@ -109,8 +160,8 @@ function AppContent() {
         />
       )}
 
-      {activePath === 'node-telemetry-and-inspection' && (
-        <NodeTelemetryInspection
+      {(activePath === 'station-telemetry' || activePath === 'node-telemetry-and-inspection') && (
+        <StationTelemetryCockpit
           selectedNodeId={selectedNodeId}
           onDispatchNDRF={handleDispatchNDRF}
           onTriggerNotification={(notif) => {
@@ -123,6 +174,12 @@ function AppContent() {
               setToast((prev) => ({ ...prev, show: false }));
             }, 5000);
           }}
+        />
+      )}
+
+      {activePath === 'fleet-diagnostics' && (
+        <FleetDiagnostics
+          onInspectNode={handleInspectNode}
         />
       )}
 
@@ -217,7 +274,7 @@ class ErrorBoundary extends React.Component {
                 this.setState({ hasError: false, error: null });
                 window.location.reload();
               }}
-              className="bg-primary hover:bg-sky-700 text-white font-semibold px-lg py-sm rounded-lg transition-colors cursor-pointer text-sm"
+              className="bg-accent hover:bg-accent-hover text-accent-contrast font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm"
             >
               Reset &amp; Reload Console
             </button>
@@ -229,12 +286,16 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+import { ThemeProvider } from './context/ThemeContext';
+
 export default function App() {
   return (
     <ErrorBoundary>
-      <HazardAlertProvider>
-        <AppContent />
-      </HazardAlertProvider>
+      <ThemeProvider>
+        <HazardAlertProvider>
+          <AppContent />
+        </HazardAlertProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

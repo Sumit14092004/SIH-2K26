@@ -17,10 +17,10 @@ export default function NavTab({ id, label, isActive, onClick }) {
       id={`nav-tab-${id}`}
       aria-selected={isActive}
       onClick={onClick}
-      className={`group relative inline-flex items-center justify-center gap-1.5 px-3 py-1 md:px-3.5 md:py-1.5 text-xs md:text-sm whitespace-nowrap rounded-lg border transition-all duration-150 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-surface-card ${
+      className={`group relative inline-flex items-center justify-center gap-1.5 px-3 py-1 md:px-3.5 md:py-1.5 text-xs whitespace-nowrap rounded-md border transition-all duration-150 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-surface ${
         isActive
-          ? 'bg-primary text-white border-primary shadow-xs font-semibold'
-          : 'bg-surface-container/60 hover:bg-surface-container-high text-text-secondary hover:text-text-primary border-border-grid hover:border-border-strong'
+          ? 'bg-accent text-accent-contrast border-accent shadow-xs font-medium'
+          : 'bg-surface hover:bg-surface-alt text-secondary hover:text-primary border-subtle'
       }`}
     >
       {/* Active state indicator dot */}

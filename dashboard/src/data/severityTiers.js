@@ -7,9 +7,9 @@ export const SEVERITY_TIERS = [
     label: 'OFFLINE',
     shortLabel: 'OFFLINE',
     color: '#64748b',
-    badgeClass: 'bg-slate-100 text-slate-600 border-slate-300',
+    badgeClass: 'bg-slate-800/80 text-slate-300 border-slate-700',
     activeBarClass: 'bg-slate-500 text-white font-bold',
-    inactiveBarClass: 'bg-slate-100 text-slate-400 border border-slate-200',
+    inactiveBarClass: 'bg-[#141c2e] text-slate-400 border border-[#25314c] hover:border-slate-500',
     description: 'No telemetry packets received / connection lost',
   },
   {
@@ -17,9 +17,9 @@ export const SEVERITY_TIERS = [
     label: 'NOMINAL',
     shortLabel: 'NOMINAL',
     color: '#059669',
-    badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+    badgeClass: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/40',
     activeBarClass: 'bg-emerald-600 text-white font-bold',
-    inactiveBarClass: 'bg-emerald-50/50 text-emerald-600/60 border border-emerald-200',
+    inactiveBarClass: 'bg-[#141c2e] text-emerald-400/70 border border-[#25314c] hover:border-emerald-500/50',
     description: 'Normal operating range within safe environmental baseline',
   },
   {
@@ -27,9 +27,9 @@ export const SEVERITY_TIERS = [
     label: 'WARNING',
     shortLabel: 'WARNING',
     color: '#d97706',
-    badgeClass: 'bg-amber-50 text-amber-700 border-amber-300',
+    badgeClass: 'bg-amber-950/60 text-amber-400 border-amber-500/40',
     activeBarClass: 'bg-amber-500 text-white font-bold',
-    inactiveBarClass: 'bg-amber-50/50 text-amber-600/60 border border-amber-200',
+    inactiveBarClass: 'bg-[#141c2e] text-amber-400/70 border border-[#25314c] hover:border-amber-500/50',
     description: 'Trending toward threshold; heightened surveillance advised',
   },
   {
@@ -37,9 +37,9 @@ export const SEVERITY_TIERS = [
     label: 'ABNORMAL',
     shortLabel: 'ABNORMAL',
     color: '#ea580c',
-    badgeClass: 'bg-orange-50 text-orange-700 border-orange-300',
+    badgeClass: 'bg-orange-950/60 text-orange-400 border-orange-500/40',
     activeBarClass: 'bg-orange-500 text-white font-bold',
-    inactiveBarClass: 'bg-orange-50/50 text-orange-600/60 border border-orange-200',
+    inactiveBarClass: 'bg-[#141c2e] text-orange-400/70 border border-[#25314c] hover:border-orange-500/50',
     description: 'Reading outside expected operating range; field standby alert',
   },
   {
@@ -47,9 +47,9 @@ export const SEVERITY_TIERS = [
     label: 'CRITICAL / EMERGENCY',
     shortLabel: 'CRITICAL',
     color: '#dc2626',
-    badgeClass: 'bg-red-50 text-red-700 border-red-300',
+    badgeClass: 'bg-red-950/60 text-red-400 border-red-500/40',
     activeBarClass: 'bg-red-600 text-white font-bold animate-pulse',
-    inactiveBarClass: 'bg-red-50/50 text-red-600/60 border border-red-200',
+    inactiveBarClass: 'bg-[#141c2e] text-red-400/70 border border-[#25314c] hover:border-red-500/50',
     description: 'Danger threshold breached; immediate evacuation / response required',
   },
 ];
@@ -62,6 +62,63 @@ function parseNumber(val) {
   if (!val) return null;
   const match = String(val).match(/[-+]?[0-9]+(?:\.[0-9]+)?/);
   return match ? parseFloat(match[0]) : null;
+}
+
+/**
+ * Pure evaluator for an individual sensor reading within a multi-sensor node
+ */
+export function evaluateSensorReading(reading) {
+  if (!reading || reading.value === null || reading.value === undefined) {
+    return {
+      tier: 'nominal',
+      statusText: 'AWAITING TELEMETRY',
+      riskScore: 0,
+      isAwaiting: true,
+    };
+  }
+
+  const val = Number(reading.value);
+  const type = (reading.hazard_type || reading.id || '').toLowerCase();
+
+  if (type === 'aqi') {
+    if (val >= 400) return { tier: 'critical', riskScore: 95, statusText: 'Hazardous / Emergency' };
+    if (val >= 250) return { tier: 'abnormal', riskScore: 75, statusText: 'Severe Air Toxicity' };
+    if (val >= 100) return { tier: 'warning', riskScore: 50, statusText: 'Moderate Pollution' };
+    return { tier: 'nominal', riskScore: 15, statusText: 'Safe / Good' };
+  }
+
+  if (type === 'fire' || type === 'temperature') {
+    if (val >= 60) return { tier: 'critical', riskScore: 92, statusText: 'Thermal Outbreak / Fire' };
+    if (val >= 50) return { tier: 'abnormal', riskScore: 70, statusText: 'High Thermal Risk' };
+    if (val >= 40) return { tier: 'warning', riskScore: 45, statusText: 'Elevated Temperature' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Normal Ambient' };
+  }
+
+  if (type === 'humidity') {
+    if (val > 90) return { tier: 'warning', riskScore: 40, statusText: 'Extreme Humidity' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Optimal Range' };
+  }
+
+  if (type === 'landslide' || type === 'soil_moisture') {
+    if (val >= 75) return { tier: 'critical', riskScore: 90, statusText: 'Soil Saturated / Slip Risk' };
+    if (val >= 60) return { tier: 'warning', riskScore: 55, statusText: 'High Moisture' };
+    return { tier: 'nominal', riskScore: 15, statusText: 'Stable Soil' };
+  }
+
+  if (type === 'seismic' || type === 'vibration') {
+    if (val >= 2.5) return { tier: 'critical', riskScore: 96, statusText: 'High Vibration / Shock' };
+    if (val >= 1.5) return { tier: 'abnormal', riskScore: 72, statusText: 'Abnormal Tremor' };
+    if (val >= 0.5) return { tier: 'warning', riskScore: 48, statusText: 'Minor Vibration' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Stable Baseline' };
+  }
+
+  if (type === 'flood' || type === 'rainfall') {
+    if (val >= 35) return { tier: 'critical', riskScore: 94, statusText: 'Torrential Downpour' };
+    if (val >= 7.5) return { tier: 'warning', riskScore: 50, statusText: 'Moderate Rainfall' };
+    return { tier: 'nominal', riskScore: 10, statusText: 'Light / Nil Rain' };
+  }
+
+  return { tier: 'nominal', riskScore: 10, statusText: 'Operating Normally' };
 }
 
 /**
@@ -87,13 +144,67 @@ export function getSeverityAssessment(node) {
     node.isOffline ||
     node.id === 'IN-JK-001'
   ) {
+    const isRRU = node.id === 'GJ-RRU-001';
     return {
       activeTier: 'offline',
-      metricDiagnostic: 'OFFLINE — No telemetry packets received in 4.2 hours; signal loss',
-      thresholdRange: 'Offline detection: > 90s without telemetry ping',
+      metricDiagnostic: isRRU
+        ? 'OFFLINE — Disconnected; awaiting live ESP32 hardware telemetry burst'
+        : 'OFFLINE — No telemetry packets received; signal loss / heartbeat timeout',
+      thresholdRange: isRRU
+        ? 'Offline detection: > 300s without hardware telemetry uplink'
+        : 'Offline detection: > 90s without telemetry ping',
       riskScore: 0,
-      readingValue: 'NO SIGNAL',
+      readingValue: 'NO SIGNAL / OFFLINE',
       unit: '',
+    };
+  }
+
+  // Multi-sensor node evaluation (Worst-of-all severity)
+  if (node.isMultiSensor && node.readings && Array.isArray(node.readings)) {
+    const hasAnyReading = node.readings.some((r) => r.value !== null && r.value !== undefined);
+    if (!hasAnyReading) {
+      return {
+        activeTier: 'offline',
+        metricDiagnostic: 'OFFLINE — Disconnected; awaiting live ESP32 hardware telemetry burst',
+        thresholdRange: 'Offline detection: > 300s without hardware telemetry uplink',
+        riskScore: 0,
+        readingValue: 'NO SIGNAL / OFFLINE',
+        unit: '',
+        isMultiSensor: true,
+        allReadingsAwaiting: true,
+      };
+    }
+
+    const TIER_WEIGHTS = { critical: 4, abnormal: 3, warning: 2, nominal: 1 };
+    let worstTier = 'nominal';
+    let maxRisk = 0;
+    let worstReading = null;
+
+    node.readings.forEach((r) => {
+      const evaluation = evaluateSensorReading(r);
+      if (TIER_WEIGHTS[evaluation.tier] > TIER_WEIGHTS[worstTier]) {
+        worstTier = evaluation.tier;
+        worstReading = { ...r, ...evaluation };
+      }
+      if (evaluation.riskScore > maxRisk) {
+        maxRisk = evaluation.riskScore;
+      }
+    });
+
+    const activeReadings = node.readings.filter((r) => r.value !== null && r.value !== undefined);
+
+    return {
+      activeTier: worstTier,
+      metricDiagnostic: worstReading && worstTier !== 'nominal'
+        ? `${worstTier.toUpperCase()} — ${worstReading.label} (${worstReading.value} ${worstReading.unit}) [${worstReading.statusText}]`
+        : `NOMINAL — All ${activeReadings.length} active sensors reporting within baseline`,
+      thresholdRange: 'Multi-hazard integrated environmental matrix (6 sensor channels)',
+      riskScore: maxRisk || 15,
+      readingValue: worstReading ? `${worstReading.value} ${worstReading.unit}` : 'NORMAL',
+      unit: worstReading ? worstReading.unit : '',
+      worstReading,
+      isMultiSensor: true,
+      allReadingsAwaiting: false,
     };
   }
 

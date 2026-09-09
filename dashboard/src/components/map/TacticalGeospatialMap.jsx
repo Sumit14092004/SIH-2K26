@@ -81,6 +81,16 @@ const NODES = [
     reading: 'Tidal Swell Nominal',
     severity: 'nominal',
   },
+  {
+    id: 'GJ-RRU-001',
+    name: 'RRU Main Campus Environmental Node',
+    state: 'Gujarat',
+    lat: 23.1544554,
+    lng: 72.884999,
+    type: 'multi',
+    reading: 'Offline — Awaiting Uplink',
+    severity: 'offline',
+  },
 ];
 
 export default function TacticalGeospatialMap({
@@ -186,9 +196,9 @@ export default function TacticalGeospatialMap({
           <div class="relative flex items-center justify-center cursor-pointer group" style="transform: translate(-50%, -50%);">
             <span class="absolute w-10 h-10 rounded-full bg-red-500/35 animate-ping"></span>
             <span class="w-6 h-6 rounded-full bg-[#dc2626] border-2 border-white flex items-center justify-center text-[11px] font-bold text-white shadow-lg">!</span>
-            <div class="absolute bottom-7 left-1/2 -translate-x-1/2 bg-white/95 border border-[#e2e8f0] shadow-md px-2 py-0.5 rounded text-[11px] whitespace-nowrap pointer-events-none">
+            <div class="absolute bottom-7 left-1/2 -translate-x-1/2 bg-[#0f172a]/95 border border-[#25314c] shadow-md px-2 py-0.5 rounded text-[11px] whitespace-nowrap pointer-events-none">
               <span class="text-red-700 font-bold font-mono">${node.id.replace('IN-', '')}</span>
-              <span class="text-[#0f172a] font-semibold ml-1">${node.name}</span>
+              <span class="text-white font-semibold ml-1">${node.name}</span>
             </div>
           </div>
         `;
@@ -197,9 +207,9 @@ export default function TacticalGeospatialMap({
           <div class="relative flex items-center justify-center cursor-pointer group" style="transform: translate(-50%, -50%);">
             <span class="absolute w-9 h-9 rounded-full bg-amber-500/35 animate-ping"></span>
             <span class="w-5 h-5 rounded-full bg-amber-500 border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-md">!</span>
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 border border-[#e2e8f0] shadow-md px-2 py-0.5 rounded text-[11px] whitespace-nowrap pointer-events-none">
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#0f172a]/95 border border-[#25314c] shadow-md px-2 py-0.5 rounded text-[11px] whitespace-nowrap pointer-events-none">
               <span class="text-amber-700 font-bold font-mono">${node.id.replace('IN-', '')}</span>
-              <span class="text-[#0f172a] font-semibold ml-1">${node.name}</span>
+              <span class="text-white font-semibold ml-1">${node.name}</span>
             </div>
           </div>
         `;
@@ -207,7 +217,7 @@ export default function TacticalGeospatialMap({
         iconHtml = `
           <div class="relative flex items-center justify-center cursor-pointer" style="transform: translate(-50%, -50%);">
             <span class="w-4 h-4 rounded-full bg-indigo-600 border-2 border-white shadow-md"></span>
-            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/95 border border-[#e2e8f0] shadow-sm px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap text-indigo-700 font-bold font-mono pointer-events-none">
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-[#0f172a]/95 border border-[#25314c] shadow-sm px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap text-indigo-700 font-bold font-mono pointer-events-none">
               ${node.id.replace('IN-', '')}
             </div>
           </div>
@@ -216,7 +226,7 @@ export default function TacticalGeospatialMap({
         iconHtml = `
           <div class="relative flex items-center justify-center cursor-pointer" style="transform: translate(-50%, -50%);">
             <span class="w-4 h-4 rounded-full bg-[#0284c7] border-2 border-white shadow-md"></span>
-            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/95 border border-[#e2e8f0] shadow-sm px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap text-[#0284c7] font-bold font-mono pointer-events-none">
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-[#0f172a]/95 border border-[#25314c] shadow-sm px-1.5 py-0.5 rounded text-[10px] whitespace-nowrap text-[#0284c7] font-bold font-mono pointer-events-none">
               ${node.id.replace('IN-', '')}
             </div>
           </div>
@@ -283,17 +293,17 @@ export default function TacticalGeospatialMap({
       <div ref={mapContainerRef} className="w-full h-full z-10" />
 
       {/* Map Legend Overlay */}
-      <div className="absolute bottom-4 left-4 right-4 z-20 bg-white/95 border border-[#e2e8f0] backdrop-blur-md px-md py-xs rounded-xl shadow-xs flex flex-wrap items-center justify-between gap-sm pointer-events-auto">
+      <div className="absolute bottom-4 left-4 right-4 z-20 bg-[#0f172a]/95 border border-[#25314c] backdrop-blur-md px-md py-xs rounded-xl shadow-xs flex flex-wrap items-center justify-between gap-sm pointer-events-auto">
         <div className="flex items-center gap-md">
           <div className="flex items-center gap-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-            <span className="font-body-sm text-body-sm text-slate-600 font-medium">
+            <span className="font-body-sm text-body-sm text-slate-300 font-medium">
               Nominal (154)
             </span>
           </div>
           <div className="flex items-center gap-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-            <span className="font-body-sm text-body-sm text-slate-600 font-medium">
+            <span className="font-body-sm text-body-sm text-slate-300 font-medium">
               Watch / Advisory (2)
             </span>
           </div>
@@ -305,7 +315,7 @@ export default function TacticalGeospatialMap({
           </div>
         </div>
 
-        <div className="flex items-center gap-xs font-label-code text-label-code text-slate-500">
+        <div className="flex items-center gap-xs font-label-code text-label-code text-slate-400">
           <span className="material-symbols-outlined text-[16px] text-emerald-600">
             verified
           </span>

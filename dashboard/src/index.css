@@ -2,6 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Light Mode (Default Public Sector Theme) */
+  --bg-canvas: #f8f9fa;
+  --bg-surface: #ffffff;
+  --bg-surface-alt: #f1f3f5;
+  --border-subtle: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text-primary: #111827;
+  --text-muted: #6b7280;
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
+  --accent-subtle: #eff6ff;
+  --status-critical: #b91c1c;
+  --status-critical-bg: #fef2f2;
+  --status-warning: #b45309;
+  --status-warning-bg: #fffbeb;
+  --status-nominal: #15803d;
+  --status-nominal-bg: #f0fdf4;
+}
+
+.dark {
+  /* Dark Mode (Low-Light Operations Watch Desk) */
+  --bg-canvas: #0b0f17;
+  --bg-surface: #111827;
+  --bg-surface-alt: #161f30;
+  --border-subtle: #1f293d;
+  --border-strong: #374151;
+  --text-primary: #f9fafb;
+  --text-muted: #9ca3af;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-subtle: rgba(59, 130, 246, 0.12);
+  --status-critical: #ef4444;
+  --status-critical-bg: rgba(239, 68, 68, 0.14);
+  --status-warning: #f59e0b;
+  --status-warning-bg: rgba(245, 158, 11, 0.14);
+  --status-nominal: #10b981;
+  --status-nominal-bg: rgba(16, 185, 129, 0.14);
+}
+
 @layer base {
   *, ::before, ::after {
     box-sizing: border-box;
@@ -11,8 +51,8 @@
     margin: 0;
     padding: 0;
     font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f8f9ff;
-    color: #0f172a;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -22,6 +62,27 @@
     font-family: 'JetBrains Mono', monospace;
     font-feature-settings: 'tnum' on, 'lnum' on, 'zero' on;
   }
+
+  /* Styling for native select dropdowns and options */
+  select {
+    background-color: var(--bg-surface-alt);
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+  }
+
+  select option {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+  }
+
+  /* Styling for native text inputs */
+  input[type="text"], input[type="search"] {
+    color: var(--text-primary);
+  }
+
+  input[type="text"]::placeholder, input[type="search"]::placeholder {
+    color: var(--text-muted);
+  }
 }
 
 /* Material Symbols standard sizing & alignment */
@@ -29,7 +90,7 @@
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   letter-spacing: normal;
   text-transform: none;
@@ -42,112 +103,45 @@
   vertical-align: middle;
 }
 
-/* Institutional Dense Data Custom Scrollbar */
+/* Restrained Quiet Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #eff4ff;
+  background: var(--bg-canvas);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 2px;
+  background: var(--border-subtle);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--border-strong);
 }
 
-/* Subtle animation pulses for active telemetry indicators */
-@keyframes pulse-subtle {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
+/* Leaflet Container & Popup Styling */
+.leaflet-container {
+  background: var(--bg-canvas) !important;
+  font-family: inherit;
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Klaxon emergency strobe banner animation */
-@keyframes siren-strobe {
-  0%, 100% {
-    background-color: #dc2626;
-    color: #ffffff;
-  }
-  50% {
-    background-color: #991b1b;
-    color: #fee2e2;
-  }
-}
-
-.animate-siren-strobe {
-  animation: siren-strobe 1s ease-in-out infinite;
-}
-
-/* ========================================================
-   Tactical Geospatial Map & Location Pointers (OG Map Style)
-   ======================================================== */
-@keyframes pulseAlert {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
-}
-
-@keyframes rippleRing {
-  0% { transform: scale(0.6); opacity: 0.9; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-
-@keyframes radarSweepRing {
-  0% { transform: scale(0.8); opacity: 0.8; }
-  100% { transform: scale(2.6); opacity: 0; }
-}
-
-/* Dark Radar Filter Mode for OSM Tiles */
-.tactical-map-dark .leaflet-tile-pane {
-  filter: brightness(0.65) invert(1) contrast(2.8) hue-rotate(200deg) saturate(0.35) brightness(0.85);
-}
-
-.tactical-map-dark .leaflet-container {
-  background: #090d16 !important;
-}
-
-/* Custom Div Icon resets */
-.leaflet-div-icon {
+.custom-div-icon {
   background: transparent !important;
   border: none !important;
 }
 
-/* Modern Institutional Leaflet Popup Styling */
 .leaflet-popup-content-wrapper {
-  background: rgba(15, 23, 42, 0.96) !important;
-  backdrop-filter: blur(12px) !important;
-  color: #f1f5f9 !important;
-  border: 1px solid #334155 !important;
-  border-radius: 10px !important;
-  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.6) !important;
-  padding: 2px !important;
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .leaflet-popup-tip {
-  background: #0f172a !important;
-  border: 1px solid #334155 !important;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
 }
-
-.leaflet-popup-close-button {
-  color: #94a3b8 !important;
-  top: 8px !important;
-  right: 8px !important;
-}
-
-.leaflet-popup-close-button:hover {
-  color: #ffffff !important;
-}
-

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { CANONICAL_NODES } from '../data/canonicalNodes';
 import { useHazardAlerts } from '../context/HazardAlertContext';
 
 export default function NetworkHealthMesh({ onInspectNode }) {
+  const [activeSegment, setActiveSegment] = useState('gateways'); // 'gateways' | 'nodes'
   const [selectedNodeFilter, setSelectedNodeFilter] = useState('ALL');
-  const { allNodesList, getNodeSeverity, criticalCount, activeHazardsCount } = useHazardAlerts();
+  const [expandedNodeId, setExpandedNodeId] = useState(null);
+
+  const { allNodesList, getNodeSeverity } = useHazardAlerts();
 
   const dynamicNodes = allNodesList.map((n) => {
     const assessment = getNodeSeverity(n);
@@ -28,6 +30,8 @@ export default function NetworkHealthMesh({ onInspectNode }) {
       status: 'ONLINE',
       latency: '18ms',
       nodesCount: 58,
+      location: 'New Delhi, NCR',
+      packetSuccess: '99.99%',
     },
     {
       id: 'GW-GUW-RIVER',
@@ -36,6 +40,8 @@ export default function NetworkHealthMesh({ onInspectNode }) {
       status: 'ONLINE',
       latency: '28ms',
       nodesCount: 34,
+      location: 'Guwahati, Assam',
+      packetSuccess: '99.95%',
     },
     {
       id: 'GW-UK-SPINE',
@@ -44,6 +50,8 @@ export default function NetworkHealthMesh({ onInspectNode }) {
       status: 'ONLINE',
       latency: '45ms',
       nodesCount: 22,
+      location: 'Dehradun, Uttarakhand',
+      packetSuccess: '99.90%',
     },
     {
       id: 'GW-HYD-DECCAN',
@@ -52,6 +60,8 @@ export default function NetworkHealthMesh({ onInspectNode }) {
       status: 'ONLINE',
       latency: '8ms',
       nodesCount: 38,
+      location: 'Hyderabad, Telangana',
+      packetSuccess: '100.0%',
     },
     {
       id: 'GW-OD-COAST',
@@ -60,261 +70,272 @@ export default function NetworkHealthMesh({ onInspectNode }) {
       status: 'ONLINE',
       latency: '38ms',
       nodesCount: 16,
+      location: 'Puri / Bhubaneswar',
+      packetSuccess: '99.92%',
     },
   ];
 
+  const toggleNodeExpand = (id) => {
+    setExpandedNodeId((prev) => (prev === id ? null : id));
+  };
+
   return (
-    <div className="flex flex-col w-full pb-xl space-y-md">
-      {/* 1. Top Global Grid HUD Header */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-md py-sm bg-surface-card rounded-xl px-md border border-border-grid shadow-xs">
-        <div className="flex flex-col gap-xxs">
-          <div className="flex items-center gap-xs flex-wrap">
-            <span className="px-xs py-xxs rounded-full bg-status-nominal-subtle border border-status-nominal/30 text-status-nominal font-label-code text-label-code flex items-center gap-xxs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-status-nominal animate-pulse" />
-              100% MESH HEALTH
-            </span>
-            <span className="font-label-code text-label-code text-primary bg-primary-fixed/30 border border-primary/20 px-xs py-xxs rounded font-medium">
-              1 Physical Master (ESP32-S3) + 158 Canonical Mesh Nodes
-            </span>
-            {criticalCount > 0 ? (
-              <span className="px-xs py-xxs rounded-full bg-alert-critical-subtle border border-alert-critical/30 text-alert-critical font-label-code text-label-code flex items-center gap-xxs font-bold animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-alert-critical" />
-                {criticalCount} CRITICAL ALERT{criticalCount > 1 ? 'S' : ''} ACTIVE
-              </span>
-            ) : (
-              <span className="px-xs py-xxs rounded-full bg-status-nominal-subtle border border-status-nominal/30 text-status-nominal font-label-code text-label-code flex items-center gap-xxs font-semibold">
-                ALL NODES NOMINAL
-              </span>
-            )}
+    <div className="flex flex-col w-full h-full min-h-0 gap-2">
+      {/* 1. Top HUD Strip with Segment Switcher */}
+      <div className="bg-surface border border-subtle rounded-md px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-surface-alt border border-subtle flex items-center justify-center text-secondary shrink-0">
+            <span className="material-symbols-outlined text-[18px]">hub</span>
           </div>
-          <div className="flex items-baseline gap-xs mt-xxs">
-            <h1 className="font-headline-lg text-headline-lg text-text-primary tracking-tight font-bold">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xs font-semibold text-primary">
               Edge Mesh Topology &amp; Sensor Network Health
             </h1>
+            <span className="font-mono text-[10px] text-status-nominal bg-status-nominal/10 border border-status-nominal/30 px-1.5 py-0.2 rounded">
+              100% Mesh Health
+            </span>
           </div>
         </div>
 
-        {/* Global Key Metrics */}
-        <div className="flex flex-wrap items-center gap-sm">
-          <div className="flex flex-col bg-canvas-subtle border border-border-grid px-md py-xs rounded-lg">
-            <span className="font-label-code text-label-code text-text-muted">PACKET DELIVERY</span>
-            <div className="flex items-baseline gap-xxs">
-              <span className="font-metric-display text-headline-md text-text-primary font-bold">
-                99.98
-              </span>
-              <span className="font-telemetry-unit text-telemetry-unit text-text-muted">%</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col bg-canvas-subtle border border-border-grid px-md py-xs rounded-lg">
-            <span className="font-label-code text-label-code text-text-muted">MEAN LATENCY</span>
-            <div className="flex items-baseline gap-xxs">
-              <span className="font-metric-display text-headline-md text-telemetry-cobalt font-bold">
-                28.4
-              </span>
-              <span className="font-telemetry-unit text-telemetry-unit text-text-muted">MS</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col bg-canvas-subtle border border-border-grid px-md py-xs rounded-lg">
-            <span className="font-label-code text-label-code text-text-muted">ACTIVE HUBS</span>
-            <div className="flex items-baseline gap-xxs">
-              <span className="font-metric-display text-headline-md text-status-nominal font-bold">
-                {gateways.length}
-              </span>
-              <span className="font-telemetry-unit text-telemetry-unit text-text-muted">GATEWAYS</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Top Gateways Overview Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-sm">
-        {gateways.map((gw) => (
-          <div
-            key={gw.id}
-            className="bg-surface-card border border-border-grid rounded-xl p-md shadow-xs flex flex-col justify-between"
+        {/* Segmented View Switcher */}
+        <div className="flex items-center bg-surface-alt border border-subtle p-0.5 rounded text-xs">
+          <button
+            onClick={() => setActiveSegment('gateways')}
+            className={`px-2.5 py-1 rounded text-2xs font-mono font-medium transition-colors cursor-pointer flex items-center gap-1 ${
+              activeSegment === 'gateways'
+                ? 'bg-accent text-accent-contrast'
+                : 'text-muted hover:text-primary'
+            }`}
           >
-            <div>
-              <div className="flex items-center justify-between mb-xxs">
-                <span className="font-mono text-label-code text-primary font-bold">{gw.id}</span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-status-nominal bg-status-nominal-subtle border border-status-nominal/30 px-xs py-0.5 rounded">
-                  <span className="w-1.5 h-1.5 rounded-full bg-status-nominal" />
-                  {gw.status}
-                </span>
-              </div>
-              <h4 className="font-bold text-body-sm text-text-primary leading-tight mb-xxs">
-                {gw.sector}
-              </h4>
-              <span className="text-[11px] text-text-muted block">{gw.backhaul}</span>
-            </div>
-
-            <div className="mt-sm pt-xs border-t border-border-grid flex items-center justify-between text-label-code font-mono">
-              <span className="text-text-muted">{gw.nodesCount} Nodes</span>
-              <span className="text-telemetry-cobalt font-bold">{gw.latency}</span>
-            </div>
-          </div>
-        ))}
+            <span className="material-symbols-outlined text-[14px]">cell_tower</span>
+            <span>Gateway Backhauls (5)</span>
+          </button>
+          <button
+            onClick={() => setActiveSegment('nodes')}
+            className={`px-2.5 py-1 rounded text-2xs font-mono font-medium transition-colors cursor-pointer flex items-center gap-1 ${
+              activeSegment === 'nodes'
+                ? 'bg-accent text-accent-contrast'
+                : 'text-muted hover:text-primary'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[14px]">router</span>
+            <span>Node Link Quality ({filteredNodes.length})</span>
+          </button>
+        </div>
       </div>
 
-      {/* 3. Canonical Node Network Health Table Card */}
-      <div className="w-full bg-surface-card border border-border-grid rounded-xl shadow-xs overflow-hidden">
-        {/* Table Header Controls */}
-        <div className="p-md border-b border-border-grid flex flex-wrap items-center justify-between gap-sm">
-          <div className="flex items-center gap-xs">
-            <span className="material-symbols-outlined text-primary text-[20px]">
-              router
-            </span>
-            <h3 className="font-headline-md text-body-md text-text-primary font-bold">
-              Canonical Node Link Quality &amp; Power Health
-            </h3>
-            <span className="font-label-code text-label-code text-text-muted bg-canvas-subtle border border-border-grid px-xs py-0.5 rounded font-mono">
-              {filteredNodes.length} NODES
-            </span>
-          </div>
+      {/* 2. Key Metrics Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0 text-xs font-mono">
+        <div className="bg-surface border border-subtle px-3 py-1.5 rounded-md flex items-center justify-between">
+          <span className="text-muted text-[10.5px]">PACKET DELIVERY</span>
+          <span className="text-status-nominal font-semibold">99.98%</span>
+        </div>
+        <div className="bg-surface border border-subtle px-3 py-1.5 rounded-md flex items-center justify-between">
+          <span className="text-muted text-[10.5px]">MEAN LATENCY</span>
+          <span className="text-primary font-semibold">28.4 ms</span>
+        </div>
+        <div className="bg-surface border border-subtle px-3 py-1.5 rounded-md flex items-center justify-between">
+          <span className="text-muted text-[10.5px]">ACTIVE GATEWAYS</span>
+          <span className="text-status-nominal font-semibold">5 / 5 UP</span>
+        </div>
+        <div className="bg-surface border border-subtle px-3 py-1.5 rounded-md flex items-center justify-between">
+          <span className="text-muted text-[10.5px]">PHYSICAL MASTER</span>
+          <span className="text-primary font-semibold truncate">ESP32-S3 GAGAN</span>
+        </div>
+      </div>
 
-          <div className="flex items-center gap-xs">
-            <span className="font-label-code text-label-code text-text-muted font-semibold">FILTER:</span>
-            <div className="flex items-center bg-canvas-subtle border border-border-grid p-0.5 rounded-lg text-body-sm flex-wrap">
-              {['ALL', 'CRITICAL', 'ABNORMAL', 'WARNING', 'NOMINAL', 'OFFLINE'].map((tier) => (
-                <button
-                  key={tier}
-                  onClick={() => setSelectedNodeFilter(tier)}
-                  className={`px-sm py-0.5 rounded-md text-[11px] font-semibold transition-all ${
-                    selectedNodeFilter === tier
-                      ? 'bg-primary text-white shadow-xs'
-                      : 'text-text-secondary hover:text-text-primary'
-                  }`}
-                >
-                  {tier}
-                </button>
-              ))}
-            </div>
+      {/* 3. Segment Content: Gateway Backhauls View */}
+      {activeSegment === 'gateways' && (
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5">
+            {gateways.map((gw) => (
+              <div
+                key={gw.id}
+                className="bg-surface border border-subtle rounded-md p-3 flex flex-col justify-between gap-2 hover:border-strong transition-colors"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="font-mono text-xs font-semibold text-primary">{gw.id}</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-status-nominal bg-status-nominal/10 border border-status-nominal/20 px-1.5 py-0.2 rounded font-mono">
+                      <span className="w-1.5 h-1.5 rounded-full bg-status-nominal" />
+                      {gw.status}
+                    </span>
+                  </div>
+                  <h4 className="font-medium text-xs text-primary leading-tight">{gw.sector}</h4>
+                  <span className="text-2xs text-muted block mt-0.5">{gw.location} &middot; {gw.backhaul}</span>
+                </div>
+
+                <div className="pt-2 border-t border-subtle grid grid-cols-3 gap-1 text-2xs font-mono text-center">
+                  <div className="bg-surface-alt p-1 rounded">
+                    <span className="text-muted block text-[9.5px]">NODES</span>
+                    <span className="font-semibold text-primary">{gw.nodesCount}</span>
+                  </div>
+                  <div className="bg-surface-alt p-1 rounded">
+                    <span className="text-muted block text-[9.5px]">LATENCY</span>
+                    <span className="font-semibold text-secondary">{gw.latency}</span>
+                  </div>
+                  <div className="bg-surface-alt p-1 rounded">
+                    <span className="text-muted block text-[9.5px]">DELIVERY</span>
+                    <span className="font-semibold text-status-nominal">{gw.packetSuccess}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+      )}
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-canvas-subtle border-b border-border-grid font-label-code text-label-code text-text-muted uppercase tracking-wider">
-                <th className="py-sm px-md font-semibold">Node Code / ID</th>
-                <th className="py-sm px-md font-semibold">Location Sector</th>
-                <th className="py-sm px-md font-semibold">Severity</th>
-                <th className="py-sm px-md font-semibold">Backhaul Tech</th>
-                <th className="py-sm px-md font-semibold">Signal RSSI</th>
-                <th className="py-sm px-md font-semibold">Delivery Rate</th>
-                <th className="py-sm px-md font-semibold">Battery / Power</th>
-                <th className="py-sm px-md font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-grid font-body-sm text-body-sm">
-              {filteredNodes.map((node) => {
-                const isCrit = node.severity === 'critical';
-                const isAbn = node.severity === 'abnormal';
-                const isWarn = node.severity === 'warning';
-                const isOff = node.severity === 'offline';
-
-                return (
-                  <tr
-                    key={node.id}
-                    className="hover:bg-canvas-subtle transition-colors group"
+      {/* 4. Segment Content: Node Link Quality View */}
+      {activeSegment === 'nodes' && (
+        <div className="w-full flex-1 min-h-0 bg-surface border border-subtle rounded-md overflow-hidden flex flex-col">
+          {/* Filter Bar */}
+          <div className="px-3 py-1.5 border-b border-subtle flex flex-wrap items-center justify-between gap-2 shrink-0 bg-surface-alt/40">
+            <span className="text-xs font-semibold text-primary">
+              Canonical Station Link Diagnostics
+            </span>
+            <div className="flex items-center gap-1 text-2xs font-mono">
+              <span className="text-muted font-medium">TIER:</span>
+              <div className="flex items-center bg-surface border border-subtle p-0.5 rounded gap-0.5">
+                {['ALL', 'CRITICAL', 'WARNING', 'NOMINAL'].map((tier) => (
+                  <button
+                    key={tier}
+                    onClick={() => setSelectedNodeFilter(tier)}
+                    className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                      selectedNodeFilter === tier
+                        ? 'bg-accent text-accent-contrast font-medium'
+                        : 'text-muted hover:text-primary'
+                    }`}
                   >
-                    <td className="py-sm px-md">
-                      <div className="flex items-center gap-xs">
-                        <span
-                          className={`w-2 h-2 rounded-full ${
-                            isCrit
-                              ? 'bg-alert-critical animate-pulse'
-                              : isAbn
-                              ? 'bg-orange-500'
-                              : isWarn
-                              ? 'bg-alert-warning'
-                              : isOff
-                              ? 'bg-slate-400'
-                              : 'bg-status-nominal'
-                          }`}
-                        />
-                        <span className="font-mono text-label-code text-primary font-bold bg-primary-fixed/30 border border-primary/20 px-xs py-0.5 rounded">
-                          {node.displayId}
-                        </span>
-                        <span className="font-mono text-[11px] text-text-muted hidden md:inline">
-                          ({node.id})
-                        </span>
-                      </div>
-                    </td>
+                    {tier}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
-                    <td className="py-sm px-md">
-                      <span className="font-bold text-text-primary block">
-                        {node.location}
-                      </span>
-                      <span className="text-[11px] text-text-muted">
-                        {node.coordinates.lat.toFixed(2)}°N, {node.coordinates.lng.toFixed(2)}°E
-                      </span>
-                    </td>
+          {/* Internal Scrollable Table */}
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-surface-alt border-b border-subtle font-mono text-[10.5px] text-muted uppercase tracking-wider">
+                  <th className="py-2 px-3 font-medium">Node Code</th>
+                  <th className="py-2 px-3 font-medium">Location Sector</th>
+                  <th className="py-2 px-3 font-medium">Status</th>
+                  <th className="py-2 px-3 font-medium">Backhaul</th>
+                  <th className="py-2 px-3 font-medium">RSSI</th>
+                  <th className="py-2 px-3 font-medium">Battery</th>
+                  <th className="py-2 px-3 font-medium text-right">Details</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-subtle">
+                {filteredNodes.map((node) => {
+                  const isCrit = node.severity === 'critical';
+                  const isWarn = node.severity === 'warning' || node.severity === 'abnormal';
+                  const isExpanded = expandedNodeId === node.id;
 
-                    <td className="py-sm px-md">
-                      <span
-                        className={`inline-flex items-center gap-1 px-xs py-0.5 rounded-full font-label-code text-[10.5px] font-bold uppercase border ${
-                          isCrit
-                            ? 'bg-alert-critical-subtle text-alert-critical border-alert-critical/30'
-                            : isAbn
-                            ? 'bg-orange-50 text-orange-700 border-orange-300'
-                            : isWarn
-                            ? 'bg-alert-warning-subtle text-alert-warning border-alert-warning/30'
-                            : isOff
-                            ? 'bg-slate-100 text-slate-600 border-slate-300'
-                            : 'bg-status-nominal-subtle text-status-nominal border-status-nominal/30'
+                  return (
+                    <React.Fragment key={node.id}>
+                      <tr
+                        onClick={() => toggleNodeExpand(node.id)}
+                        className={`hover:bg-surface-alt/60 transition-colors cursor-pointer select-none ${
+                          isExpanded ? 'bg-surface-alt/40 border-l-2 border-accent' : ''
                         }`}
                       >
-                        {node.severity.toUpperCase()}
-                      </span>
-                    </td>
-
-                    <td className="py-sm px-md font-mono text-[12px] text-text-secondary">
-                      {node.network.backhaul}
-                    </td>
-
-                    <td className="py-sm px-md font-mono text-[12px] font-bold text-text-primary">
-                      {node.network.rssi}
-                    </td>
-
-                    <td className="py-sm px-md font-mono text-[12px] text-status-nominal font-bold">
-                      {node.network.packetDelivery}
-                    </td>
-
-                    <td className="py-sm px-md">
-                      <div className="flex flex-col gap-xxs min-w-[110px]">
-                        <div className="flex justify-between items-center font-mono text-label-code">
-                          <span className="font-bold text-text-primary">
-                            {node.power.batteryPct}%
+                        <td className="py-2 px-3 font-mono font-medium text-secondary">
+                          <span className="bg-surface-alt border border-subtle px-1.5 py-0.2 rounded">
+                            {node.displayId}
                           </span>
-                          <span className="text-text-muted">{node.power.voltage}</span>
-                        </div>
-                        <div className="w-full bg-border-grid h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className="bg-status-nominal h-full rounded-full"
-                            style={{ width: `${node.power.batteryPct}%` }}
-                          />
-                        </div>
-                      </div>
-                    </td>
+                        </td>
+                        <td className="py-2 px-3 font-medium text-primary truncate max-w-[140px]">
+                          {node.location}
+                        </td>
+                        <td className="py-2 px-3">
+                          <span
+                            className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full font-mono text-[10px] font-medium uppercase border ${
+                              isCrit
+                                ? 'bg-status-critical/10 text-status-critical border-status-critical/20'
+                                : isWarn
+                                ? 'bg-status-warning/10 text-status-warning border-status-warning/20'
+                                : 'bg-status-nominal/10 text-status-nominal border-status-nominal/20'
+                            }`}
+                          >
+                            {node.severity.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="py-2 px-3 font-mono text-[11px] text-muted">
+                          {node.network.backhaul}
+                        </td>
+                        <td className="py-2 px-3 font-mono text-primary text-xs">
+                          {node.network.rssi}
+                        </td>
+                        <td className="py-2 px-3 font-mono text-xs">
+                          <span className="font-medium text-primary">{node.power.batteryPct}%</span>
+                          <span className="text-muted ml-1 text-[10px]">({node.power.voltage})</span>
+                        </td>
+                        <td className="py-2 px-3 text-right">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleNodeExpand(node.id);
+                            }}
+                            className="p-1 rounded hover:bg-surface-alt text-muted hover:text-primary transition-transform cursor-pointer"
+                          >
+                            <span
+                              className={`material-symbols-outlined text-[16px] transition-transform duration-200 ${
+                                isExpanded ? 'rotate-180 text-accent' : ''
+                              }`}
+                            >
+                              expand_more
+                            </span>
+                          </button>
+                        </td>
+                      </tr>
 
-                    <td className="py-sm px-md text-right">
-                      <button
-                        onClick={() => onInspectNode && onInspectNode(node.id)}
-                        className="bg-canvas-subtle hover:bg-border-grid text-text-secondary hover:text-text-primary border border-border-grid font-semibold text-[11px] px-sm py-1 rounded-lg transition-colors inline-flex items-center gap-0.5"
-                      >
-                        <span>Telemetry</span>
-                        <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      {isExpanded && (
+                        <tr className="bg-surface-alt/30 border-b border-subtle">
+                          <td colSpan={7} className="px-4 py-2.5">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-2xs font-mono">
+                              <div className="bg-surface border border-subtle p-2 rounded">
+                                <span className="text-muted block text-[10px]">PACKET DELIVERY SUCCESS</span>
+                                <span className="text-status-nominal font-semibold text-xs mt-0.5 block">
+                                  {node.network.packetDelivery}
+                                </span>
+                                <span className="text-muted mt-1 block">Latency: {node.network.latency}</span>
+                              </div>
+                              <div className="bg-surface border border-subtle p-2 rounded">
+                                <span className="text-muted block text-[10px]">SOLAR HARVESTING</span>
+                                <span className="text-primary font-semibold text-xs mt-0.5 block">
+                                  {node.power.solarInput}
+                                </span>
+                                <span className="text-muted mt-1 block">Float status: Optimal</span>
+                              </div>
+                              <div className="bg-surface border border-subtle p-2 rounded flex items-center justify-between">
+                                <div>
+                                  <span className="text-muted block text-[10px]">DEEP INSPECT</span>
+                                  <span className="text-secondary text-[11px]">Full telemetry stream</span>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onInspectNode && onInspectNode(node.id);
+                                  }}
+                                  className="px-2 py-1 text-2xs rounded border border-subtle bg-surface-alt hover:bg-subtle text-primary transition-colors cursor-pointer"
+                                >
+                                  Inspect Station
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

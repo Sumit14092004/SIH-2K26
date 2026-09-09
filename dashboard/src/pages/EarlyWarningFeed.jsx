@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useHazardAlerts } from '../context/HazardAlertContext';
 
-// Dynamic CAP generator helper embedding real metrics
 function generateCapPayload(hazard) {
   const metric = hazard.keyMetric || 'Threshold breached';
   const loc = hazard.location || 'Monitored Sector';
@@ -82,16 +81,16 @@ export default function EarlyWarningFeed({ onDispatchNDRF }) {
   const { activeAlerts, logNodeAudit } = useHazardAlerts();
   const [selectedNodeId, setSelectedNodeId] = useState(activeAlerts[0]?.id || '');
   const [audience, setAudience] = useState('civic');
+  const [language, setLanguage] = useState('en'); // 'en' | 'hi'
+  const [isTextExpanded, setIsTextExpanded] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
   const [filterSeverity, setFilterSeverity] = useState('ALL');
 
-  // Filter feed based on user selected severity tab
   const filteredFeed = activeAlerts.filter((a) => {
     if (filterSeverity === 'ALL') return true;
     return a.severity.toLowerCase() === filterSeverity.toLowerCase();
   });
 
-  // Keep selected node pointer valid
   const effectiveNodeId = filteredFeed.some((a) => a.id === selectedNodeId)
     ? selectedNodeId
     : filteredFeed[0]?.id || '';
@@ -112,7 +111,7 @@ export default function EarlyWarningFeed({ onDispatchNDRF }) {
     }
     logNodeAudit(
       selectedHazard.id,
-      `📡 CAP-v1.2 Public Alert Broadcast transmitted to ${payload.reach} for ${selectedHazard.location}.`,
+      `CAP-v1.2 Public Alert Broadcast transmitted to ${payload.reach} for ${selectedHazard.location}.`,
       true,
       'CAP_BROADCAST',
       selectedHazard.severity
@@ -120,38 +119,35 @@ export default function EarlyWarningFeed({ onDispatchNDRF }) {
   };
 
   return (
-    <div className="flex flex-col w-full pb-xl space-y-md">
+    <div className="flex flex-col w-full h-full min-h-0 gap-2">
       {/* 1. Header Banner */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-md py-sm bg-surface-card rounded-xl px-md border border-border-grid shadow-xs">
-        <div className="flex flex-col gap-xxs">
-          <div className="flex items-center gap-xs">
-            <span className="px-xs py-xxs rounded-full bg-alert-critical-subtle border border-alert-critical/30 text-alert-critical font-label-code text-label-code flex items-center gap-xxs font-semibold">
-              <span className="w-2 h-2 rounded-full bg-alert-critical animate-pulse" />
-              CAP-v1.2 BROADCAST GATEWAY
-            </span>
-            <span className="font-label-code text-label-code text-primary bg-primary-fixed/30 border border-primary/20 px-xs py-xxs rounded font-medium">
-              National Common Alerting Protocol ({activeAlerts.length} Active Feeds)
-            </span>
+      <div className="bg-surface border border-subtle rounded-md px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-surface-alt border border-subtle flex items-center justify-center text-secondary shrink-0">
+            <span className="material-symbols-outlined text-[18px]">notification_important</span>
           </div>
-          <div className="flex items-baseline gap-xs mt-xxs">
-            <h1 className="font-headline-lg text-headline-lg text-text-primary tracking-tight font-bold">
-              Multi-Hazard Early Warning &amp; Citizen Broadcast Stream
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xs font-semibold text-primary">
+              CAP-v1.2 Emergency Broadcast Gateway
             </h1>
+            <span className="font-mono text-[10px] text-muted bg-surface-alt border border-subtle px-1.5 py-0.2 rounded">
+              {activeAlerts.length} Active Feeds
+            </span>
           </div>
         </div>
 
         {/* Severity Filter */}
-        <div className="flex items-center gap-xs">
-          <span className="font-label-code text-label-code text-text-muted font-semibold">TIER:</span>
-          <div className="flex items-center bg-canvas-subtle border border-border-grid p-0.5 rounded-lg text-text-secondary text-body-sm">
+        <div className="flex items-center gap-1 text-2xs font-mono">
+          <span className="text-muted font-medium">TIER:</span>
+          <div className="flex items-center bg-surface-alt border border-subtle p-0.5 rounded gap-0.5">
             {['ALL', 'CRITICAL', 'ABNORMAL', 'WARNING'].map((tier) => (
               <button
                 key={tier}
                 onClick={() => setFilterSeverity(tier)}
-                className={`px-sm py-0.5 rounded-md text-[11px] font-semibold transition-all ${
+                className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
                   filterSeverity === tier
-                    ? 'bg-primary text-white shadow-xs'
-                    : 'hover:text-text-primary'
+                    ? 'bg-accent text-accent-contrast font-medium'
+                    : 'text-muted hover:text-primary'
                 }`}
               >
                 {tier}
@@ -161,32 +157,27 @@ export default function EarlyWarningFeed({ onDispatchNDRF }) {
         </div>
       </div>
 
-      {/* If No Active Hazards */}
+      {/* Main Two-Column Viewport Grid (100% Screen Fit) */}
       {filteredFeed.length === 0 ? (
-        <div className="bg-surface-card border border-border-grid rounded-xl p-xl flex flex-col items-center justify-center text-center gap-sm shadow-xs">
-          <span className="material-symbols-outlined text-status-nominal text-[48px]">
-            check_circle
-          </span>
-          <h3 className="font-headline-md text-headline-md text-text-primary font-bold">
-            All Monitored Sectors Nominal
-          </h3>
-          <p className="font-body-sm text-body-sm text-text-muted max-w-md">
-            Zero active warning, abnormal, or emergency broadcasts required. All 160 stations operating within baseline environmental bounds.
+        <div className="bg-surface border border-subtle rounded-md flex-1 min-h-0 flex flex-col items-center justify-center text-center p-6 gap-2">
+          <span className="material-symbols-outlined text-status-nominal text-[36px]">check_circle</span>
+          <h3 className="text-xs font-semibold text-primary">All Monitored Sectors Nominal</h3>
+          <p className="text-2xs text-muted max-w-sm">
+            Zero active emergency broadcasts required. All canonical stations operating within baseline bounds.
           </p>
         </div>
       ) : (
-        /* 2. Main Two-Column Layout */
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-md items-start">
-          {/* Left Column: Active Canonical Hazard Feed Cards (5 Cols) */}
-          <div className="xl:col-span-5 flex flex-col gap-sm">
-            <div className="flex items-center justify-between px-xs">
-              <span className="font-label-code text-label-code text-text-muted uppercase tracking-wider font-semibold">
-                ACTIVE HAZARD BROADCASTS ({filteredFeed.length})
+        <div className="flex-1 min-h-0 grid grid-cols-1 xl:grid-cols-12 gap-2.5 items-stretch">
+          {/* Left Column: Active Broadcast List (Col 5) */}
+          <div className="xl:col-span-5 bg-surface border border-subtle rounded-md p-2.5 flex flex-col h-full min-h-0">
+            <div className="flex items-center justify-between pb-1.5 border-b border-subtle shrink-0 mb-1.5">
+              <span className="font-mono text-[10.5px] text-muted uppercase font-medium">
+                Active Hazard Broadcasts ({filteredFeed.length})
               </span>
-              <span className="font-label-code text-label-code text-text-muted">SELECT TO PREVIEW CAP</span>
+              <span className="font-mono text-[10px] text-muted">SELECT TO PREVIEW</span>
             </div>
 
-            <div className="flex flex-col gap-sm max-h-[720px] overflow-y-auto pr-1">
+            <div className="flex-1 min-h-0 overflow-y-auto space-y-1.5 pr-1">
               {filteredFeed.map((hazard) => {
                 const isSelected = hazard.id === effectiveNodeId;
                 const isCrit = hazard.severity === 'critical';
@@ -196,50 +187,44 @@ export default function EarlyWarningFeed({ onDispatchNDRF }) {
                   <div
                     key={hazard.id}
                     onClick={() => setSelectedNodeId(hazard.id)}
-                    className={`bg-surface-card border rounded-xl p-md shadow-xs cursor-pointer transition-all ${
+                    className={`border rounded p-2 cursor-pointer transition-all ${
                       isSelected
-                        ? 'border-2 border-primary shadow-sm'
-                        : 'border-border-grid hover:border-border-strong hover:bg-canvas-subtle'
+                        ? 'border-accent bg-surface-alt/60'
+                        : 'border-subtle bg-surface hover:bg-surface-alt/30'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-xs">
-                      <div className="flex items-center gap-xs">
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <div className="flex items-center gap-1.5">
                         <span
-                          className={`w-2 h-2 rounded-full ${
-                            isCrit
-                              ? 'bg-alert-critical animate-ping'
-                              : isAbn
-                              ? 'bg-orange-500'
-                              : 'bg-alert-warning'
+                          className={`w-2 h-2 rounded-full shrink-0 ${
+                            isCrit ? 'bg-status-critical' : isAbn ? 'bg-amber-500' : 'bg-status-warning'
                           }`}
                         />
-                        <span className="font-label-code text-label-code text-primary font-bold">
+                        <span className="font-mono text-[10.5px] text-secondary bg-surface-alt border border-subtle px-1 py-0.2 rounded font-medium">
                           {hazard.displayId || hazard.id}
                         </span>
                       </div>
                       <span
-                        className={`font-label-code text-[10.5px] px-xs py-0.5 rounded uppercase font-bold border ${
+                        className={`font-mono text-[9.5px] px-1.5 py-0.2 rounded uppercase font-medium border ${
                           isCrit
-                            ? 'bg-alert-critical-subtle text-alert-critical border-alert-critical/30'
+                            ? 'bg-status-critical/10 text-status-critical border-status-critical/20'
                             : isAbn
-                            ? 'bg-orange-50 text-orange-700 border-orange-300'
-                            : 'bg-alert-warning-subtle text-alert-warning border-alert-warning/30'
+                            ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20'
+                            : 'bg-status-warning/10 text-status-warning border-status-warning/20'
                         }`}
                       >
                         {hazard.severity.toUpperCase()}
                       </span>
                     </div>
 
-                    <h4 className="font-bold text-text-primary text-body-sm mb-xxs">
-                      {hazard.location}
-                    </h4>
-                    <p className="font-label-code text-[11px] text-text-muted mb-xs">
-                      {hazard.hazard} // <strong className="text-text-primary">{hazard.keyMetric}</strong>
+                    <h4 className="font-medium text-primary text-xs truncate">{hazard.location}</h4>
+                    <p className="font-mono text-[10.5px] text-secondary truncate mt-0.5">
+                      {hazard.hazard} &middot; <strong className="text-primary font-medium">{hazard.keyMetric}</strong>
                     </p>
 
-                    <div className="flex items-center justify-between pt-xxs border-t border-border-grid text-[10.5px] font-label-code text-text-muted">
-                      <span>REFRESHED: {hazard.lastUpdated}</span>
-                      <span className="text-primary font-semibold">VIEW CAP →</span>
+                    <div className="flex items-center justify-between pt-1 mt-1 border-t border-subtle text-[10px] font-mono text-muted">
+                      <span>Updated: {hazard.lastUpdated}</span>
+                      <span className="text-accent font-medium">VIEW CAP →</span>
                     </div>
                   </div>
                 );
@@ -247,134 +232,134 @@ export default function EarlyWarningFeed({ onDispatchNDRF }) {
             </div>
           </div>
 
-          {/* Right Column: Live CAP Broadcast Console & Multi-lingual Dispatch (7 Cols) */}
+          {/* Right Column: Live CAP Console with Language Switcher (Col 7) */}
           {selectedHazard && payload && (
-            <div className="xl:col-span-7 flex flex-col gap-md">
-              <div className="bg-surface-card border border-border-grid rounded-xl p-md shadow-xs flex flex-col gap-md">
-                {/* Header of Active Broadcast */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-sm pb-sm border-b border-border-grid">
+            <div className="xl:col-span-7 bg-surface border border-subtle rounded-md p-3 flex flex-col justify-between h-full min-h-0">
+              <div className="flex flex-col gap-2">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-subtle">
                   <div>
-                    <span className="font-label-code text-label-code text-primary font-bold uppercase">
-                      ACTIVE CAP BROADCAST PAYLOAD // {selectedHazard.displayId || selectedHazard.id}
+                    <span className="font-mono text-[10px] text-muted font-medium uppercase">
+                      ACTIVE CAP PAYLOAD // {selectedHazard.displayId || selectedHazard.id}
                     </span>
-                    <h2 className="font-headline-lg text-headline-lg text-text-primary font-bold mt-xxs">
+                    <h2 className="text-sm font-semibold text-primary mt-0.5 truncate">
                       {selectedHazard.location}
                     </h2>
-                    <span className="font-body-sm text-body-sm text-text-secondary">
-                      Target Vector: <strong>{selectedHazard.hazard}</strong> ({selectedHazard.keyMetric})
+                    <span className="text-2xs text-secondary">
+                      Threat Vector: <strong className="text-primary font-medium">{selectedHazard.hazard}</strong> ({selectedHazard.keyMetric})
                     </span>
                   </div>
 
-                  {/* Audience Segmented Control */}
-                  <div className="flex items-center bg-canvas-subtle border border-border-grid p-0.5 rounded-lg text-body-sm">
-                    <button
-                      onClick={() => setAudience('civic')}
-                      className={`px-sm py-1 rounded-md text-body-sm font-semibold transition-all ${
-                        audience === 'civic'
-                          ? 'bg-primary text-white shadow-xs'
-                          : 'text-text-secondary hover:text-text-primary'
-                      }`}
-                    >
-                      Civic Broadcast
-                    </button>
-                    <button
-                      onClick={() => setAudience('auth')}
-                      className={`px-sm py-1 rounded-md text-body-sm font-semibold transition-all ${
-                        audience === 'auth'
-                          ? 'bg-primary text-white shadow-xs'
-                          : 'text-text-secondary hover:text-text-primary'
-                      }`}
-                    >
-                      Authority (NDRF)
-                    </button>
+                  {/* Bilingual Language Switcher + Audience Controls */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center bg-surface-alt border border-subtle p-0.5 rounded text-2xs font-mono">
+                      <button
+                        onClick={() => setLanguage('en')}
+                        className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                          language === 'en'
+                            ? 'bg-accent text-accent-contrast font-medium'
+                            : 'text-muted hover:text-primary'
+                        }`}
+                      >
+                        English
+                      </button>
+                      <button
+                        onClick={() => setLanguage('hi')}
+                        className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                          language === 'hi'
+                            ? 'bg-accent text-accent-contrast font-medium'
+                            : 'text-muted hover:text-primary'
+                        }`}
+                      >
+                        हिन्दी
+                      </button>
+                    </div>
+
+                    <div className="flex items-center bg-surface-alt border border-subtle p-0.5 rounded text-2xs">
+                      <button
+                        onClick={() => setAudience('civic')}
+                        className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
+                          audience === 'civic' ? 'bg-accent text-accent-contrast' : 'text-muted hover:text-primary'
+                        }`}
+                      >
+                        Civic
+                      </button>
+                      <button
+                        onClick={() => setAudience('auth')}
+                        className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
+                          audience === 'auth' ? 'bg-accent text-accent-contrast' : 'text-muted hover:text-primary'
+                        }`}
+                      >
+                        NDRF
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* English Transmission Card */}
-                <div className="bg-canvas-subtle border border-border-grid rounded-xl p-md flex flex-col gap-xs">
+                {/* Active Language Transmission Card (Compact with Read More) */}
+                <div className="bg-surface-alt/60 border border-subtle rounded p-2.5 flex flex-col gap-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-label-code text-label-code text-text-muted font-bold uppercase">
-                      PRIMARY OFFICIAL PAYLOAD (ENGLISH)
+                    <span className="font-mono text-[10.5px] text-muted font-medium uppercase">
+                      {language === 'en' ? 'PRIMARY OFFICIAL PAYLOAD (ENGLISH)' : 'REGIONAL EMERGENCY PAYLOAD (HINDI)'}
                     </span>
                     <button
-                      onClick={() => handleCopy(payload.en, 'en')}
-                      className="text-primary hover:text-primary-container text-[11px] font-semibold flex items-center gap-0.5"
+                      onClick={() => handleCopy(language === 'en' ? payload.en : payload.hi, language)}
+                      className="text-secondary hover:text-primary text-2xs font-mono font-medium flex items-center gap-1 border border-subtle px-1.5 py-0.2 rounded bg-surface transition-colors cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[14px]">
-                        {copiedKey === 'en' ? 'check' : 'content_copy'}
+                      <span className="material-symbols-outlined text-[12px]">
+                        {copiedKey === language ? 'check' : 'content_copy'}
                       </span>
-                      <span>{copiedKey === 'en' ? 'Copied' : 'Copy Payload'}</span>
+                      <span>{copiedKey === language ? 'Copied' : 'Copy'}</span>
                     </button>
                   </div>
-                  <p className="font-body-sm text-body-sm text-text-primary leading-relaxed font-medium">
-                    {payload.en}
+
+                  <p className={`text-xs text-primary leading-relaxed ${isTextExpanded ? '' : 'line-clamp-2'}`}>
+                    {language === 'en' ? payload.en : payload.hi}
                   </p>
-                </div>
-
-                {/* Hindi Transmission Card */}
-                <div className="bg-canvas-subtle border border-border-grid rounded-xl p-md flex flex-col gap-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="font-label-code text-label-code text-text-muted font-bold uppercase">
-                      REGIONAL EMERGENCY PAYLOAD (HINDI / DEV)
-                    </span>
-                    <button
-                      onClick={() => handleCopy(payload.hi, 'hi')}
-                      className="text-primary hover:text-primary-container text-[11px] font-semibold flex items-center gap-0.5"
-                    >
-                      <span className="material-symbols-outlined text-[14px]">
-                        {copiedKey === 'hi' ? 'check' : 'content_copy'}
-                      </span>
-                      <span>{copiedKey === 'hi' ? 'Copied' : 'Copy Payload'}</span>
-                    </button>
-                  </div>
-                  <p className="font-body-sm text-body-sm text-text-primary leading-relaxed font-medium">
-                    {payload.hi}
-                  </p>
-                </div>
-
-                {/* Metadata Chips */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-sm">
-                  <div className="bg-canvas-subtle border border-border-grid p-sm rounded-lg flex flex-col">
-                    <span className="font-label-code text-label-code text-text-muted">EVACUATION HUB</span>
-                    <span className="font-mono text-body-sm text-text-primary font-bold truncate">
-                      {payload.shelter}
-                    </span>
-                  </div>
-                  <div className="bg-canvas-subtle border border-border-grid p-sm rounded-lg flex flex-col">
-                    <span className="font-label-code text-label-code text-text-muted">HELPLINE DIAL</span>
-                    <span className="font-mono text-body-sm text-primary font-bold">
-                      {payload.helpline}
-                    </span>
-                  </div>
-                  <div className="bg-canvas-subtle border border-border-grid p-sm rounded-lg flex flex-col">
-                    <span className="font-label-code text-label-code text-text-muted">CELL BROADCAST REACH</span>
-                    <span className="font-mono text-body-sm text-status-nominal font-bold">
-                      {payload.reach}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Dispatch Action Footer */}
-                <div className="flex flex-wrap items-center justify-between gap-sm pt-sm border-t border-border-grid">
-                  <div className="flex items-center gap-xs text-text-muted font-label-code text-label-code">
-                    <span className="material-symbols-outlined text-status-nominal text-[16px]">
-                      verified
-                    </span>
-                    <span>Cryptographically Signed via SHA-256 Authority Key</span>
-                  </div>
 
                   <button
-                    onClick={handleTransmitNDRF}
-                    className={`font-body-sm text-body-sm font-semibold px-lg py-xs rounded-lg flex items-center gap-xs shadow-xs transition-colors cursor-pointer ${
-                      selectedHazard.severity === 'critical'
-                        ? 'bg-alert-critical hover:bg-red-700 text-white'
-                        : 'bg-primary hover:bg-primary-container text-white'
-                    }`}
+                    onClick={() => setIsTextExpanded((prev) => !prev)}
+                    className="text-2xs text-accent font-medium hover:underline self-start cursor-pointer mt-0.5"
                   >
-                    <span className="material-symbols-outlined text-[18px]">cell_tower</span>
-                    <span>Transmit Broadcast &amp; Alert NDRF</span>
+                    {isTextExpanded ? 'Show less' : 'Read full advisory text'}
                   </button>
                 </div>
+
+                {/* Logistics & Shelter Parameters */}
+                <div className="grid grid-cols-3 gap-2 text-2xs font-mono">
+                  <div className="bg-surface-alt/60 border border-subtle p-2 rounded flex flex-col">
+                    <span className="text-[10px] text-muted">EVACUATION HUB</span>
+                    <span className="text-primary font-medium truncate mt-0.5">{payload.shelter}</span>
+                  </div>
+                  <div className="bg-surface-alt/60 border border-subtle p-2 rounded flex flex-col">
+                    <span className="text-[10px] text-muted">HELPLINE DIAL</span>
+                    <span className="text-primary font-medium mt-0.5">{payload.helpline}</span>
+                  </div>
+                  <div className="bg-surface-alt/60 border border-subtle p-2 rounded flex flex-col">
+                    <span className="text-[10px] text-muted">EST. CELL REACH</span>
+                    <span className="text-status-nominal font-medium mt-0.5">{payload.reach}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transmission Footer */}
+              <div className="pt-2 border-t border-subtle flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 text-muted font-mono text-[10.5px]">
+                  <span className="material-symbols-outlined text-status-nominal text-[15px]">verified</span>
+                  <span>CAP-v1.2 Signed via SHA-256 Authority Key</span>
+                </div>
+
+                <button
+                  onClick={handleTransmitNDRF}
+                  className={`text-xs font-medium px-3 py-1.5 rounded flex items-center gap-1 transition-colors cursor-pointer ${
+                    selectedHazard.severity === 'critical'
+                      ? 'bg-status-critical hover:bg-status-critical/90 text-white'
+                      : 'bg-accent hover:bg-accent-hover text-accent-contrast'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[15px]">cell_tower</span>
+                  <span>Transmit Broadcast &amp; Alert NDRF</span>
+                </button>
               </div>
             </div>
           )}

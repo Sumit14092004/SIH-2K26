@@ -5,3 +5,4 @@ influxdb-client
 pytz
 twilio
 python-dotenv
+websockets

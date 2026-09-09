@@ -1,152 +1,146 @@
 import React from 'react';
-import { useIstClock } from '../../utils/istTime';
 import { useHazardAlerts } from '../../context/HazardAlertContext';
-import NavTab from './NavTab';
+import { useTheme } from '../../context/ThemeContext';
 
-export default function TopHeader({ activePath, onNavigate, onBroadcastClick, onInspectNode }) {
-  const istTime = useIstClock();
+export default function TopHeader({
+  activePath,
+  onNavigate,
+  onBroadcastClick,
+  onInspectNode,
+  isCollapsed,
+}) {
   const {
     activeAlerts,
     isVisualFlashing,
     isSirenActive,
     toggleSirenMute,
+    searchQuery,
+    setSearchQuery,
+    selectedState,
+    setSelectedState,
   } = useHazardAlerts();
 
-  // Dynamically find most critical active alert from context feed
+  const { isDark, toggleTheme } = useTheme();
+
+  // Find most critical active alert
   const criticalHazard = activeAlerts.find((a) => a.severity === 'critical' && !a.isRemoving)
     || activeAlerts.find((a) => !a.isRemoving)
     || null;
 
-  const handleSirenToggle = () => {
-    toggleSirenMute();
-  };
-
-  const navItems = [
-    { id: 'live-command-center', label: 'Live Command Center' },
-    { id: 'disaster-scenario-simulation', label: 'Disaster Scenario Simulation' },
-    { id: 'node-telemetry-and-inspection', label: 'Node Telemetry & Inspection' },
-    { id: 'regional-risk-matrix', label: 'Regional Risk Matrix' },
-    { id: 'early-warning-feed', label: 'Early Warning Feed' },
-    { id: 'network-health-and-mesh', label: 'Network Health & Mesh' },
-  ];
-
   return (
-    <header className={`fixed top-0 left-0 w-full z-50 bg-surface-card/95 backdrop-blur-md border-b border-border-grid shadow-sm transition-all duration-300 ${
-      isVisualFlashing ? 'bg-red-950/20 border-alert-critical ring-2 ring-alert-critical/40' : ''
-    }`}>
-      <div className="h-20 w-full px-gutter-normal flex flex-col justify-between pt-1.5 pb-1">
-        {/* Top Operational Bar */}
-        <div className="flex items-center justify-between gap-md">
-          {/* Brand & Team Logo */}
-          <div className="flex items-center gap-md">
-            <div className="flex items-center gap-xs cursor-pointer" onClick={() => onNavigate('live-command-center')}>
-              <img
-                src="/team_logo_transparent.png"
-                alt="AAPDA-KADABRA Emblem"
-                className="h-9 w-auto max-w-[130px] object-contain mr-2 shrink-0 drop-shadow-xs"
-              />
-              <div className="flex flex-col">
-                <span className="font-headline-md text-headline-md text-text-primary font-bold tracking-tight leading-none">
-                  AAPDA-KADABRA
-                </span>
-                <span className="font-label-code text-label-code text-telemetry-cobalt font-semibold uppercase tracking-wider">
-                  HAZARD INTELLIGENCE &amp; EARLY WARNING
-                </span>
-              </div>
-            </div>
-
-            {/* Live IST Clock */}
-            <div className="hidden xl:flex items-center gap-xs px-xs py-xxs bg-canvas-subtle border border-border-grid rounded">
-              <span className="material-symbols-outlined text-text-muted text-[16px]">schedule</span>
-              <span className="font-label-code text-label-code text-text-secondary font-medium">IST</span>
-              <span className="font-metric-label text-metric-label text-text-primary font-bold">{istTime}</span>
+    <header
+      className={`fixed top-0 right-0 z-40 h-12 bg-surface/95 backdrop-blur-sm border-b border-subtle transition-all duration-300 ${
+        isCollapsed ? 'left-16' : 'left-64'
+      }`}
+    >
+      <div className="h-full w-full px-4 flex items-center justify-between gap-3">
+        {/* Left: Jurisdiction Selector & Search Input */}
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Jurisdiction Dropdown */}
+          <div className="flex items-center gap-1.5 shrink-0 text-xs">
+            <span className="text-muted font-medium">
+              Region:
+            </span>
+            <div className="relative inline-flex items-center">
+              <select
+                value={selectedState}
+                onChange={(e) => setSelectedState(e.target.value)}
+                className="bg-surface-alt text-primary font-medium text-xs pr-5 pl-2 py-1 rounded border border-subtle hover:border-strong focus:outline-none cursor-pointer transition-colors appearance-none font-sans"
+              >
+                <option value="ALL">All India Coverage</option>
+                <option value="Assam">Assam Basin</option>
+                <option value="Delhi">Delhi NCT / NCR</option>
+                <option value="Uttarakhand">Uttarakhand Spine</option>
+                <option value="Gujarat">Gujarat / West</option>
+                <option value="Bihar">Bihar Floodplain</option>
+                <option value="Odisha">Odisha Coastal Rim</option>
+                <option value="Kerala">Kerala Western Ghats</option>
+                <option value="Maharashtra">Maharashtra / Mumbai</option>
+                <option value="West Bengal">West Bengal Delta</option>
+                <option value="Ladakh">Ladakh / Karakoram</option>
+                <option value="Tamil Nadu">Tamil Nadu / South</option>
+              </select>
+              <span className="material-symbols-outlined text-[14px] text-muted absolute right-1 pointer-events-none">
+                expand_more
+              </span>
             </div>
           </div>
 
-          {/* Active Hazard Banner Ticker — Clickable & Dynamic (Only visible if active alert exists) */}
+          {/* Quick Search Input */}
+          <div className="hidden sm:flex items-center gap-1.5 bg-surface-alt border border-subtle px-2.5 py-1 rounded text-primary w-56 md:w-72 focus-within:border-accent transition-colors">
+            <span className="material-symbols-outlined text-[15px] text-muted">search</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search station, basin, or PIN..."
+              className="bg-transparent text-primary text-xs placeholder:text-muted focus:outline-none w-full"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-muted hover:text-primary text-[11px]"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Operational Controls */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Active Hazard Banner */}
           {criticalHazard && (
             <button
               onClick={() => onInspectNode && onInspectNode(criticalHazard.id)}
-              className={`hidden lg:flex items-center gap-xs px-sm py-xxs rounded-lg text-text-secondary cursor-pointer transition-all shadow-2xs group border ${
-                isVisualFlashing
-                  ? 'bg-alert-critical text-white border-red-600 animate-pulse'
-                  : 'bg-alert-critical-subtle/70 border-alert-critical/30 hover:border-alert-critical hover:bg-alert-critical-subtle'
-              }`}
-              title={`Click to inspect critical event: ${criticalHazard.location} (Node #${criticalHazard.id})`}
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded text-xs bg-status-critical/10 border border-status-critical/20 text-status-critical hover:opacity-90 transition-opacity cursor-pointer font-medium"
+              title={`Inspect: ${criticalHazard.location} (#${criticalHazard.id})`}
             >
-              <span className={`material-symbols-outlined text-[18px] ${isVisualFlashing ? 'text-white' : 'text-alert-critical'} animate-pulse`}>
-                warning
-              </span>
-              <span className={`font-body-sm text-body-sm font-medium transition-colors ${
-                isVisualFlashing ? 'text-white font-bold' : 'text-text-primary group-hover:text-alert-critical'
-              }`}>
-                {criticalHazard.location}: {criticalHazard.hazard} Active
-              </span>
-              <span className={`material-symbols-outlined text-[14px] ${isVisualFlashing ? 'text-white' : 'text-alert-critical'} opacity-80 group-hover:opacity-100 transition-opacity`}>
-                open_in_new
+              <span className="w-1.5 h-1.5 rounded-full bg-status-critical" />
+              <span className="truncate max-w-[180px]">
+                {criticalHazard.location}: {criticalHazard.hazard}
               </span>
             </button>
           )}
 
-          {/* Tactical Action Buttons */}
-          <div className="flex items-center gap-sm">
-            {/* Hazard Siren Button */}
-            <button
-              onClick={handleSirenToggle}
-              className={`flex items-center gap-xxs px-xs py-xxs rounded border transition-colors shadow-xs ${
-                isSirenActive
-                  ? 'bg-alert-critical border-red-700 text-white animate-pulse'
-                  : 'bg-surface-card border-border-grid hover:bg-canvas-subtle text-text-secondary hover:text-text-primary'
-              }`}
-              title="Toggle Klaxon Emergency Sound (Audio ON/OFF)"
-            >
-              <span className={`material-symbols-outlined text-[18px] ${isSirenActive ? 'text-white' : 'text-alert-warning'}`}>
-                {isSirenActive ? 'volume_up' : 'volume_up'}
-              </span>
-              <span className="hidden xl:inline font-label-code text-label-code font-semibold">
-                {isSirenActive ? 'SIREN ACTIVE' : 'HAZARD SIREN'}
-              </span>
-            </button>
-
-            {/* Emergency Broadcast Button */}
-            <button
-              onClick={onBroadcastClick}
-              className="flex items-center gap-xxs px-sm py-xxs rounded bg-alert-critical hover:bg-red-700 text-white shadow-xs transition-colors"
-            >
-              <span className="material-symbols-outlined text-[16px]">crisis_alert</span>
-              <span className="hidden md:inline font-headline-md text-body-sm font-semibold uppercase tracking-wider">
-                BROADCAST
-              </span>
-            </button>
-
-            {/* User Profile Emblem */}
-            <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shrink-0 font-medium shadow-xs">
-              <span className="material-symbols-outlined text-white text-[18px]">person</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Sub-Bar: Nav Tabs & Geospatial Coordinate Readout */}
-        <div className="flex items-center justify-between gap-md">
-          <nav
-            className="flex items-center gap-gutter-dense overflow-x-auto py-0.5 no-scrollbar"
-            role="tablist"
-            aria-label="Institutional Navigation Tabs"
+          {/* Light / Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-1 px-2 py-1 rounded border border-subtle hover:bg-surface-alt text-muted hover:text-primary transition-colors text-xs font-medium cursor-pointer"
+            title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
           >
-            {navItems.map((item) => (
-              <NavTab
-                key={item.id}
-                id={item.id}
-                label={item.label}
-                isActive={activePath === item.id}
-                onClick={() => onNavigate(item.id)}
-              />
-            ))}
-          </nav>
+            <span className="material-symbols-outlined text-[15px]">
+              {isDark ? 'light_mode' : 'dark_mode'}
+            </span>
+            <span className="hidden md:inline">{isDark ? 'Light' : 'Dark'}</span>
+          </button>
 
-          <div className="hidden 2xl:flex items-center gap-xs text-text-muted font-label-code text-label-code shrink-0">
-            <span>GRID: 28.6139° N, 77.2090° E</span>
-          </div>
+          {/* Siren Alert Toggle */}
+          <button
+            onClick={toggleSirenMute}
+            className={`flex items-center gap-1 px-2 py-1 rounded border text-xs font-medium transition-colors cursor-pointer ${
+              isSirenActive
+                ? 'bg-status-critical/10 border-status-critical/30 text-status-critical font-semibold'
+                : 'bg-surface-alt border-subtle hover:border-strong text-muted hover:text-primary'
+            }`}
+            title="Toggle Audio Klaxon Siren"
+          >
+            <span className="material-symbols-outlined text-[15px]">
+              {isSirenActive ? 'volume_up' : 'volume_off'}
+            </span>
+            <span className="hidden xl:inline">
+              {isSirenActive ? 'Audio Active' : 'Mute'}
+            </span>
+          </button>
+
+          {/* Broadcast Link / CTA */}
+          <button
+            onClick={onBroadcastClick}
+            className="flex items-center gap-1 px-2.5 py-1 rounded bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[14px]">crisis_alert</span>
+            <span>CAP Alert</span>
+          </button>
         </div>
       </div>
     </header>

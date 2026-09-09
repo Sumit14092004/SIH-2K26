@@ -3,6 +3,7 @@ import { CANONICAL_NODES, getNodeById } from '../data/canonicalNodes';
 import { getSeverityAssessment, getNodeSeverity } from '../data/severityTiers';
 import { sirenManager } from '../components/audio/SirenManager';
 import { formatIstTime } from '../utils/istTime';
+import { getApiBaseUrl } from '../utils/apiConfig';
 
 const HazardAlertContext = createContext(null);
 
@@ -76,8 +77,9 @@ export function HazardAlertProvider({ children }) {
   const [isSirenActive, setIsSirenActive] = useState(false);
   const flashTimeoutRef = useRef(null);
 
-  // 6. Deduplicated emergency Twilio SMS tracker
+  // 6. Deduplicated emergency Twilio SMS tracker per tier
   const criticalSmsSentRef = useRef(new Set(['IN-ASM-042', 'IN-DL-004']));
+  const warningSmsSentRef = useRef(new Set());
 
   // 7. Central Geospatial & Query Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -279,8 +281,9 @@ export function HazardAlertProvider({ children }) {
         severity.toLowerCase()
       );
 
-      // 4. Critical Audio Siren & Flashing Visual Alert
+      // 4. Critical vs Warning Audio-Visual & SMS Alert Handling
       if (isCritical) {
+        // Critical Tier: Audible siren + viewport flashing
         sirenManager.playCriticalSiren(7000);
         setIsSirenActive(!sirenManager.isMuted);
 
@@ -291,12 +294,12 @@ export function HazardAlertProvider({ children }) {
           setIsSirenActive(false);
         }, 7000);
 
-        // Emergency Twilio SMS escalation (deduplicated)
+        // Emergency Twilio Critical SMS escalation (deduplicated per transition into Critical)
         if (!criticalSmsSentRef.current.has(nodeId)) {
           criticalSmsSentRef.current.add(nodeId);
 
           try {
-            fetch('http://localhost:8000/api/notify', {
+            fetch(`${getApiBaseUrl()}/api/notify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -315,16 +318,67 @@ export function HazardAlertProvider({ children }) {
                   nodeId,
                   `📲 Twilio Emergency SMS dispatched to responder (${data.status || 'dispatched'}).`,
                   false,
-                  'SMS_DISPATCH'
+                  'SMS_DISPATCH',
+                  'critical'
                 );
+                if (data.voice_call && (data.voice_call.status === 'success' || data.voice_call.call_sid)) {
+                  logNodeAudit(
+                    nodeId,
+                    `📞 Automated Twilio Voice Call placed to responder (+918669923983) [SID: ${data.voice_call.call_sid}].`,
+                    false,
+                    'VOICE_CALL',
+                    'critical'
+                  );
+                }
               })
               .catch(() => {
-                logNodeAudit(nodeId, `📲 Emergency broadcast simulated locally.`, false, 'SMS_SIMULATED');
+                logNodeAudit(nodeId, `📲 Emergency broadcast simulated locally.`, false, 'SMS_SIMULATED', 'critical');
               });
           } catch {
             // Silently handle backend offline
           }
         }
+      } else if (severity.toLowerCase() === 'warning') {
+        // Warning Tier: SILENT (NO siren, NO screen flash to prevent alert fatigue)
+        // Dedicated Warning Advisory SMS (deduplicated per transition into Warning)
+        if (!warningSmsSentRef.current.has(nodeId)) {
+          warningSmsSentRef.current.add(nodeId);
+
+          try {
+            fetch(`${getApiBaseUrl()}/api/notify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                node_id: nodeId,
+                location: targetLocation,
+                hazard_type: hazardType.toUpperCase(),
+                severity: 'warning',
+                key_metric: metric,
+                action_type: 'warning_advisory',
+                notes: `Automated warning advisory detection from ${source} at ${istTimestamp}`,
+              }),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                logNodeAudit(
+                  nodeId,
+                  `⚠️ Twilio Warning Advisory SMS dispatched to responder (${data.status || 'dispatched'}).`,
+                  false,
+                  'SMS_DISPATCH',
+                  'warning'
+                );
+              })
+              .catch(() => {
+                logNodeAudit(nodeId, `⚠️ Warning advisory broadcast simulated locally.`, false, 'SMS_SIMULATED', 'warning');
+              });
+          } catch {
+            // Silently handle backend offline
+          }
+        }
+      } else if (severity.toLowerCase() === 'nominal') {
+        // When returned to nominal, re-arm deduplication trackers for both warning and critical
+        warningSmsSentRef.current.delete(nodeId);
+        criticalSmsSentRef.current.delete(nodeId);
       }
 
       return newAlert;
@@ -401,8 +455,9 @@ export function HazardAlertProvider({ children }) {
         return next;
       });
 
-      // 4. Remove from critical SMS sent set to allow future alerts if needed
+      // 4. Remove from SMS sent sets to allow future alerts if needed
       criticalSmsSentRef.current.delete(nodeId);
+      warningSmsSentRef.current.delete(nodeId);
 
       // 5. Log the resolution to activity history and central audit log
       logNodeAudit(
@@ -568,7 +623,270 @@ export function HazardAlertProvider({ children }) {
     }
   }, [allNodesList]);
 
+  // 11. Real-time Live Hardware Ingestion WebSocket Listener (sub-50ms push)
+  useEffect(() => {
+    let ws = null;
+    let reconnectTimeout = null;
+    let isUnmounted = false;
+
+    const connectWs = () => {
+      if (isUnmounted) return;
+      try {
+        const host = window.location.hostname || 'localhost';
+        const wsUrl = `ws://${host}:8000/ws/telemetry`;
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+          console.log('[LIVE WS] Connected to backend hardware ingestion stream at', wsUrl);
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const message = JSON.parse(event.data);
+            const { type, data } = message;
+
+            if (type === 'telemetry_update' && data) {
+              const {
+                node_id,
+                hazard_type,
+                severity,
+                key_metric,
+                risk_score,
+                battery_pct,
+                battery_voltage,
+                signal_strength_dbm,
+                sensors,
+                timestamp,
+                alert,
+              } = data;
+
+              const istTime = timestamp ? formatIstTime(new Date(timestamp)) : formatIstTime(new Date());
+
+              // 1. Update node in central nodesMap
+              setNodesMap((prev) => {
+                const existing = prev[node_id] || getNode(node_id);
+                const updatedSensors = {
+                  ...(existing?.latestSensors || {}),
+                  ...(sensors || {}),
+                  primaryValue: key_metric || existing?.latestSensors?.primaryValue,
+                };
+
+                let updatedReadings = existing?.readings;
+                if (existing?.isMultiSensor && existing?.readings && sensors) {
+                  updatedReadings = existing.readings.map((r) => {
+                    const sensorKey = r.id;
+                    const hazardKey = r.hazard_type;
+                    let newVal = r.value;
+                    if (sensors[sensorKey] !== undefined) {
+                      newVal = sensors[sensorKey];
+                    } else if (sensors[hazardKey] !== undefined) {
+                      newVal = sensors[hazardKey];
+                    }
+                    return {
+                      ...r,
+                      value: newVal,
+                    };
+                  });
+                }
+
+                const updated = {
+                  ...existing,
+                  hazardType: (hazard_type || existing?.hazardType || 'FLOOD').toUpperCase(),
+                  severity: (severity || 'nominal').toLowerCase(),
+                  status: 'online',
+                  keyMetric: key_metric || existing?.keyMetric,
+                  riskScore: risk_score !== undefined ? risk_score : (existing?.riskScore || 15),
+                  latestSensors: updatedSensors,
+                  readings: updatedReadings,
+                  lastUpdated: istTime,
+                  isPulsing: (severity || '').toLowerCase() === 'critical',
+                  network: {
+                    ...(existing?.network || {}),
+                    rssi: signal_strength_dbm ? `${signal_strength_dbm} dBm` : (existing?.network?.rssi || '-65 dBm'),
+                  },
+                  power: {
+                    ...(existing?.power || {}),
+                    batteryPct: battery_pct !== undefined ? battery_pct : (existing?.power?.batteryPct || 95),
+                    voltage: battery_voltage ? `${battery_voltage} V` : (existing?.power?.voltage || '3.84 V'),
+                  },
+                };
+
+                const next = { ...prev, [node_id]: updated };
+                if (updated.displayId) next[updated.displayId] = updated;
+                return next;
+              });
+
+              // 2. Audit Trail logging
+              logNodeAudit(
+                node_id,
+                `📡 Hardware Telemetry Ingested: ${key_metric || 'reading'} [Battery: ${battery_pct || 95}%, RSSI: ${signal_strength_dbm || -65}dBm]`,
+                severity === 'critical',
+                'TELEMETRY_INGEST',
+                severity || 'nominal'
+              );
+
+              // 3. If elevated alert is generated
+              if (severity && severity !== 'nominal' && severity !== 'offline') {
+                const isCrit = severity === 'critical';
+                const isWarn = severity === 'warning';
+                const newAlert = {
+                  alertId: alert?.identifier || `${node_id}-${Date.now()}`,
+                  id: node_id,
+                  displayId: data.displayId || node_id,
+                  name: data.name || node_id,
+                  location: data.location || 'Tactical Sector',
+                  state: data.state || 'India',
+                  hazard: alert?.info?.event || `${hazard_type} Telemetry Trigger`,
+                  hazardType: (hazard_type || 'FLOOD').toUpperCase(),
+                  severity: severity.toLowerCase(),
+                  keyMetric: key_metric,
+                  subtext: alert?.info?.description || `${key_metric} breached operational threshold.`,
+                  directive: alert?.info?.instruction || (isCrit ? 'Immediate evacuation and tactical NDRF response.' : 'Field standby and enhanced monitoring.'),
+                  lastUpdated: istTime,
+                  isRemoving: false,
+                  source: 'esp32_hardware',
+                };
+
+                setActiveAlerts((prev) => {
+                  const filtered = prev.filter((a) => a.id !== node_id);
+                  return [newAlert, ...filtered];
+                });
+
+                if (isCrit) {
+                  sirenManager.playCriticalSiren(7000);
+                  setIsSirenActive(!sirenManager.isMuted);
+                  setIsVisualFlashing(true);
+                  if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+                  flashTimeoutRef.current = setTimeout(() => {
+                    setIsVisualFlashing(false);
+                    setIsSirenActive(false);
+                  }, 7000);
+
+                  // Send Critical SMS and Voice Call if not sent
+                  if (!criticalSmsSentRef.current.has(node_id)) {
+                    criticalSmsSentRef.current.add(node_id);
+                    fetch(`${getApiBaseUrl()}/api/notify`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        node_id,
+                        location: data.location || 'Tactical Sector',
+                        hazard_type: (hazard_type || 'FLOOD').toUpperCase(),
+                        severity: 'critical',
+                        key_metric,
+                        action_type: 'emergency_critical',
+                        notes: `Hardware telemetry critical trigger at ${istTime}`,
+                      }),
+                    })
+                      .then((res) => res.json())
+                      .then((respData) => {
+                        logNodeAudit(
+                          node_id,
+                          `📲 Twilio Emergency SMS dispatched to responder (${respData.status || 'dispatched'}).`,
+                          false,
+                          'SMS_DISPATCH',
+                          'critical'
+                        );
+                        if (respData.voice_call && (respData.voice_call.status === 'success' || respData.voice_call.call_sid)) {
+                          logNodeAudit(
+                            node_id,
+                            `📞 Automated Twilio Voice Call placed to responder (+918669923983) [SID: ${respData.voice_call.call_sid}].`,
+                            false,
+                            'VOICE_CALL',
+                            'critical'
+                          );
+                        }
+                      })
+                      .catch(() => {});
+                  }
+                } else if (isWarn) {
+                  // Send Warning SMS if not sent (SILENT: NO siren, NO flashing screen)
+                  if (!warningSmsSentRef.current.has(node_id)) {
+                    warningSmsSentRef.current.add(node_id);
+                    fetch(`${getApiBaseUrl()}/api/notify`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        node_id,
+                        location: data.location || 'Tactical Sector',
+                        hazard_type: (hazard_type || 'FLOOD').toUpperCase(),
+                        severity: 'warning',
+                        key_metric,
+                        action_type: 'warning_advisory',
+                        notes: `Hardware telemetry warning advisory at ${istTime}`,
+                      }),
+                    }).catch(() => {});
+                  }
+                }
+              } else if (severity === 'nominal') {
+                warningSmsSentRef.current.delete(node_id);
+                criticalSmsSentRef.current.delete(node_id);
+              }
+            } else if (type === 'voice_call_dispatched' && data) {
+              const { node_id, recipient, call_sid, status } = data;
+              logNodeAudit(
+                node_id || 'FLEET',
+                `📞 Automated Twilio Emergency Voice Call placed to responder (${recipient || '+918669923983'}) [Status: ${status || 'initiated'} | SID: ${call_sid || 'N/A'}].`,
+                false,
+                'VOICE_CALL',
+                'critical'
+              );
+            } else if (type === 'node_offline' && data) {
+              const { node_id, reason } = data;
+              setNodesMap((prev) => {
+                const existing = prev[node_id] || getNode(node_id);
+                if (!existing) return prev;
+                const updated = {
+                  ...existing,
+                  status: 'offline',
+                  severity: 'offline',
+                  isPulsing: false,
+                };
+                const next = { ...prev, [node_id]: updated };
+                if (updated.displayId) next[updated.displayId] = updated;
+                return next;
+              });
+
+              logNodeAudit(
+                node_id,
+                `⚠️ NODE OFFLINE: ${reason || 'Telemetry ping timed out'}`,
+                false,
+                'HEARTBEAT_TIMEOUT',
+                'offline'
+              );
+            }
+          } catch (err) {
+            console.warn('[LIVE WS] Error parsing telemetry message:', err);
+          }
+        };
+
+        ws.onclose = () => {
+          if (!isUnmounted) {
+            reconnectTimeout = setTimeout(connectWs, 3000);
+          }
+        };
+
+        ws.onerror = () => {
+          if (ws) ws.close();
+        };
+      } catch (err) {
+        if (!isUnmounted) {
+          reconnectTimeout = setTimeout(connectWs, 5000);
+        }
+      }
+    };
+
+    connectWs();
+
+    return () => {
+      isUnmounted = true;
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      if (ws) ws.close();
+    };
+  }, [getNode, logNodeAudit]);
+
   return (
+
     <HazardAlertContext.Provider
       value={{
         nodes: nodesMap,

@@ -501,6 +501,102 @@ export const CANONICAL_NODES = [
     riskScore: 0,
     lastUpdated: createRecentTimestamp(252, 0),
   },
+  {
+    id: 'GJ-RRU-001',
+    displayId: 'RRU-001',
+    name: 'RRU Main Campus Environmental Node',
+    location: 'Rashtriya Raksha University, Lavad, Ta. Dehgam, Gandhinagar District, Gujarat',
+    state: 'Gujarat',
+    pincode: '382305',
+    regionCluster: 'Gujarat // Gandhinagar Institutional Sector',
+    coordinates: { lat: 23.1544554, lng: 72.884999 },
+    elevation: '82m ASL',
+    hazard: 'Multi-Hazard Integrated Station',
+    hazardType: 'MULTI',
+    sensorType: 'multi-hazard',
+    isMultiSensor: true,
+    severity: 'offline',
+    keyMetric: 'OFFLINE — AWAITING UPLINK',
+    subtext: 'RRU multi-sensor tactical array. Disconnected; awaiting live ESP32 hardware telemetry burst.',
+    status: 'offline',
+    network: {
+      backhaul: 'Campus Gigabit Wi-Fi / MQTT Uplink',
+      rssi: 'NO SIGNAL',
+      packetDelivery: '0.0%',
+      latency: 'TIMEOUT',
+    },
+    power: {
+      batteryPct: 0.0,
+      voltage: '0.00 V',
+      solarInput: '0.0 W',
+      source: 'ESP32 USB Bus / 3.7V LiPo',
+    },
+    readings: [
+      {
+        id: 'aqi',
+        hazard_type: 'aqi',
+        label: 'Air Quality Index',
+        value: null,
+        unit: 'AQI',
+        sensor_model: 'MQ-135 / PMS5003',
+        thresholdRange: 'Nominal: ≤ 100 | Warning: 101-250 | Abnormal: 251-400 | Critical: > 400',
+      },
+      {
+        id: 'temperature',
+        hazard_type: 'fire',
+        label: 'Ambient Temperature',
+        value: null,
+        unit: '°C',
+        sensor_model: 'DHT22 / BME280',
+        thresholdRange: 'Safe: < 40°C | Warning: 40-50°C | Abnormal: 50-60°C | Critical: ≥ 60°C',
+      },
+      {
+        id: 'humidity',
+        hazard_type: 'humidity',
+        label: 'Relative Humidity',
+        value: null,
+        unit: '%',
+        sensor_model: 'DHT22 / BME280',
+        thresholdRange: 'Normal: 30-80% | Advisory: > 85%',
+      },
+      {
+        id: 'soil_moisture',
+        hazard_type: 'landslide',
+        label: 'Soil Moisture',
+        value: null,
+        unit: '%',
+        sensor_model: 'Capacitive Soil Sensor v1.2',
+        thresholdRange: 'Nominal: < 60% | Warning: 60-75% | Saturated: ≥ 75%',
+      },
+      {
+        id: 'vibration',
+        hazard_type: 'seismic',
+        label: 'Seismic / Structural Vibration',
+        value: null,
+        unit: 'mm/s',
+        sensor_model: 'MPU-6050 Accelerometer',
+        thresholdRange: 'Stable: < 0.5 mm/s | Warning: 0.5-1.5 mm/s | Critical: ≥ 2.5 mm/s',
+      },
+      {
+        id: 'rainfall',
+        hazard_type: 'flood',
+        label: 'Rainfall Rate',
+        value: null,
+        unit: 'mm/h',
+        sensor_model: 'Tipping Bucket / Optical Rain Gauge',
+        thresholdRange: 'Light: < 7.5 mm/h | Moderate: 7.5-35 mm/h | Torrential: ≥ 35 mm/h',
+      },
+    ],
+    latestSensors: {
+      primaryValue: 'AWAITING TELEMETRY',
+      primaryUnit: '',
+      primaryLabel: 'MULTI-HAZARD TELEMETRY',
+    },
+    directive: 'Standing by for first live hardware telemetry uplink from RRU Gandhinagar station.',
+    populationAtRisk: '35K',
+    riskScore: 0,
+    lastUpdated: 'STANDBY',
+  },
 ];
 
 // Helper Selectors
@@ -528,5 +624,13 @@ export const getNodesBySeverity = (severity) => {
 
 export const getNodesByHazardType = (hazardType) => {
   if (!hazardType || hazardType === 'ALL') return CANONICAL_NODES;
-  return CANONICAL_NODES.filter((n) => n.hazardType === hazardType);
+  return CANONICAL_NODES.filter((n) => {
+    if (n.hazardType === hazardType) return true;
+    if (n.isMultiSensor && n.readings) {
+      return n.readings.some(
+        (r) => r.hazard_type && r.hazard_type.toLowerCase() === hazardType.toLowerCase()
+      );
+    }
+    return false;
+  });
 };
