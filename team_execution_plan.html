@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIH 2026: Team Execution & Workflow Plan</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+        h2 { color: #1e40af; margin-top: 30px; background: #eff6ff; padding: 10px; border-radius: 5px; }
+        p, li { font-size: 16px; }
+        ul { margin-top: 5px; padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        strong { color: #111; }
+        code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #db2777; }
+    </style>
+</head>
+<body>
+
+    <h1>SIH 2026: Team Execution & Workflow Plan</h1>
+    <p>This document outlines the exact, step-by-step workflow for how all 6 team members will execute their roles in parallel without stepping on each other's toes.</p>
+
+    <h2>Phase 0: The Universal First Step (Everyone)</h2>
+    <p>Before anyone writes a single line of code, every technical member must do the following on their own laptop:</p>
+    <ol>
+        <li>Open terminal and run: <code>git clone https://github.com/Sumit14092004/SIH-2K26.git</code></li>
+        <li>Open the cloned <code>SIH-2K26</code> folder in <strong>Antigravity IDE</strong>.</li>
+        <li><em>Rule:</em> Never push broken code to the <code>main</code> branch. If you are experimenting, create a new branch (<code>git checkout -b feature/my-new-idea</code>).</li>
+    </ol>
+
+    <h2>Member 1: Hardware & Firmware Engineer</h2>
+    <p><strong>Workspace:</strong> <code>hardware_node/</code></p>
+    <ul>
+        <li><strong>Step 1:</strong> In Antigravity IDE, install the <strong>PlatformIO</strong> extension.</li>
+        <li><strong>Step 2:</strong> Open the <code>hardware_node/</code> folder. PlatformIO will automatically read the <code>platformio.ini</code> file and download the required libraries.</li>
+        <li><strong>Step 3:</strong> Wire the ESP32 to the BME680 (Temp/Humidity) and MQ-135 (Gas) sensors on a breadboard.</li>
+        <li><strong>Step 4:</strong> Ask the Antigravity Agent: <em>"Write the C++ main.cpp code to read data from the BME680 and MQ135 every 2 seconds and print it to the Serial Monitor."</em></li>
+        <li><strong>Step 5:</strong> Once sensor data is printing, update the code to connect to a local WiFi network and publish that data as JSON to the MQTT broker.</li>
+    </ul>
+
+    <h2>Member 2: Edge AI Engineer</h2>
+    <p><strong>Workspace:</strong> Edge Impulse (Web) + <code>hardware_node/</code></p>
+    <ul>
+        <li><strong>Step 1:</strong> Create a free account on <strong>Edge Impulse</strong>.</li>
+        <li><strong>Step 2 (Data Collection):</strong> Sit next to Member 1. Modify the ESP32 code to output sensor data in a clean CSV format over the Serial port.</li>
+        <li><strong>Step 3:</strong> Forward that serial data into Edge Impulse. Collect 10 minutes of "Normal" room data. Then, light a match or use a hairdryer to collect 5 minutes of "Fire/Anomaly" data.</li>
+        <li><strong>Step 4:</strong> Train an Anomaly Detection model in Edge Impulse.</li>
+        <li><strong>Step 5:</strong> Export the model as an <strong>Arduino Library</strong>. Unzip it into the <code>hardware_node/lib/</code> folder.</li>
+        <li><strong>Step 6:</strong> Work with Member 1 to implement the <code>model.predict()</code> function so the ESP32 only sends MQTT messages when an anomaly is detected.</li>
+    </ul>
+
+    <h2>Member 3: Cloud Backend Architect</h2>
+    <p><strong>Workspace:</strong> <code>backend/</code> and Docker</p>
+    <ul>
+        <li><strong>Step 1:</strong> Install <strong>Docker Desktop</strong> on your laptop.</li>
+        <li><strong>Step 2:</strong> In the root of the project, run <code>docker compose up -d</code>. This starts the MQTT Broker and Database silently in the background.</li>
+        <li><strong>Step 3:</strong> Open the <code>backend/</code> folder in the terminal. Run <code>pip install -r requirements.txt</code>.</li>
+        <li><strong>Step 4:</strong> Run the backend using <code>uvicorn main:app --reload</code>.</li>
+        <li><strong>Step 5:</strong> Create a free Twilio account (for SMS).</li>
+        <li><strong>Step 6:</strong> Ask the Antigravity Agent: <em>"Update main.py so that when a message is received on the MQTT topic 'sih/sensors' with the hazard 'fire', it triggers a Twilio SMS to my phone."</em></li>
+    </ul>
+
+    <h2>Member 4: Frontend Web Developer</h2>
+    <p><strong>Workspace:</strong> <code>dashboard/</code></p>
+    <ul>
+        <li><strong>Step 1:</strong> Open the <code>dashboard/</code> folder in the terminal. Run <code>npm install</code> and then <code>npm run dev</code>.</li>
+        <li><strong>Step 2:</strong> Create a free account at <strong>Mapbox.com</strong> and get a public API key.</li>
+        <li><strong>Step 3:</strong> Ask the Antigravity Agent: <em>"I want to replace the placeholder map in App.jsx with react-map-gl. Here is my Mapbox API key. Make the map center on India."</em></li>
+        <li><strong>Step 4:</strong> Update the UI to visually flash red or display a warning banner whenever a new alert arrives in the MQTT WebSocket stream.</li>
+    </ul>
+
+    <h2>Member 5: Systems Integrator & DevOps (Sumit)</h2>
+    <p><strong>Workspace:</strong> The entire repository</p>
+    <ul>
+        <li><strong>Step 1 (Local Testing):</strong> Ensure your laptop and Member 1's laptop are on the same WiFi network. Tell Member 1 to point their ESP32 MQTT code to <em>your</em> laptop's local IP address (e.g., 192.168.1.5).</li>
+        <li><strong>Step 2:</strong> Run the Docker containers, the FastAPI backend, and the React frontend on your machine.</li>
+        <li><strong>Step 3:</strong> Have Member 1 trigger a sensor. Watch the data travel from their ESP32 -> Your WiFi -> Your Docker MQTT -> Your Python Backend (sends SMS) -> Your React Dashboard (flashes red).</li>
+        <li><strong>Step 4 (Deployment):</strong> For the final judging, deploy the Mosquitto Broker to a cloud server (DigitalOcean/AWS EC2), deploy the React app to Vercel, and deploy the FastAPI backend to Render.</li>
+    </ul>
+
+    <h2>Member 6: Project Manager & Pitch Specialist</h2>
+    <p><strong>Workspace:</strong> PowerPoint / Canva / Word</p>
+    <ul>
+        <li><strong>Step 1:</strong> Read the Qualcomm evaluation rubric.</li>
+        <li><strong>Step 2:</strong> Interview the team. Ask Member 2 <em>how</em> Edge Impulse works. Ask Member 1 <em>how much power</em> the ESP32 uses. You need these answers for the judges.</li>
+        <li><strong>Step 3:</strong> Design the Architecture Diagram for the PPT (showing ESP32 -> MQTT -> Cloud -> Dashboard).</li>
+        <li><strong>Step 4:</strong> Script the 3-minute pitch (Minute 1: Problem & Architecture. Minute 2: Live Demo. Minute 3: Cost, Power & Scalability).</li>
+        <li><strong>Step 5:</strong> Keep the team on schedule!</li>
+    </ul>
+
+</body>
+</html>

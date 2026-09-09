@@ -87,7 +87,7 @@ export const DISASTER_SIMULATIONS = [
       [11.53, 76.07],
     ],
     backendPayload: {
-      node_id: 'NODE_HILL_02',
+      node_id: 'IN-KL-071',
       hazard: 'landslide',
       confidence: 94.0,
       vibration_g: 1.85,
@@ -117,7 +117,7 @@ export const DISASTER_SIMULATIONS = [
       [28.52, 77.01],
     ],
     backendPayload: {
-      node_id: 'NODE_URBAN_01',
+      node_id: 'IN-DL-004',
       hazard: 'hazardous_air_pollution',
       confidence: 97.5,
       pm25: 485.0,
@@ -146,7 +146,7 @@ export const DISASTER_SIMULATIONS = [
       [25.96, 86.52],
     ],
     backendPayload: {
-      node_id: 'NODE_RIVER_02',
+      node_id: 'IN-BR-019',
       hazard: 'flash_flood',
       confidence: 91.5,
       water_level_cm: 198.0,
@@ -174,7 +174,7 @@ export const DISASTER_SIMULATIONS = [
       [30.5, 79.52],
     ],
     backendPayload: {
-      node_id: 'NODE_HILL_01',
+      node_id: 'IN-UK-012',
       hazard: 'landslide',
       confidence: 90.0,
       vibration_g: 1.45,
@@ -203,7 +203,7 @@ export const DISASTER_SIMULATIONS = [
       [20.08, 86.48],
     ],
     backendPayload: {
-      node_id: 'NODE_COAST_01',
+      node_id: 'IN-OD-055',
       hazard: 'flash_flood',
       confidence: 95.5,
       pressure_drop_hpa: 984.0,
@@ -283,6 +283,19 @@ export default function BharatTacticalMapCard({
   const zonesLayerGroupRef = useRef(null);
   const simulationLayerGroupRef = useRef(null);
 
+  const [leafletReady, setLeafletReady] = useState(() => typeof window !== 'undefined' && !!window.L);
+
+  useEffect(() => {
+    if (leafletReady) return;
+    const checkInterval = setInterval(() => {
+      if (typeof window !== 'undefined' && window.L) {
+        setLeafletReady(true);
+        clearInterval(checkInterval);
+      }
+    }, 100);
+    return () => clearInterval(checkInterval);
+  }, [leafletReady]);
+
   // 1. Initialize Map
   useEffect(() => {
     if (!window.L || !mapContainerRef.current) return;
@@ -342,7 +355,7 @@ export default function BharatTacticalMapCard({
         mapInstanceRef.current = null;
       }
     };
-  }, []);
+  }, [leafletReady]);
 
   // 2. Manage Tile Layer based on mapStyle
   useEffect(() => {

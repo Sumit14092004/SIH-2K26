@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIH 2026: Team Roles & Responsibilities</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+        h2 { color: #1e40af; margin-top: 30px; }
+        h3 { color: #0f172a; margin-bottom: 5px; }
+        p, li { font-size: 16px; }
+        ul { margin-top: 5px; padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        strong { color: #111; }
+        .role-block { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 15px 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0; }
+    </style>
+</head>
+<body>
+
+    <h1>SIH 2026: Team Roles & Responsibilities</h1>
+
+    <h2>Technical Team (The 5 Third-Years)</h2>
+
+    <div class="role-block">
+        <h3>1. Hardware & Firmware Engineer (The Node Builder)</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+            <li>Wires the ESP32 to the BME680, MQ-135, and Ultrasonic sensors.</li>
+            <li>Builds the power management circuit (18650 Battery + TP4056 + Solar Panel).</li>
+            <li>Writes the C++ (PlatformIO) code to read sensors, manage deep sleep, and connect to WiFi/MQTT.</li>
+            <li><strong>Key Challenge:</strong> Keeping power consumption as low as possible.</li>
+        </ul>
+    </div>
+
+    <div class="role-block">
+        <h3>2. Edge AI Engineer (The TinyML Specialist)</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+            <li>Uses Edge Impulse (or TensorFlow Lite for Microcontrollers).</li>
+            <li>Works with the Hardware Engineer to collect baseline data (normal conditions) and anomaly data (e.g., introducing smoke/heat).</li>
+            <li>Trains the machine learning model to detect floods/fires.</li>
+            <li>Flashes the trained `.tflite` model or C++ library onto the ESP32.</li>
+            <li><strong>Key Challenge:</strong> Fitting the ML model into the ESP32's limited RAM.</li>
+        </ul>
+    </div>
+
+    <div class="role-block">
+        <h3>3. Cloud & Backend Architect (The Data Pipeline)</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+            <li>Sets up the MQTT Broker (e.g., Eclipse Mosquitto or AWS IoT).</li>
+            <li>Builds the backend server (Python FastAPI or Node.js).</li>
+            <li>Sets up the database (InfluxDB for time-series data or standard PostgreSQL).</li>
+            <li>Writes the logic that triggers SMS/Email alerts to authorities when a critical flag is received.</li>
+            <li><strong>Key Challenge:</strong> Handling concurrent data streams if multiple nodes send data at once.</li>
+        </ul>
+    </div>
+
+    <div class="role-block">
+        <h3>4. Frontend Web Developer (The Command Center)</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+            <li>Builds the React.js / Next.js web application.</li>
+            <li>Integrates a geospatial mapping library (Mapbox or Leaflet).</li>
+            <li>Plots the sensor nodes on the map using GPS coordinates.</li>
+            <li>Creates dynamic heatmaps or "Risk Zones" based on incoming data.</li>
+            <li><strong>Key Challenge:</strong> Making the dashboard look like a professional, high-stakes disaster management tool.</li>
+        </ul>
+    </div>
+
+    <div class="role-block">
+        <h3>5. Systems Integrator & DevOps (The Glue)</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+            <li>Connects the Frontend to the Backend (API integration).</li>
+            <li>Ensures the MQTT data is flowing smoothly from the Hardware to the Cloud.</li>
+            <li>Manages the Git repository and Antigravity IDE setups for the team.</li>
+            <li>Handles deploying the backend and frontend to the web (e.g., Vercel, Render, AWS).</li>
+            <li><strong>Key Challenge:</strong> Debugging cross-platform issues (e.g., "Why is the hardware sending data but the dashboard isn't updating?").</li>
+        </ul>
+    </div>
+
+    <hr style="border: 1px solid #e5e7eb; margin: 40px 0;">
+
+    <h2>Strategy & Presentation</h2>
+
+    <div class="role-block" style="border-left-color: #8b5cf6; background: #faf5ff;">
+        <h3>6. Project Manager & Pitch Specialist (First-Year Member)</h3>
+        <p><strong>Responsibilities:</strong></p>
+        <ul>
+            <li><strong>Deep Understanding:</strong> Studies the architecture end-to-end. Knows <em>how</em> the ESP32 talks to MQTT, and <em>why</em> TinyML is being used.</li>
+            <li><strong>Qualcomm Alignment:</strong> Constantly checks the team's work against the Qualcomm problem statement requirements to ensure no points are missed.</li>
+            <li><strong>The Pitch Deck:</strong> Designs a stunning PowerPoint presentation that explains the problem, the architecture, the cost (BOM), and the scalability.</li>
+            <li><strong>Demo Flow:</strong> Scripts and directs the live demo for the judges (e.g., "Now, I will hold a lighter near the node to simulate a fire, watch the dashboard...").</li>
+            <li><strong>Key Challenge:</strong> Translating complex technical jargon into a compelling, 3-minute business and impact story for the judges.</li>
+        </ul>
+    </div>
+
+</body>
+</html>

@@ -156,7 +156,8 @@ export default function StationTelemetryCockpit({
   });
 
   const isCritical = node.severity === 'critical';
-  const isWatch = node.severity === 'watch';
+  const isWarningOrAbnormal = node.severity === 'warning' || node.severity === 'abnormal';
+  const isOffline = node.severity === 'offline' || node.status === 'offline';
 
   return (
     <div className="flex flex-col w-full h-full min-h-0 gap-2">
@@ -170,7 +171,8 @@ export default function StationTelemetryCockpit({
             {filteredNodes.map((n) => {
               const isSelected = n.id === node.id;
               const nCrit = n.severity === 'critical';
-              const nWatch = n.severity === 'watch';
+              const nWarn = n.severity === 'warning' || n.severity === 'abnormal';
+              const nOff = n.severity === 'offline' || n.status === 'offline';
               return (
                 <button
                   key={n.id}
@@ -185,8 +187,10 @@ export default function StationTelemetryCockpit({
                     className={`w-1.5 h-1.5 rounded-full ${
                       nCrit
                         ? 'bg-status-critical'
-                        : nWatch
+                        : nWarn
                         ? 'bg-status-warning'
+                        : nOff
+                        ? 'bg-muted/40'
                         : 'bg-status-nominal'
                     }`}
                   />
@@ -232,8 +236,10 @@ export default function StationTelemetryCockpit({
                     className={`text-[10px] font-mono uppercase px-1.5 py-0.2 rounded border ${
                       isCritical
                         ? 'text-status-critical bg-status-critical/10 border-status-critical/30 font-medium'
-                        : isWatch
+                        : isWarningOrAbnormal
                         ? 'text-status-warning bg-status-warning/10 border-status-warning/30 font-medium'
+                        : isOffline
+                        ? 'text-muted bg-muted/10 border-muted/30'
                         : 'text-status-nominal bg-status-nominal/10 border-status-nominal/30'
                     }`}
                   >

@@ -49,3 +49,8 @@ backend/mosquitto/log/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Binaries & Scratch Backups
+test_friend_model
+*.bak
+.spec/

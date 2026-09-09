@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from contextlib import asynccontextmanager
 import asyncio
+import threading
 import pytz
 from dotenv import load_dotenv
 
@@ -730,6 +731,9 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
         if sensors.get("vibration") is not None:
             try:
                 vib = float(sensors["vibration"])
+                # If raw MPU-6050 acceleration is passed (resting on desk: ~9.81 to 10.8 m/s²), evaluate tremor delta
+                if 8.0 <= vib <= 13.0:
+                    vib = max(0.0, round(abs(vib - 9.81) - 1.0, 2))
                 if vib >= 2.5:
                     v_tier, v_risk = "critical", 96
                     v_met = f"{vib:.2f} mm/s shock tremor"
@@ -819,6 +823,8 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
             crest_m = float(sensors["crest_m"])
         elif "water_level_m" in sensors and sensors["water_level_m"] is not None:
             crest_m = float(sensors["water_level_m"])
+        elif "dist_cm" in sensors and sensors["dist_cm"] is not None:
+            crest_m = max(0.0, round((200.0 - float(sensors["dist_cm"])) / 100.0, 2))
         elif "water_level_cm" in sensors and sensors["water_level_cm"] is not None:
             crest_m = float(sensors["water_level_cm"]) / 100.0
         
@@ -864,6 +870,10 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
             aqi = float(sensors["aqi"])
         elif "pm25" in sensors and sensors["pm25"] is not None:
             aqi = float(sensors["pm25"])
+        elif "mq_raw" in sensors and sensors["mq_raw"] is not None:
+            aqi = round(35 + (min(max(float(sensors["mq_raw"]) - 40, 0), 500) / 500.0) * 415)
+        elif "mq135_ppm" in sensors and sensors["mq135_ppm"] is not None:
+            aqi = round(35 + (min(max(float(sensors["mq135_ppm"]) - 400, 0), 1600) / 1600.0) * 415)
         if aqi is None:
             aqi = 65.0
             
@@ -1637,12 +1647,92 @@ def process_esp32_reading(payload: dict) -> dict:
             if k not in sensors:
                 sensors[k] = v
 
+    # Map ESP32 payload aliases to canonical sensor keys
+    if "temp" in payload and "temperature" not in sensors:
+        try: sensors["temperature"] = float(payload["temp"])
+        except (ValueError, TypeError): pass
+    if "hum" in payload and "humidity" not in sensors:
+        try: sensors["humidity"] = float(payload["hum"])
+        except (ValueError, TypeError): pass
+    if "pres" in payload and "pressure" not in sensors:
+        try: sensors["pressure"] = float(payload["pres"])
+        except (ValueError, TypeError): pass
+    if "soil_pct" in payload and "soil_moisture" not in sensors:
+        try: sensors["soil_moisture"] = float(payload["soil_pct"])
+        except (ValueError, TypeError): pass
+    if "rain_pct" in payload and "rainfall" not in sensors:
+        try: sensors["rainfall"] = float(payload["rain_pct"])
+        except (ValueError, TypeError): pass
+    if "tds_ppm" in payload and "tds_ppm" not in sensors:
+        try: sensors["tds_ppm"] = float(payload["tds_ppm"])
+        except (ValueError, TypeError): pass
+    if "pir_active" in payload and "pir_active" not in sensors:
+        sensors["pir_active"] = bool(payload["pir_active"])
+    if "tinyml_us" in payload:
+        sensors["tinyml_us"] = payload["tinyml_us"]
+    if "tinyml_code" in payload:
+        sensors["tinyml_code"] = payload["tinyml_code"]
+
+    # Ultrasonic clearance to water crest conversion
+    if "dist_cm" in payload or "dist_cm" in sensors:
+        d_val = payload.get("dist_cm") if "dist_cm" in payload else sensors.get("dist_cm")
+        try:
+            d_cm = float(d_val)
+            sensors["dist_cm"] = d_cm
+            # Standard mounting clearance is 200 cm (2.0 meters standard bridge / test rig)
+            crest = max(0.0, round((200.0 - d_cm) / 100.0, 2))
+            sensors["crest_m"] = crest
+            sensors["water_level_m"] = crest
+        except (ValueError, TypeError):
+            pass
+    elif "water_level_cm" in sensors and sensors["water_level_cm"] is not None:
+        try:
+            wl = float(sensors["water_level_cm"])
+            sensors["crest_m"] = round(wl / 100.0, 2)
+            sensors["water_level_m"] = sensors["crest_m"]
+        except (ValueError, TypeError):
+            pass
+
+    # Seismic dynamic tremor evaluation
+    accel = payload.get("accel_total") or sensors.get("accel_total") or payload.get("vibration_g") or sensors.get("vibration_g")
+    if accel is not None:
+        try:
+            a_val = float(accel)
+            if a_val < 3.0:
+                a_val = a_val * 9.80665
+            sensors["accel_total"] = round(a_val, 2)
+            tremor = max(0.0, round(abs(a_val - 9.81) - 1.0, 2))
+            sensors["vibration"] = tremor
+        except (ValueError, TypeError):
+            pass
+
+    # CPCB AQI baseline calibration
+    if "aqi" not in sensors or sensors["aqi"] is None:
+        mq_raw = payload.get("mq_raw") if "mq_raw" in payload else sensors.get("mq_raw")
+        mq_ppm = payload.get("mq_ppm") if "mq_ppm" in payload else (payload.get("mq135_ppm") if "mq135_ppm" in payload else sensors.get("mq135_ppm"))
+        if mq_raw is not None:
+            try:
+                raw_f = float(mq_raw)
+                sensors["mq_raw"] = raw_f
+                sensors["aqi"] = round(35 + (min(max(raw_f - 40, 0), 500) / 500.0) * 415)
+            except (ValueError, TypeError):
+                pass
+        elif mq_ppm is not None:
+            try:
+                ppm_f = float(mq_ppm)
+                sensors["mq135_ppm"] = ppm_f
+                sensors["aqi"] = round(35 + (min(max(ppm_f - 400, 0), 1600) / 1600.0) * 415)
+            except (ValueError, TypeError):
+                pass
+
     # If simple value + unit was sent
     if "value" in payload and payload["value"] is not None:
         try:
             val = float(payload["value"])
             ht = str(payload.get("hazard_type", "")).lower()
             if "flood" in ht:
+                if val > 10.0:
+                    val = val / 100.0
                 sensors["water_level_m"] = val
                 sensors["crest_m"] = val
             elif "aqi" in ht:
@@ -1931,6 +2021,97 @@ async def heartbeat_watchdog():
         except Exception as e:
             print(f"[WATCHDOG ERROR] {e}")
 
+# ==========================================
+# 7.2 Hardware USB Serial Auto-Ingestion Bridge
+# ==========================================
+_serial_stop_event = threading.Event()
+_serial_thread = None
+
+def _background_serial_reader():
+    """
+    Auto-detecting, resilient USB Serial Ingestion daemon:
+    - Scans for plugged-in ESP32 boards on macOS (/dev/cu.usbserial*, /dev/tty.*),
+      Linux (/dev/ttyUSB*, /dev/ttyACM*), and Windows (COM*)
+    - Connects at 115200 baud
+    - Extracts [DATA]{...} packets emitted by BatRadar / Qualcomm TinyML firmware
+    - Normalizes multi-sensor readings and routes directly into GJ-RRU-001
+    - Automatically reconnects if USB is unplugged / plugged back in
+    """
+    import serial
+    import serial.tools.list_ports
+
+    print("[SERIAL BRIDGE] Background USB Serial Auto-Ingestion daemon starting...")
+    while not _serial_stop_event.is_set():
+        port = None
+        # 1. Check known default port on Mac first
+        if os.path.exists("/dev/cu.usbserial-0001"):
+            port = "/dev/cu.usbserial-0001"
+        elif os.path.exists("/dev/tty.usbserial-0001"):
+            port = "/dev/tty.usbserial-0001"
+        else:
+            # 2. Search available COM / serial ports
+            try:
+                available_ports = list(serial.tools.list_ports.comports())
+                for p in available_ports:
+                    dev = p.device
+                    desc = (p.description or "").lower()
+                    hwid = (p.hwid or "").lower()
+                    if any(k in dev.lower() for k in ("usbserial", "usbmodem", "ch340", "cp210", "ttyusb", "ttyacm")) or \
+                       any(k in desc for k in ("usb", "serial", "uart", "cp210", "ch340", "esp32")) or \
+                       "usb" in hwid:
+                        port = dev
+                        break
+            except Exception:
+                pass
+
+        if not port:
+            time.sleep(3)
+            continue
+
+        try:
+            print(f"[SERIAL BRIDGE] Connecting to ESP32 hardware on {port} @ 115200 baud...")
+            with serial.Serial(port, 115200, timeout=2) as ser:
+                print(f"[SERIAL BRIDGE] Connected successfully to {port}!")
+                while not _serial_stop_event.is_set():
+                    raw_line = ser.readline()
+                    if not raw_line:
+                        continue
+                    line = raw_line.decode("utf-8", errors="replace").strip()
+                    if not line:
+                        continue
+
+                    # Look for [DATA]{...} payload
+                    data_idx = line.find("[DATA]{")
+                    json_str = None
+                    if data_idx != -1:
+                        json_str = line[data_idx + 6:]
+                    elif line.startswith("{") and line.endswith("}"):
+                        json_str = line
+
+                    if json_str:
+                        try:
+                            payload = json.loads(json_str)
+                            # Route hardware readings to GJ-RRU-001 (Physical Campus Rig)
+                            rru_payload = dict(payload)
+                            rru_payload["node_id"] = "GJ-RRU-001"
+                            rru_payload["hazard_type"] = "MULTI"
+                            process_esp32_reading(rru_payload)
+                        except Exception:
+                            pass
+        except Exception:
+            time.sleep(2)
+
+def start_background_serial_reader():
+    global _serial_thread
+    if _serial_thread is None or not _serial_thread.is_alive():
+        _serial_stop_event.clear()
+        _serial_thread = threading.Thread(target=_background_serial_reader, daemon=True, name="ESP32-Serial-Bridge")
+        _serial_thread.start()
+        print("[SERIAL BRIDGE] Background thread spawned successfully.")
+
+def stop_background_serial_reader():
+    _serial_stop_event.set()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global main_event_loop
@@ -1951,9 +2132,13 @@ async def lifespan(app: FastAPI):
     # Start background heartbeat watchdog task
     watchdog_task = asyncio.create_task(heartbeat_watchdog())
 
+    # Start background USB serial reader daemon for plugged-in ESP32
+    start_background_serial_reader()
+
     yield
 
     print("🛑 Shutting down SIH 2026 Backend...")
+    stop_background_serial_reader()
     watchdog_task.cancel()
     try:
         await watchdog_task

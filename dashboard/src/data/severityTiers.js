@@ -81,9 +81,14 @@ export function evaluateSensorReading(reading) {
   const type = (reading.hazard_type || reading.id || '').toLowerCase();
 
   if (type === 'aqi') {
-    if (val >= 400) return { tier: 'critical', riskScore: 95, statusText: 'Hazardous / Emergency' };
-    if (val >= 250) return { tier: 'abnormal', riskScore: 75, statusText: 'Severe Air Toxicity' };
-    if (val >= 100) return { tier: 'warning', riskScore: 50, statusText: 'Moderate Pollution' };
+    // If raw mq135 ppm (ambient CO2 baseline is ~400 ppm) or raw ADC is provided without explicit AQI
+    let aqiVal = val;
+    if (reading.unit === 'ppm' || (reading.sensor_model && reading.sensor_model.includes('MQ-135') && val >= 350 && val <= 450)) {
+      aqiVal = Math.round(35 + (Math.min(Math.max(val - 400, 0), 1600) / 1600) * 415);
+    }
+    if (aqiVal >= 400) return { tier: 'critical', riskScore: 95, statusText: 'Hazardous / Emergency' };
+    if (aqiVal >= 250) return { tier: 'abnormal', riskScore: 75, statusText: 'Severe Air Toxicity' };
+    if (aqiVal >= 100) return { tier: 'warning', riskScore: 50, statusText: 'Moderate Pollution' };
     return { tier: 'nominal', riskScore: 15, statusText: 'Safe / Good' };
   }
 
@@ -106,9 +111,14 @@ export function evaluateSensorReading(reading) {
   }
 
   if (type === 'seismic' || type === 'vibration') {
-    if (val >= 2.5) return { tier: 'critical', riskScore: 96, statusText: 'High Vibration / Shock' };
-    if (val >= 1.5) return { tier: 'abnormal', riskScore: 72, statusText: 'Abnormal Tremor' };
-    if (val >= 0.5) return { tier: 'warning', riskScore: 48, statusText: 'Minor Vibration' };
+    // If raw MPU-6050 acceleration is passed (resting on desk: ~9.81 to 10.8 m/s²), evaluate tremor delta
+    let vibVal = val;
+    if (val >= 8.0 && val <= 13.0) {
+      vibVal = Math.max(0, Number((Math.abs(val - 9.81) - 1.0).toFixed(2)));
+    }
+    if (vibVal >= 2.5) return { tier: 'critical', riskScore: 96, statusText: 'High Vibration / Shock' };
+    if (vibVal >= 1.5) return { tier: 'abnormal', riskScore: 72, statusText: 'Abnormal Tremor' };
+    if (vibVal >= 0.5) return { tier: 'warning', riskScore: 48, statusText: 'Minor Vibration' };
     return { tier: 'nominal', riskScore: 10, statusText: 'Stable Baseline' };
   }
 
