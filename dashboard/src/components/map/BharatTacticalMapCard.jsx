@@ -308,17 +308,17 @@ export default function BharatTacticalMapCard({
     const L = window.L;
 
     const map = L.map(mapContainerRef.current, {
-      center: [22.8, 80.2],
-      zoom: 5,
+      center: [23.1544554, 72.884999],
+      zoom: 12,
       minZoom: 4,
-      maxZoom: 16,
+      maxZoom: 18,
       zoomControl: false,
       attributionControl: false,
       scrollWheelZoom: true,
       dragging: true,
     });
 
-    map.fitBounds(INDIA_BOUNDS, { padding: [24, 24] });
+    map.setView([23.1544554, 72.884999], 12);
 
     map.on('mousemove', (e) => {
       setCursorCoords({
@@ -807,9 +807,8 @@ export default function BharatTacticalMapCard({
     setSimulationStatus('');
     sirenManager.stop();
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.flyToBounds(INDIA_BOUNDS, {
-        duration: 1.2,
-        padding: [24, 24],
+      mapInstanceRef.current.flyTo([23.1544554, 72.884999], 12, {
+        duration: 1.0,
       });
     }
   };

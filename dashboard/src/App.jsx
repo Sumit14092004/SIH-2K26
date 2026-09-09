@@ -41,8 +41,8 @@ function AppContent() {
       window.location.hash = path;
     }
   };
-  const [selectedNodeId, setSelectedNodeId] = useState('IN-ASM-042');
-  const [inspectorNodeId, setInspectorNodeId] = useState('IN-ASM-042');
+  const [selectedNodeId, setSelectedNodeId] = useState('GJ-RRU-001');
+  const [inspectorNodeId, setInspectorNodeId] = useState('GJ-RRU-001');
   const [isInspectorOpen, setIsInspectorOpen] = useState(() => {
     if (typeof window !== 'undefined') {
       return new URLSearchParams(window.location.search).get('modal') === 'true';
@@ -66,10 +66,10 @@ function AppContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          node_id: nodeId || 'IN-ASM-042',
-          hazard: region && region.toLowerCase().includes('aqi') ? 'hazardous_air_pollution' : 'flash_flood',
+          node_id: nodeId || 'GJ-RRU-001',
+          hazard: 'multi_hazard',
           confidence: 96.5,
-          water_level_cm: 185.0
+          water_level_cm: 28.0
         })
       }).catch(() => {
         // Silently catch if backend is offline
@@ -204,7 +204,7 @@ function AppContent() {
       {/* Global Node Telemetry Modal */}
       <NodeInspectorModal
         isOpen={isInspectorOpen}
-        nodeId={inspectorNodeId || 'IN-ASM-042'}
+        nodeId={inspectorNodeId || 'GJ-RRU-001'}
         onClose={() => setIsInspectorOpen(false)}
         onTriggerNotification={(notif) => {
           setToast({

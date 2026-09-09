@@ -8,8 +8,8 @@ export default function LiveCommandCenter({
   onDispatchNDRF,
   onTriggerNotification,
 }) {
-  const [liveNodes, setLiveNodes] = useState(158);
-  const [focusedNodeId, setFocusedNodeId] = useState('IN-ASM-042');
+  const [liveNodes, setLiveNodes] = useState(1);
+  const [focusedNodeId, setFocusedNodeId] = useState('GJ-RRU-001');
   const [timelineCategory, setTimelineCategory] = useState('ALL'); // 'ALL' | 'ALERTS' | 'DISPATCHES' | 'SMS' | 'TRIGGERS'
   const [expandedTimelineId, setExpandedTimelineId] = useState(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -22,6 +22,7 @@ export default function LiveCommandCenter({
     warningCount,
     offlineCount,
     nominalCount,
+    totalNodesCount,
     resolveHazardAlert,
     searchQuery,
     setSearchQuery,
@@ -32,16 +33,6 @@ export default function LiveCommandCenter({
     clearFilters,
     isFilterActive,
   } = useHazardAlerts();
-
-  // Simulated node count jitter
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.6) {
-        setLiveNodes((prev) => (prev === 158 ? 159 : 158));
-      }
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Filter alerts based on global search & filters
   const filteredAlerts = useMemo(() => {
@@ -94,73 +85,45 @@ export default function LiveCommandCenter({
     // 2. Operational Dispatches
     events.push({
       id: 'disp-01',
-      nodeId: 'IN-ASM-042',
+      nodeId: 'GJ-RRU-001',
       category: 'DISPATCH',
       time: '11:30 IST',
-      title: 'NDRF 1st Battalion Staging Authorized',
-      location: 'Dibrugarh Lowlands, Assam',
-      metric: '4 Teams / 120 Personnel',
-      description: 'Staged at Brahmaputra riverfront protection zone. Inflatable motorboats deployed.',
-      directive: 'Level-3 emergency evacuation perimeter enforced.',
-      severity: 'critical',
-      isAlert: false,
-    });
-
-    events.push({
-      id: 'disp-02',
-      nodeId: 'NODE_FOREST_01',
-      category: 'DISPATCH',
-      time: '10:45 IST',
-      title: 'ODRAF Quick Response Unit Dispatched',
-      location: 'Mayurbhanj, Simlipal, Odisha',
-      metric: '6 Fire Tenders Deployed',
-      description: 'Establishing fire break perimeter to prevent canopy spread toward Tiger Reserve.',
-      directive: 'Forestry aerial survey requested from Bhubaneswar airbase.',
-      severity: 'critical',
+      title: 'NDRF Campus Sector Staging Armed',
+      location: 'Rashtriya Raksha University, Lavad, Gujarat',
+      metric: 'Tactical Team Staged',
+      description: 'Staged at RRU tactical research facility. Emergency protocols calibrated to edge TinyML triggers.',
+      directive: 'Tactical perimeter monitoring synchronized with hardware array.',
+      severity: 'nominal',
       isAlert: false,
     });
 
     // 3. SMS Broadcasts (Twilio CAP)
     events.push({
       id: 'sms-01',
-      nodeId: 'IN-BR-019',
+      nodeId: 'GJ-RRU-001',
       category: 'SMS',
-      time: '11:15 IST',
-      title: 'Emergency CAP SMS Broadcast Delivered',
-      location: 'Supaul Embankment, Bihar',
-      metric: '2,450 Citizens Notified',
-      description: 'Twilio Gateway latency 1.1s. SMS delivered in Hindi and Maithili with evacuation coordinates.',
-      directive: 'Recipients directed to higher ground flood shelters.',
-      severity: 'warning',
-      isAlert: false,
-    });
-
-    events.push({
-      id: 'sms-02',
-      nodeId: 'IN-DL-004',
-      category: 'SMS',
-      time: '10:20 IST',
-      title: 'Advisory SMS Broadcast Sent',
-      location: 'Anand Vihar, Delhi NCR',
-      metric: '14,200 Citizens Notified',
-      description: 'GRAP-IV air quality warning broadcast to schools and vulnerable demographics.',
-      directive: 'Emergency particulate masking protocol advised.',
-      severity: 'warning',
+      time: '10:15 IST',
+      title: 'Common Alerting Protocol (CAP) Gateway Armed',
+      location: 'Rashtriya Raksha University, Gujarat',
+      metric: 'Twilio SMS Armed',
+      description: 'Twilio Multi-Hazard CAP Gateway linked with sub-1.2s delivery latency test.',
+      directive: 'Emergency dispatch ready for real-time trigger.',
+      severity: 'nominal',
       isAlert: false,
     });
 
     // 4. Ingestion / Trigger Events
     events.push({
       id: 'trig-01',
-      nodeId: 'IN-KL-071',
+      nodeId: 'GJ-RRU-001',
       category: 'TRIGGER',
-      time: '10:55 IST',
-      title: 'Geotechnical Pore Pressure Creep Exceeded',
-      location: 'Meppadi / Chooralmala, Wayanad, Kerala',
-      metric: '182 kPa Creep (Tilt 39°)',
-      description: 'Subsurface geotechnical sensor reported soil saturation index >95%.',
-      directive: 'Hillside slope stability monitoring active.',
-      severity: 'warning',
+      time: '09:45 IST',
+      title: 'Qualcomm TinyML Edge AI Inference Active',
+      location: 'RRU Main Campus, Lavad, Gujarat',
+      metric: '292 µs Latency',
+      description: 'On-device Random Forest classifier running at 292 microseconds execution time.',
+      directive: 'Hardware Edge AI decision pipeline active.',
+      severity: 'nominal',
       isAlert: false,
     });
 
@@ -169,10 +132,10 @@ export default function LiveCommandCenter({
       nodeId: 'GJ-RRU-001',
       category: 'TRIGGER',
       time: '09:10 IST',
-      title: 'ESP32 MQTT Uplink Synchronized',
+      title: 'ESP32 USB Serial Telemetry Linked',
       location: 'RRU Main Campus, Lavad, Gujarat',
-      metric: 'Multi-Sensor Rig',
-      description: 'Station heartbeat received over HiveMQ broker topic aapda/hardware/telemetry.',
+      metric: '115200 Baud Stream',
+      description: 'Physical ESP32 hardware node streaming real-time sensor packets via USB serial.',
       directive: 'Live hardware ingestion pipeline active.',
       severity: 'nominal',
       isAlert: false,
@@ -217,7 +180,7 @@ export default function LiveCommandCenter({
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-status-nominal" />
             <span className="text-secondary font-medium">Fleet:</span>
-            <span className="font-mono text-primary font-medium">{liveNodes}/160 Online</span>
+            <span className="font-mono text-primary font-medium">{liveNodes}/{totalNodesCount || 1} Online (RRU Rig)</span>
           </div>
           <div className="w-[1px] h-3.5 bg-subtle hidden md:block" />
           <div className="relative flex items-center gap-1.5 cursor-pointer select-none" onClick={() => setShowBreakdown((p) => !p)} title="Click to view sensor fleet breakdown">
@@ -239,13 +202,13 @@ export default function LiveCommandCenter({
               <div className="absolute top-full left-0 mt-1.5 z-30 bg-surface border border-subtle shadow-md rounded p-2 text-2xs font-mono whitespace-nowrap flex flex-col gap-1">
                 <span className="text-muted text-[10px] uppercase font-semibold">Sensor Fleet Breakdown:</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-status-nominal">{nominalCount || 151} Nominal</span>
+                  <span className="text-status-nominal">{nominalCount} Nominal</span>
                   <span>&middot;</span>
                   <span className="text-status-warning">{warningCount} Warning</span>
                   <span>&middot;</span>
                   <span className="text-status-critical">{criticalCount} Critical</span>
                   <span>&middot;</span>
-                  <span className="text-muted">{offlineCount || 9} Offline</span>
+                  <span className="text-muted">{offlineCount} Offline</span>
                 </div>
               </div>
             )}

@@ -63,11 +63,11 @@ export function HazardAlertProvider({ children }) {
   const [systemAuditLogs, setSystemAuditLogs] = useState(() => [
     {
       id: 'sys-log-init',
-      time: formatIstTime(new Date(Date.now() - 15 * 60 * 1000)),
-      nodeId: 'NETWORK-HUB',
-      location: 'National Intelligence Grid',
+      time: formatIstTime(new Date(Date.now() - 5 * 60 * 1000)),
+      nodeId: 'GJ-RRU-001',
+      location: 'Rashtriya Raksha University, Gujarat',
       action: 'INITIALIZE',
-      message: 'Multi-hazard spatial mesh synchronized across 160 sensor telemetry nodes.',
+      message: 'Physical RRU Environmental Node synchronized with on-device Qualcomm TinyML Edge AI.',
       severity: 'nominal',
     },
   ]);
@@ -78,7 +78,7 @@ export function HazardAlertProvider({ children }) {
   const flashTimeoutRef = useRef(null);
 
   // 6. Deduplicated emergency Twilio SMS tracker per tier
-  const criticalSmsSentRef = useRef(new Set(['IN-ASM-042', 'IN-DL-004']));
+  const criticalSmsSentRef = useRef(new Set());
   const warningSmsSentRef = useRef(new Set());
 
   // 7. Central Geospatial & Query Filters
@@ -577,17 +577,14 @@ export function HazardAlertProvider({ children }) {
       else nom += 1;
     });
 
-    const totalFleet = 160;
-    // Scale nominal nodes to fill fleet representation (160 - non-nominal)
-    const activeNonNominal = off + crit + abn + warn;
-    const fleetNominal = Math.max(0, totalFleet - activeNonNominal);
+    const totalFleet = allNodesList.length;
 
     return {
       offlineCount: off,
       criticalCount: crit,
       abnormalCount: abn,
       warningCount: warn,
-      nominalCount: fleetNominal,
+      nominalCount: nom,
       totalNodesCount: totalFleet,
     };
   }, [allNodesList]);

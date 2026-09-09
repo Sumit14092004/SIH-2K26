@@ -21,7 +21,7 @@ export default function StationTelemetryCockpit({
   onDispatchNDRF,
   onTriggerNotification,
 }) {
-  const [currentNodeId, setCurrentNodeId] = useState(selectedNodeId || 'IN-ASM-042');
+  const [currentNodeId, setCurrentNodeId] = useState(selectedNodeId || 'GJ-RRU-001');
   const [searchFilter, setSearchFilter] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState(
     'Station calibrated and linked via ISRO GAGAN telemetry'

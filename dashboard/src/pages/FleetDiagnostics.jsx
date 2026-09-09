@@ -3,7 +3,7 @@ import { CANONICAL_NODES } from '../data/canonicalNodes';
 import { useHazardAlerts } from '../context/HazardAlertContext';
 
 export default function FleetDiagnostics({ onInspectNode }) {
-  const [selectedStationId, setSelectedStationId] = useState('IN-ASM-042');
+  const [selectedStationId, setSelectedStationId] = useState('GJ-RRU-001');
   const [logFilter, setLogFilter] = useState('ALL');
 
   const { getNode, auditTrails, logNodeAudit } = useHazardAlerts();

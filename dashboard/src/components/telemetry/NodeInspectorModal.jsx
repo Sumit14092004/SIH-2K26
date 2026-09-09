@@ -6,7 +6,7 @@ import { getApiBaseUrl } from '../../utils/apiConfig';
 
 export default function NodeInspectorModal({
   isOpen,
-  nodeId = 'IN-ASM-042',
+  nodeId = 'GJ-RRU-001',
   nodeData,
   onClose,
   onTriggerNotification,

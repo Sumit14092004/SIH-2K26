@@ -146,7 +146,7 @@ export default function CollapsibleSidebar({
                   Sensor Mesh Online
                 </span>
                 <span className="font-mono text-2xs text-muted truncate">
-                  160 Nodes • GAGAN Lock
+                  RRU Hardware Node • USB Live
                 </span>
               </div>
             </div>
