@@ -186,8 +186,8 @@ export function HazardAlertProvider({ children }) {
             next[nid] = merged;
             if (merged.displayId) next[merged.displayId] = merged;
 
-            // Strict Siren & Alert Sync
-            if (effectiveSeverity === 'critical' || effectiveSeverity === 'abnormal') {
+            // Early Warning Siren & Alert Sync: Trigger starting from WARNING tier (warning, abnormal, critical)
+            if (effectiveSeverity === 'critical' || effectiveSeverity === 'abnormal' || effectiveSeverity === 'warning') {
               setActiveAlerts((prevAlerts) => {
                 const existingIdx = prevAlerts.findIndex((a) => a.id === nid || a.displayId === nid || (merged.displayId && a.id === merged.displayId));
                 const alertCard = {
@@ -202,7 +202,9 @@ export function HazardAlertProvider({ children }) {
                   severity: effectiveSeverity,
                   keyMetric: merged.keyMetric,
                   subtext: `${merged.keyMetric} breached operational threshold.`,
-                  directive: 'Immediate evacuation and tactical NDRF response.',
+                  directive: effectiveSeverity === 'warning'
+                    ? 'Early warning advisory: Initiate field standby and enhanced monitoring.'
+                    : 'Immediate evacuation and tactical NDRF response.',
                   lastUpdated: merged.lastUpdated,
                   isRemoving: false,
                   source: 'esp32_hardware',
@@ -226,7 +228,7 @@ export function HazardAlertProvider({ children }) {
                   return prevAlerts;
                 }
                 const nextAlerts = prevAlerts.filter((a) => a.id !== nid && a.displayId !== nid && (!merged.displayId || a.id !== merged.displayId));
-                const hasSirens = nextAlerts.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+                const hasSirens = nextAlerts.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
                 if (!hasSirens) {
                   sirenManager.stop();
                   setIsSirenActive(false);
@@ -428,11 +430,11 @@ export function HazardAlertProvider({ children }) {
           severity.toLowerCase()
         );
 
-        // 4. Siren condition: strictly triggered ONLY when severity reaches ABNORMAL or CRITICAL tier!
-        const shouldTriggerSiren = severity.toLowerCase() === 'abnormal' || severity.toLowerCase() === 'critical';
+        // 4. Siren condition: Early warning activation starting from WARNING tier (Warning, Abnormal, or Critical)
+        const shouldTriggerSiren = severity.toLowerCase() === 'warning' || severity.toLowerCase() === 'abnormal' || severity.toLowerCase() === 'critical';
 
         if (shouldTriggerSiren) {
-          // Abnormal / Critical Tier: Audible siren + viewport flashing
+          // Warning, Abnormal or Critical Tier: Audible siren + viewport flashing
           sirenManager.playCriticalSiren(7000);
           setIsSirenActive(!sirenManager.isMuted);
 
@@ -487,25 +489,9 @@ export function HazardAlertProvider({ children }) {
               // Silently handle backend offline
             }
           }
-        } else if (severity.toLowerCase() === 'warning') {
-          // Warning Tier: SILENT (NO siren, NO screen flash to prevent alert fatigue)
-          // Ensure siren is stopped if no other abnormal/critical alerts exist
-          setActiveAlerts((prev) => {
-            const hasSirens = prev.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving && a.id !== nodeId);
-            if (!hasSirens) {
-              sirenManager.stop();
-              setIsSirenActive(false);
-              setIsVisualFlashing(false);
-              if (flashTimeoutRef.current) {
-                clearTimeout(flashTimeoutRef.current);
-                flashTimeoutRef.current = null;
-              }
-            }
-            return prev;
-          });
 
           // Dedicated Warning Advisory SMS (deduplicated per transition into Warning)
-          if (!warningSmsSentRef.current.has(nodeId)) {
+          if (severity.toLowerCase() === 'warning' && !warningSmsSentRef.current.has(nodeId)) {
             warningSmsSentRef.current.add(nodeId);
 
             try {
@@ -549,7 +535,7 @@ export function HazardAlertProvider({ children }) {
 
         setActiveAlerts((prev) => {
           const filtered = prev.filter((a) => a.id !== nodeId && a.displayId !== nodeId);
-          const hasSirens = filtered.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+          const hasSirens = filtered.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
           if (!hasSirens) {
             sirenManager.stop();
             setIsSirenActive(false);
@@ -650,10 +636,10 @@ export function HazardAlertProvider({ children }) {
         'nominal'
       );
 
-      // Stop flashing and siren if no abnormal or critical alerts remain
+      // Stop flashing and siren if no warning, abnormal or critical alerts remain
       setTimeout(() => {
         setActiveAlerts((current) => {
-          const hasSirens = current.some((a) => (a.severity === 'critical' || a.severity === 'abnormal') && !a.isRemoving);
+          const hasSirens = current.some((a) => (a.severity === 'critical' || a.severity === 'abnormal' || a.severity === 'warning') && !a.isRemoving);
           if (!hasSirens) {
             setIsVisualFlashing(false);
             sirenManager.stop();
@@ -986,7 +972,7 @@ export function HazardAlertProvider({ children }) {
               const isCrit = sev === 'critical';
               const isAbnormal = sev === 'abnormal';
               const isWarn = sev === 'warning';
-              const shouldHitSiren = isCrit || isAbnormal;
+              const shouldHitSiren = isCrit || isAbnormal || isWarn;
 
               if (sev !== 'nominal' && sev !== 'offline') {
                 const newAlert = {
@@ -1001,7 +987,7 @@ export function HazardAlertProvider({ children }) {
                   severity: sev,
                   keyMetric: effectiveMetric,
                   subtext: alert?.info?.description || `${effectiveMetric} breached operational threshold.`,
-                  directive: alert?.info?.instruction || (shouldHitSiren ? 'Immediate evacuation and tactical NDRF response.' : 'Field standby and enhanced monitoring.'),
+                  directive: alert?.info?.instruction || (shouldHitSiren ? (isWarn ? 'Early warning advisory: Initiate field standby and enhanced monitoring.' : 'Immediate evacuation and tactical NDRF response.') : 'Field standby and enhanced monitoring.'),
                   lastUpdated: istTime,
                   isRemoving: false,
                   source: 'esp32_hardware',
@@ -1013,7 +999,7 @@ export function HazardAlertProvider({ children }) {
                 });
 
                 if (shouldHitSiren) {
-                  // Strictly trigger siren on Abnormal or Critical state
+                  // Early warning: Trigger siren on Warning, Abnormal or Critical state
                   sirenManager.playCriticalSiren(7000);
                   setIsSirenActive(!sirenManager.isMuted);
                   setIsVisualFlashing(true);
@@ -1060,24 +1046,9 @@ export function HazardAlertProvider({ children }) {
                       })
                       .catch(() => {});
                   }
-                } else if (isWarn) {
-                  // Warning Tier: SILENT (NO siren, NO screen flash to prevent alert fatigue)
-                  setActiveAlerts((prev) => {
-                    const hasSirens = prev.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving && a.id !== node_id);
-                    if (!hasSirens) {
-                      sirenManager.stop();
-                      setIsSirenActive(false);
-                      setIsVisualFlashing(false);
-                      if (flashTimeoutRef.current) {
-                        clearTimeout(flashTimeoutRef.current);
-                        flashTimeoutRef.current = null;
-                      }
-                    }
-                    return prev;
-                  });
 
-                  // Send Warning SMS if not sent (SILENT: NO siren, NO flashing screen)
-                  if (!warningSmsSentRef.current.has(node_id)) {
+                  // Send Warning SMS if warning and not sent
+                  if (isWarn && !warningSmsSentRef.current.has(node_id)) {
                     warningSmsSentRef.current.add(node_id);
                     fetch(`${getApiBaseUrl()}/api/notify`, {
                       method: 'POST',
@@ -1087,7 +1058,7 @@ export function HazardAlertProvider({ children }) {
                         location: data.location || 'Tactical Sector',
                         hazard_type: (hazard_type || 'FLOOD').toUpperCase(),
                         severity: 'warning',
-                        key_metric,
+                        key_metric: effectiveMetric,
                         action_type: 'warning_advisory',
                         notes: `Hardware telemetry warning advisory at ${istTime}`,
                       }),
@@ -1101,7 +1072,7 @@ export function HazardAlertProvider({ children }) {
 
                 setActiveAlerts((prev) => {
                   const filtered = prev.filter((a) => a.id !== node_id && a.displayId !== node_id);
-                  const hasSirens = filtered.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+                  const hasSirens = filtered.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
                   if (!hasSirens) {
                     sirenManager.stop();
                     setIsSirenActive(false);
@@ -1139,10 +1110,10 @@ export function HazardAlertProvider({ children }) {
                 return next;
               });
 
-              // Stop siren if no other abnormal/critical alerts
+              // Stop siren if no other warning/abnormal/critical alerts
               setActiveAlerts((prev) => {
                 const filtered = prev.filter((a) => a.id !== node_id && a.displayId !== node_id);
-                const hasSirens = filtered.some((a) => (a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+                const hasSirens = filtered.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
                 if (!hasSirens) {
                   sirenManager.stop();
                   setIsSirenActive(false);
