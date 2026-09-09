@@ -154,15 +154,10 @@ export function getSeverityAssessment(node) {
     node.isOffline ||
     node.id === 'IN-JK-001'
   ) {
-    const isRRU = node.id === 'GJ-RRU-001';
     return {
       activeTier: 'offline',
-      metricDiagnostic: isRRU
-        ? 'OFFLINE — Disconnected; awaiting live ESP32 hardware telemetry burst'
-        : 'OFFLINE — No telemetry packets received; signal loss / heartbeat timeout',
-      thresholdRange: isRRU
-        ? 'Offline detection: > 300s without hardware telemetry uplink'
-        : 'Offline detection: > 90s without telemetry ping',
+      metricDiagnostic: 'OFFLINE — No telemetry packets received; signal loss / heartbeat timeout',
+      thresholdRange: 'Offline detection: > 90s without telemetry ping',
       riskScore: 0,
       readingValue: 'NO SIGNAL / OFFLINE',
       unit: '',

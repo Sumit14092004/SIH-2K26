@@ -1,11 +1,12 @@
 /**
  * Dynamic API Base URL resolver.
- * Ensures that when accessing the dashboard over the local network (LAN / Wi-Fi),
- * API requests automatically route to the host machine's IP instead of localhost.
+ * In the browser, return '' (empty string) so that all /api/* and /ws/* requests
+ * are relative to the current host and route transparently through Vite's proxy.
+ * This prevents Mixed Content errors on HTTPS tunnels and avoids hard-coding port 8000.
  */
 export const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined' && window.location?.hostname) {
-    return `http://${window.location.hostname}:8000`;
+  if (typeof window !== 'undefined') {
+    return '';
   }
   return 'http://localhost:8000';
 };

@@ -107,6 +107,62 @@ export function HazardAlertProvider({ children }) {
     return () => clearInterval(interval);
   }, []);
 
+  // 8b. REST Polling: Sync live backend node states into nodesMap
+  useEffect(() => {
+    const fetchLiveNodes = async () => {
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/api/nodes`);
+        if (!res.ok) return;
+        const body = await res.json();
+        const nodes = body.nodes || [];
+        if (nodes.length === 0) return;
+        setNodesMap((prev) => {
+          const next = { ...prev };
+          nodes.forEach((backendNode) => {
+            const nid = backendNode.node_id || backendNode.id;
+            if (!nid) return;
+            const existing = next[nid] || {};
+            const merged = {
+              ...existing,
+              status: backendNode.status || existing.status,
+              severity: (backendNode.severity || existing.severity || 'nominal').toLowerCase(),
+              keyMetric: backendNode.key_metric || existing.keyMetric,
+              riskScore: backendNode.risk_score !== undefined ? backendNode.risk_score : (existing.riskScore || 15),
+              lastUpdated: backendNode.last_seen || existing.lastUpdated,
+            };
+            // Merge latest_sensors into readings for multi-sensor nodes
+            if (backendNode.latest_sensors && existing.readings && Array.isArray(existing.readings)) {
+              merged.readings = existing.readings.map((r) => {
+                const sensorKey = r.id;
+                if (backendNode.latest_sensors[sensorKey] !== undefined && backendNode.latest_sensors[sensorKey] !== null) {
+                  return { ...r, value: backendNode.latest_sensors[sensorKey] };
+                }
+                return r;
+              });
+            }
+            if (backendNode.latest_sensors) {
+              merged.latestSensors = { ...(existing.latestSensors || {}), ...backendNode.latest_sensors };
+            }
+            if (backendNode.battery_pct !== undefined) {
+              merged.power = { ...(existing.power || {}), batteryPct: backendNode.battery_pct };
+            }
+            if (backendNode.rssi_dbm !== undefined) {
+              merged.network = { ...(existing.network || {}), rssi: `${backendNode.rssi_dbm} dBm` };
+            }
+            next[nid] = merged;
+            if (merged.displayId) next[merged.displayId] = merged;
+          });
+          return next;
+        });
+      } catch (err) {
+        // Silently fail — WebSocket will provide updates
+      }
+    };
+    fetchLiveNodes();
+    const interval = setInterval(fetchLiveNodes, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   /**
    * Appends an audit entry to a node's audit history and the central system log
    */
@@ -632,8 +688,8 @@ export function HazardAlertProvider({ children }) {
     const connectWs = () => {
       if (isUnmounted) return;
       try {
-        const host = window.location.hostname || 'localhost';
-        const wsUrl = `ws://${host}:8000/ws/telemetry`;
+        const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${proto}//${window.location.host}/ws/telemetry`;
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
