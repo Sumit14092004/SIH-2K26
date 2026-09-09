@@ -163,11 +163,62 @@ export function HazardAlertProvider({ children }) {
             if (backendNode.rssi_dbm !== undefined) {
               merged.network = { ...(existing.network || {}), rssi: `${backendNode.rssi_dbm} dBm` };
             }
+            // Recalculate severity assessment using unified getSeverityAssessment
+            const assessment = getSeverityAssessment(merged);
+            const rawSev = (backendNode.severity || existing.severity || 'nominal').toLowerCase();
+            const effectiveSeverity = (assessment.activeTier === 'critical' || rawSev === 'critical')
+              ? 'critical'
+              : (assessment.activeTier === 'abnormal' || rawSev === 'abnormal')
+              ? 'abnormal'
+              : (assessment.activeTier === 'warning' || rawSev === 'warning')
+              ? 'warning'
+              : (rawSev === 'offline' || assessment.activeTier === 'offline')
+              ? 'offline'
+              : 'nominal';
+            merged.severity = effectiveSeverity;
+            if (assessment.riskScore > (merged.riskScore || 0)) {
+              merged.riskScore = assessment.riskScore;
+            }
+            if (assessment.worstReading && assessment.activeTier !== 'nominal') {
+              merged.keyMetric = `${assessment.worstReading.label}: ${assessment.worstReading.value} ${assessment.worstReading.unit}`;
+            }
+
             next[nid] = merged;
             if (merged.displayId) next[merged.displayId] = merged;
 
-            // Strict Siren & Alert Sync: if node is nominal, clear any stale alert and silence siren
-            if (merged.severity === 'nominal' || merged.severity === 'offline') {
+            // Strict Siren & Alert Sync
+            if (effectiveSeverity === 'critical' || effectiveSeverity === 'abnormal') {
+              setActiveAlerts((prevAlerts) => {
+                const existingIdx = prevAlerts.findIndex((a) => a.id === nid || a.displayId === nid || (merged.displayId && a.id === merged.displayId));
+                const alertCard = {
+                  alertId: existingIdx >= 0 ? prevAlerts[existingIdx].alertId : `${nid}-poll-${Date.now()}`,
+                  id: nid,
+                  displayId: merged.displayId || nid,
+                  name: merged.name || nid,
+                  location: merged.location || 'Rashtriya Raksha University, Gujarat',
+                  state: merged.state || 'Gujarat',
+                  hazard: merged.hazard || `${merged.hazardType || 'MULTI'} Alert`,
+                  hazardType: (merged.hazardType || 'MULTI').toUpperCase(),
+                  severity: effectiveSeverity,
+                  keyMetric: merged.keyMetric,
+                  subtext: `${merged.keyMetric} breached operational threshold.`,
+                  directive: 'Immediate evacuation and tactical NDRF response.',
+                  lastUpdated: merged.lastUpdated,
+                  isRemoving: false,
+                  source: 'esp32_hardware',
+                };
+                if (existingIdx >= 0) {
+                  const copy = [...prevAlerts];
+                  copy[existingIdx] = { ...copy[existingIdx], ...alertCard, alertId: copy[existingIdx].alertId };
+                  return copy;
+                }
+                return [alertCard, ...prevAlerts];
+              });
+
+              sirenManager.playCriticalSiren(7000);
+              setIsSirenActive(!sirenManager.isMuted);
+              setIsVisualFlashing(true);
+            } else if (effectiveSeverity === 'nominal' || effectiveSeverity === 'offline') {
               warningSmsSentRef.current.delete(nid);
               criticalSmsSentRef.current.delete(nid);
               setActiveAlerts((prevAlerts) => {
@@ -831,17 +882,37 @@ export function HazardAlertProvider({ children }) {
                   });
                 }
 
-                const updated = {
+                const rawSev = (severity || 'nominal').toLowerCase();
+                const candidateNode = {
                   ...existing,
                   hazardType: (hazard_type || existing?.hazardType || 'FLOOD').toUpperCase(),
-                  severity: (severity || 'nominal').toLowerCase(),
                   status: 'online',
-                  keyMetric: key_metric || existing?.keyMetric,
-                  riskScore: risk_score !== undefined ? risk_score : (existing?.riskScore || 15),
+                  latestSensors: updatedSensors,
+                  readings: updatedReadings,
+                };
+                const assessment = getSeverityAssessment(candidateNode);
+                const effectiveSeverity = (assessment.activeTier === 'critical' || rawSev === 'critical')
+                  ? 'critical'
+                  : (assessment.activeTier === 'abnormal' || rawSev === 'abnormal')
+                  ? 'abnormal'
+                  : (assessment.activeTier === 'warning' || rawSev === 'warning')
+                  ? 'warning'
+                  : (rawSev === 'offline' || assessment.activeTier === 'offline')
+                  ? 'offline'
+                  : 'nominal';
+
+                const updated = {
+                  ...candidateNode,
+                  severity: effectiveSeverity,
+                  status: 'online',
+                  keyMetric: (assessment.worstReading && assessment.activeTier !== 'nominal')
+                    ? `${assessment.worstReading.label}: ${assessment.worstReading.value} ${assessment.worstReading.unit}`
+                    : (key_metric || existing?.keyMetric),
+                  riskScore: Math.max(risk_score !== undefined ? risk_score : 15, assessment.riskScore || 15),
                   latestSensors: updatedSensors,
                   readings: updatedReadings,
                   lastUpdated: istTime,
-                  isPulsing: (severity || '').toLowerCase() === 'critical',
+                  isPulsing: effectiveSeverity === 'critical',
                   network: {
                     ...(existing?.network || {}),
                     rssi: signal_strength_dbm ? `${signal_strength_dbm} dBm` : (existing?.network?.rssi || '-65 dBm'),
@@ -867,8 +938,51 @@ export function HazardAlertProvider({ children }) {
                 severity || 'nominal'
               );
 
-              // 3. If elevated alert is generated (Warning, Abnormal, Critical)
-              const sev = (severity || 'nominal').toLowerCase();
+              // 3. Compute effective multi-hazard severity for siren and alert feed
+              const existingNode = nodesMap[node_id] || getNode(node_id);
+              const testReadings = (existingNode?.readings || []).map((r) => {
+                const sensorKey = r.id;
+                const hazardKey = r.hazard_type;
+                let newVal = r.value;
+                if (sensors && sensors[sensorKey] !== undefined && sensors[sensorKey] !== null) {
+                  newVal = sensors[sensorKey];
+                } else if (sensors && hazardKey && sensors[hazardKey] !== undefined && sensors[hazardKey] !== null) {
+                  newVal = sensors[hazardKey];
+                }
+                if (sensors && sensorKey === 'tds' && sensors['tds_ppm'] !== undefined) {
+                  newVal = sensors['tds_ppm'];
+                }
+                if (sensors && (sensorKey === 'dist_cm' || sensorKey === 'distance') && sensors['dist_cm'] !== undefined) {
+                  newVal = sensors['dist_cm'];
+                }
+                if (sensors && sensorKey === 'pressure' && (sensors['pressure'] !== undefined || sensors['pres'] !== undefined)) {
+                  newVal = sensors['pressure'] !== undefined ? sensors['pressure'] : sensors['pres'];
+                }
+                return { ...r, value: newVal };
+              });
+              const evalCandidate = {
+                ...existingNode,
+                isMultiSensor: true,
+                hazardType: (hazard_type || existingNode?.hazardType || 'FLOOD').toUpperCase(),
+                latestSensors: { ...(existingNode?.latestSensors || {}), ...(sensors || {}) },
+                readings: testReadings,
+              };
+              const streamAssessment = getSeverityAssessment(evalCandidate);
+              const rawSev = (severity || 'nominal').toLowerCase();
+              const sev = (streamAssessment.activeTier === 'critical' || rawSev === 'critical')
+                ? 'critical'
+                : (streamAssessment.activeTier === 'abnormal' || rawSev === 'abnormal')
+                ? 'abnormal'
+                : (streamAssessment.activeTier === 'warning' || rawSev === 'warning')
+                ? 'warning'
+                : (rawSev === 'offline' || streamAssessment.activeTier === 'offline')
+                ? 'offline'
+                : 'nominal';
+
+              const effectiveMetric = (streamAssessment.worstReading && streamAssessment.activeTier !== 'nominal')
+                ? `${streamAssessment.worstReading.label}: ${streamAssessment.worstReading.value} ${streamAssessment.worstReading.unit}`
+                : (key_metric || existingNode?.keyMetric || 'Hardware telemetry trigger');
+
               const isCrit = sev === 'critical';
               const isAbnormal = sev === 'abnormal';
               const isWarn = sev === 'warning';
@@ -885,8 +999,8 @@ export function HazardAlertProvider({ children }) {
                   hazard: alert?.info?.event || `${hazard_type} Telemetry Trigger`,
                   hazardType: (hazard_type || 'FLOOD').toUpperCase(),
                   severity: sev,
-                  keyMetric: key_metric,
-                  subtext: alert?.info?.description || `${key_metric} breached operational threshold.`,
+                  keyMetric: effectiveMetric,
+                  subtext: alert?.info?.description || `${effectiveMetric} breached operational threshold.`,
                   directive: alert?.info?.instruction || (shouldHitSiren ? 'Immediate evacuation and tactical NDRF response.' : 'Field standby and enhanced monitoring.'),
                   lastUpdated: istTime,
                   isRemoving: false,
@@ -920,7 +1034,7 @@ export function HazardAlertProvider({ children }) {
                         location: data.location || 'Tactical Sector',
                         hazard_type: (hazard_type || 'FLOOD').toUpperCase(),
                         severity: 'critical',
-                        key_metric,
+                        key_metric: effectiveMetric,
                         action_type: 'emergency_critical',
                         notes: `Hardware telemetry critical trigger at ${istTime}`,
                       }),

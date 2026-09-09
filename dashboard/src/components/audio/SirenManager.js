@@ -3,7 +3,6 @@ class SirenManager {
   constructor() {
     this.ctx = null;
     this.oscillator1 = null;
-    this.oscillator2 = null;
     this.gainNode = null;
     this.isPlaying = false;
     this.intervalId = null;
@@ -12,9 +11,18 @@ class SirenManager {
   }
 
   init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioContext();
+    try {
+      if (!this.ctx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          this.ctx = new AudioContextClass();
+        }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+    } catch {
+      // AudioContext not supported or permission denied
     }
   }
 
@@ -28,38 +36,48 @@ class SirenManager {
   start() {
     if (this.isMuted) return;
     this.init();
-    if (this.isPlaying) return;
 
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
     }
+
+    if (this.isPlaying) return;
+    if (!this.ctx) return;
 
     this.isPlaying = true;
 
-    // Dual-tone alternating hazard klaxon: ~800 Hz and ~1000 Hz in repeating wail pattern
-    this.oscillator1 = this.ctx.createOscillator();
-    this.gainNode = this.ctx.createGain();
+    try {
+      // Dual-tone alternating hazard klaxon: ~800 Hz and ~1050 Hz in repeating wail pattern
+      this.oscillator1 = this.ctx.createOscillator();
+      this.gainNode = this.ctx.createGain();
 
-    this.oscillator1.type = 'sawtooth';
-    this.oscillator1.frequency.setValueAtTime(800, this.ctx.currentTime);
+      this.oscillator1.type = 'sawtooth';
+      this.oscillator1.frequency.setValueAtTime(800, this.ctx.currentTime);
 
-    // Soft master gain
-    this.gainNode.gain.setValueAtTime(0.14, this.ctx.currentTime);
+      // Audible master gain
+      this.gainNode.gain.setValueAtTime(0.24, this.ctx.currentTime);
 
-    this.oscillator1.connect(this.gainNode);
-    this.gainNode.connect(this.ctx.destination);
-    this.oscillator1.start();
+      this.oscillator1.connect(this.gainNode);
+      this.gainNode.connect(this.ctx.destination);
+      this.oscillator1.start();
 
-    let highTone = false;
-    this.intervalId = setInterval(() => {
-      if (!this.isPlaying || !this.ctx) return;
-      highTone = !highTone;
-      const freq = highTone ? 1000 : 800;
-      this.oscillator1.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.08);
-    }, 400);
+      let highTone = false;
+      this.intervalId = setInterval(() => {
+        if (!this.isPlaying || !this.ctx || !this.oscillator1) return;
+        highTone = !highTone;
+        const freq = highTone ? 1050 : 780;
+        try {
+          this.oscillator1.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.08);
+        } catch {
+          // ignore if frequency ramp fails
+        }
+      }, 380);
+    } catch (err) {
+      console.warn('[SIREN] Could not start audio oscillator:', err);
+    }
   }
 
-  playCriticalSiren(durationMs = 6000) {
+  playCriticalSiren(durationMs = 7000) {
     if (this.isMuted) return;
     this.start();
     if (this.autoStopTimer) clearTimeout(this.autoStopTimer);
@@ -70,6 +88,11 @@ class SirenManager {
   }
 
   stop() {
+    if (this.autoStopTimer) {
+      clearTimeout(this.autoStopTimer);
+      this.autoStopTimer = null;
+    }
+
     if (!this.isPlaying) return;
     this.isPlaying = false;
 
@@ -101,3 +124,16 @@ class SirenManager {
 }
 
 export const sirenManager = new SirenManager();
+
+// Auto-unlock AudioContext on user's first interaction with document (click, tap, keypress)
+if (typeof window !== 'undefined') {
+  const unlockAudio = () => {
+    sirenManager.init();
+    if (sirenManager.ctx && sirenManager.ctx.state === 'suspended') {
+      sirenManager.ctx.resume().catch(() => {});
+    }
+  };
+  window.addEventListener('click', unlockAudio, { passive: true });
+  window.addEventListener('keydown', unlockAudio, { passive: true });
+  window.addEventListener('touchstart', unlockAudio, { passive: true });
+}

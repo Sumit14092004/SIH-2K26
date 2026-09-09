@@ -507,6 +507,96 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
             except (ValueError, TypeError):
                 pass
 
+        # Check Ultrasonic Distance / Flood Clearance (Safe > 50cm, Warning 25-50cm, Abnormal 10-25cm, Critical <= 10cm)
+        dist_val = sensors.get("dist_cm") if sensors.get("dist_cm") is not None else sensors.get("distance")
+        if dist_val is not None:
+            try:
+                d = float(dist_val)
+                if 0 < d <= 10.0:
+                    d_tier, d_risk = "critical", 98
+                    d_met = f"{d:.1f} cm clearance (Flood Overflow)"
+                    d_diag = f"CRITICAL — Ultrasonic echo clearance {d:.1f} cm (≤ 10.0 cm threshold); catastrophic flood surge"
+                elif 0 < d <= 25.0:
+                    d_tier, d_risk = "abnormal", 78
+                    d_met = f"{d:.1f} cm clearance (Flood Crest Danger)"
+                    d_diag = f"ABNORMAL — Ultrasonic echo clearance {d:.1f} cm (10.0-25.0 cm); flood crest danger"
+                elif 0 < d <= 50.0:
+                    d_tier, d_risk = "warning", 50
+                    d_met = f"{d:.1f} cm clearance (Rising Flood)"
+                    d_diag = f"WARNING — Ultrasonic echo clearance {d:.1f} cm (25.0-50.0 cm); water level rising"
+                else:
+                    d_tier, d_risk = "nominal", 10
+                    d_met = f"{d:.1f} cm clearance (Safe)"
+                    d_diag = f"NOMINAL — Ultrasonic echo clearance {d:.1f} cm (safe clearance > 50 cm)"
+
+                if tier_weights.get(d_tier, 1) > tier_weights.get(worst_tier, 1):
+                    worst_tier = d_tier
+                    worst_metric = d_met
+                    worst_diag = d_diag
+                max_risk = max(max_risk, d_risk)
+            except (ValueError, TypeError):
+                pass
+
+        # Check Water Crest (if explicit crest_m or water_level_m)
+        crest_val = sensors.get("crest_m") if sensors.get("crest_m") is not None else sensors.get("water_level_m")
+        if crest_val is not None:
+            try:
+                c = float(crest_val)
+                if c >= 1.50:
+                    c_tier, c_risk = "critical", 96
+                    c_met = f"+{c:.2f}m crest (Level-3 Critical)"
+                    c_diag = f"CRITICAL — +{c:.2f}m crest surge exceeds Level-3 emergency threshold (≥ +1.50m)"
+                elif c >= 0.80:
+                    c_tier, c_risk = "abnormal", 76
+                    c_met = f"+{c:.2f}m crest surge"
+                    c_diag = f"ABNORMAL — +{c:.2f}m crest surge, above warning bound (+0.80m to +1.50m)"
+                elif c >= 0.40:
+                    c_tier, c_risk = "warning", 50
+                    c_met = f"+{c:.2f}m crest surge"
+                    c_diag = f"WARNING — +{c:.2f}m crest surge, approaching danger mark (+0.40m to +0.80m)"
+                else:
+                    c_tier, c_risk = "nominal", 10
+                    c_met = f"+{c:.2f}m crest (Safe)"
+                    c_diag = f"NOMINAL — +{c:.2f}m crest, within safe range (< +0.40m)"
+
+                if tier_weights.get(c_tier, 1) > tier_weights.get(worst_tier, 1):
+                    worst_tier = c_tier
+                    worst_metric = c_met
+                    worst_diag = c_diag
+                max_risk = max(max_risk, c_risk)
+            except (ValueError, TypeError):
+                pass
+
+        # Check TDS Water Quality (ppm)
+        tds_val = sensors.get("tds") if sensors.get("tds") is not None else sensors.get("tds_ppm")
+        if tds_val is not None:
+            try:
+                t = float(tds_val)
+                if t >= 1200:
+                    t_tier, t_risk = "critical", 95
+                    t_met = f"{t:.0f} ppm TDS (Toxic Contamination)"
+                    t_diag = f"CRITICAL — TDS {t:.0f} ppm exceeds toxic limit (≥ 1200 ppm)"
+                elif t >= 900:
+                    t_tier, t_risk = "abnormal", 75
+                    t_met = f"{t:.0f} ppm TDS (Poor Water Quality)"
+                    t_diag = f"ABNORMAL — TDS {t:.0f} ppm exceeds safe drinking limit (900-1200 ppm)"
+                elif t >= 600:
+                    t_tier, t_risk = "warning", 50
+                    t_met = f"{t:.0f} ppm TDS (Elevated Minerals)"
+                    t_diag = f"WARNING — TDS {t:.0f} ppm elevated mineral content (600-900 ppm)"
+                else:
+                    t_tier, t_risk = "nominal", 10
+                    t_met = f"{t:.0f} ppm TDS (Optimal)"
+                    t_diag = f"NOMINAL — TDS {t:.0f} ppm optimal drinking water quality (< 600 ppm)"
+
+                if tier_weights.get(t_tier, 1) > tier_weights.get(worst_tier, 1):
+                    worst_tier = t_tier
+                    worst_metric = t_met
+                    worst_diag = t_diag
+                max_risk = max(max_risk, t_risk)
+            except (ValueError, TypeError):
+                pass
+
         return {
             "active_tier": worst_tier,
             "risk_score": max_risk or 15,
@@ -516,6 +606,35 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
 
     # 1. FLOOD
     if "flood" in hazard or "water" in hazard or "river" in hazard:
+        # Direct Ultrasonic distance clearance check
+        dist_val = sensors.get("dist_cm") if sensors.get("dist_cm") is not None else sensors.get("distance")
+        if dist_val is not None:
+            try:
+                d = float(dist_val)
+                if 0 < d <= 10.0:
+                    return {
+                        "active_tier": "critical",
+                        "risk_score": 98,
+                        "key_metric": f"{d:.1f} cm clearance (Flood Overflow)",
+                        "diagnostic": f"CRITICAL — Ultrasonic echo clearance {d:.1f} cm (≤ 10.0 cm threshold); imminent flood breach"
+                    }
+                elif 0 < d <= 25.0:
+                    return {
+                        "active_tier": "abnormal",
+                        "risk_score": 78,
+                        "key_metric": f"{d:.1f} cm clearance (Flood Crest Danger)",
+                        "diagnostic": f"ABNORMAL — Ultrasonic echo clearance {d:.1f} cm (10.0-25.0 cm); flood crest danger"
+                    }
+                elif 0 < d <= 50.0:
+                    return {
+                        "active_tier": "warning",
+                        "risk_score": 50,
+                        "key_metric": f"{d:.1f} cm clearance (Rising Flood)",
+                        "diagnostic": f"WARNING — Ultrasonic echo clearance {d:.1f} cm (25.0-50.0 cm); water level rising"
+                    }
+            except (ValueError, TypeError):
+                pass
+
         crest_m = None
         if "crest_m" in sensors and sensors["crest_m"] is not None:
             crest_m = float(sensors["crest_m"])
@@ -532,33 +651,33 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
         sign = "+" if crest_m >= 0 else ""
         formatted = f"{sign}{crest_m:.2f}m"
         
-        if crest_m >= 3.0:
+        if crest_m >= 1.50:
             return {
                 "active_tier": "critical",
-                "risk_score": min(99, round(85 + (crest_m - 3.0) * 8)),
+                "risk_score": min(99, round(85 + (crest_m - 1.50) * 10)),
                 "key_metric": f"{formatted} crest (Level-3 Critical)",
-                "diagnostic": f"CRITICAL — {formatted} crest exceeds Level-3 emergency threshold (≥ +3.00m)"
+                "diagnostic": f"CRITICAL — {formatted} crest exceeds Level-3 emergency threshold (≥ +1.50m)"
             }
-        elif crest_m >= 1.5:
+        elif crest_m >= 0.80:
             return {
                 "active_tier": "abnormal",
-                "risk_score": round(65 + (crest_m - 1.5) * 15),
+                "risk_score": round(65 + (crest_m - 0.80) * 20),
                 "key_metric": f"{formatted} crest surge",
-                "diagnostic": f"ABNORMAL — {formatted} crest surge, above warning bound (+1.50m to +3.00m)"
+                "diagnostic": f"ABNORMAL — {formatted} crest surge, above warning bound (+0.80m to +1.50m)"
             }
-        elif crest_m >= 0.5:
+        elif crest_m >= 0.40:
             return {
                 "active_tier": "warning",
-                "risk_score": round(40 + (crest_m - 0.5) * 25),
+                "risk_score": round(40 + (crest_m - 0.40) * 30),
                 "key_metric": f"{formatted} crest surge",
-                "diagnostic": f"WARNING — {formatted} crest surge, approaching danger mark (+0.50m to +1.50m)"
+                "diagnostic": f"WARNING — {formatted} crest surge, approaching danger mark (+0.40m to +0.80m)"
             }
         else:
             return {
                 "active_tier": "nominal",
                 "risk_score": max(10, round(15 + crest_m * 20)),
                 "key_metric": f"{formatted} crest (Safe)",
-                "diagnostic": f"NOMINAL — {formatted} crest, within safe range (< +0.50m)"
+                "diagnostic": f"NOMINAL — {formatted} crest, within safe range (< +0.40m)"
             }
             
     # 2. AQI / SMOG
@@ -1515,13 +1634,14 @@ def process_esp32_reading(payload: dict) -> dict:
         # Cross-sensor physical plausibility validation
         temp_val = float(sensors.get("temp") or sensors.get("temperature") or 25.0)
         water_val = float(sensors.get("water_level_m") or sensors.get("crest_m") or 0.28)
+        dist_val = float(sensors.get("dist_cm") or sensors.get("distance") or 172.0)
         vib_val = float(sensors.get("vibration") or 0.08)
         mq_ppm = float(sensors.get("mq_ppm") or sensors.get("aqi") or 35.0)
 
         physically_plausible = True
         if tc == 2 and (temp_val < 45.0 and mq_ppm < 200.0):  # Fire impossible at ambient room temp with clean air
             physically_plausible = False
-        elif tc == 1 and (water_val < 0.50):  # Flood impossible with 0.28m clearance
+        elif tc == 1 and (water_val < 0.40 and dist_val > 50.0):  # Flood impossible with safe clearance and low crest
             physically_plausible = False
         elif tc == 5 and (vib_val < 0.50):  # Landslide impossible with stable resting desk
             physically_plausible = False
@@ -1576,6 +1696,20 @@ def process_esp32_reading(payload: dict) -> dict:
         key_metric = eval_result["key_metric"]
         risk_score = eval_result["risk_score"]
         diagnostic = eval_result["diagnostic"]
+
+    # ── Physical Multi-Hazard Failsafe Validation ──
+    # If physical sensors detect an abnormal or critical hazard (e.g. ultrasonic flood clearance <= 25cm,
+    # extreme tremor >= 1.5 mm/s, fire temp >= 50°C, toxic gas >= 250 ppm, toxic TDS >= 900 ppm),
+    # the physical hazard MUST supersede any "nominal" TinyML classification or confidence gating,
+    # ensuring sirens sound immediately and alerts are generated without delay.
+    tier_weights = {"critical": 4, "abnormal": 3, "warning": 2, "nominal": 1}
+    physical_eval = get_node_severity_python("multi", sensors)
+    physical_tier = physical_eval["active_tier"]
+    if tier_weights.get(physical_tier, 1) > tier_weights.get(active_tier, 1):
+        active_tier = physical_tier
+        risk_score = max(risk_score, physical_eval["risk_score"])
+        key_metric = physical_eval["key_metric"]
+        diagnostic = f"{physical_eval['diagnostic']} [PHYSICAL SENSOR OVERRIDE]"
 
     # Register or update node in registry
     if node_id not in node_registry.nodes:
@@ -1971,8 +2105,10 @@ class ESP32TelemetryPayload(BaseModel):
     lat: Optional[float] = None
     lon: Optional[float] = None
     value: Optional[float] = None
-    unit: Optional[str] = None
     sensors: Optional[Dict[str, Any]] = Field(default_factory=dict)
+
+    class Config:
+        extra = "allow"
 
 @app.post("/api/telemetry", tags=["Hardware Ingestion"], summary="Ingest real ESP32 sensor reading via REST (Dual MQTT/HTTP pipeline)")
 def ingest_esp32_telemetry(payload: ESP32TelemetryPayload):
