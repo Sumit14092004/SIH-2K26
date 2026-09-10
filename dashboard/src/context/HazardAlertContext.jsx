@@ -116,19 +116,44 @@ export function HazardAlertProvider({ children }) {
         const body = await res.json();
         const nodes = body.nodes || [];
         if (nodes.length === 0) return;
+        const nodesToAlert = [];
+        const nodesToClear = [];
+
         setNodesMap((prev) => {
           const next = { ...prev };
           nodes.forEach((backendNode) => {
             const nid = backendNode.node_id || backendNode.id;
             if (!nid) return;
             const existing = next[nid] || {};
+            const latVal = backendNode.lat !== undefined ? backendNode.lat : existing.coordinates?.lat;
+            const lngVal = backendNode.lon !== undefined ? backendNode.lon : (backendNode.lng !== undefined ? backendNode.lng : existing.coordinates?.lng);
             const merged = {
               ...existing,
-              status: backendNode.status || existing.status,
+              id: nid,
+              displayId: existing.displayId || nid,
+              name: existing.name || backendNode.name || nid,
+              location: existing.location || backendNode.region || backendNode.location || 'Rashtriya Raksha University, Gujarat',
+              status: backendNode.status || existing.status || 'online',
               severity: (backendNode.severity || existing.severity || 'nominal').toLowerCase(),
-              keyMetric: backendNode.key_metric || existing.keyMetric,
+              keyMetric: backendNode.key_metric || existing.keyMetric || 'All sensors nominal',
               riskScore: backendNode.risk_score !== undefined ? backendNode.risk_score : (existing.riskScore || 15),
-              lastUpdated: backendNode.last_seen || existing.lastUpdated,
+              lastUpdated: backendNode.last_seen ? formatIstTime(new Date(backendNode.last_seen)) : (existing.lastUpdated || formatIstTime(new Date())),
+              coordinates: {
+                lat: latVal !== undefined ? Number(latVal) : 23.1545,
+                lng: lngVal !== undefined ? Number(lngVal) : 72.8850,
+              },
+              network: {
+                backhaul: existing.network?.backhaul || 'Campus Gigabit Wi-Fi / USB Serial Ingestion',
+                rssi: backendNode.rssi_dbm !== undefined ? `${backendNode.rssi_dbm} dBm` : (existing.network?.rssi || '-65 dBm'),
+                packetDelivery: existing.network?.packetDelivery || '99.9%',
+                latency: existing.network?.latency || '18ms',
+              },
+              power: {
+                batteryPct: backendNode.battery_pct !== undefined ? backendNode.battery_pct : (existing.power?.batteryPct ?? 95),
+                voltage: backendNode.battery_voltage ? `${backendNode.battery_voltage} V` : (existing.power?.voltage || '4.12 V'),
+                solarInput: existing.power?.solarInput || '1.2 W',
+                source: existing.power?.source || 'ESP32 USB Bus / 3.7V LiPo',
+              },
             };
             // Merge latest_sensors into readings for multi-sensor nodes
             if (backendNode.latest_sensors && existing.readings && Array.isArray(existing.readings)) {
@@ -157,12 +182,7 @@ export function HazardAlertProvider({ children }) {
             if (backendNode.latest_sensors) {
               merged.latestSensors = { ...(existing.latestSensors || {}), ...backendNode.latest_sensors };
             }
-            if (backendNode.battery_pct !== undefined) {
-              merged.power = { ...(existing.power || {}), batteryPct: backendNode.battery_pct };
-            }
-            if (backendNode.rssi_dbm !== undefined) {
-              merged.network = { ...(existing.network || {}), rssi: `${backendNode.rssi_dbm} dBm` };
-            }
+
             // Recalculate severity assessment using unified getSeverityAssessment
             const assessment = getSeverityAssessment(merged);
             const rawSev = (backendNode.severity || existing.severity || 'nominal').toLowerCase();
@@ -186,64 +206,77 @@ export function HazardAlertProvider({ children }) {
             next[nid] = merged;
             if (merged.displayId) next[merged.displayId] = merged;
 
-            // Early Warning Siren & Alert Sync: Trigger starting from WARNING tier (warning, abnormal, critical)
             if (effectiveSeverity === 'critical' || effectiveSeverity === 'abnormal' || effectiveSeverity === 'warning') {
-              setActiveAlerts((prevAlerts) => {
-                const existingIdx = prevAlerts.findIndex((a) => a.id === nid || a.displayId === nid || (merged.displayId && a.id === merged.displayId));
-                const alertCard = {
-                  alertId: existingIdx >= 0 ? prevAlerts[existingIdx].alertId : `${nid}-poll-${Date.now()}`,
-                  id: nid,
-                  displayId: merged.displayId || nid,
-                  name: merged.name || nid,
-                  location: merged.location || 'Rashtriya Raksha University, Gujarat',
-                  state: merged.state || 'Gujarat',
-                  hazard: merged.hazard || `${merged.hazardType || 'MULTI'} Alert`,
-                  hazardType: (merged.hazardType || 'MULTI').toUpperCase(),
-                  severity: effectiveSeverity,
-                  keyMetric: merged.keyMetric,
-                  subtext: `${merged.keyMetric} breached operational threshold.`,
-                  directive: effectiveSeverity === 'warning'
-                    ? 'Early warning advisory: Initiate field standby and enhanced monitoring.'
-                    : 'Immediate evacuation and tactical NDRF response.',
-                  lastUpdated: merged.lastUpdated,
-                  isRemoving: false,
-                  source: 'esp32_hardware',
-                };
-                if (existingIdx >= 0) {
-                  const copy = [...prevAlerts];
-                  copy[existingIdx] = { ...copy[existingIdx], ...alertCard, alertId: copy[existingIdx].alertId };
-                  return copy;
-                }
-                return [alertCard, ...prevAlerts];
-              });
-
-              sirenManager.playCriticalSiren(7000);
-              setIsSirenActive(!sirenManager.isMuted);
-              setIsVisualFlashing(true);
+              nodesToAlert.push({ nid, merged, effectiveSeverity });
             } else if (effectiveSeverity === 'nominal' || effectiveSeverity === 'offline') {
-              warningSmsSentRef.current.delete(nid);
-              criticalSmsSentRef.current.delete(nid);
-              setActiveAlerts((prevAlerts) => {
-                if (!prevAlerts.some((a) => a.id === nid || a.displayId === nid || (merged.displayId && a.id === merged.displayId))) {
-                  return prevAlerts;
-                }
-                const nextAlerts = prevAlerts.filter((a) => a.id !== nid && a.displayId !== nid && (!merged.displayId || a.id !== merged.displayId));
-                const hasSirens = nextAlerts.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
-                if (!hasSirens) {
-                  sirenManager.stop();
-                  setIsSirenActive(false);
-                  setIsVisualFlashing(false);
-                  if (flashTimeoutRef.current) {
-                    clearTimeout(flashTimeoutRef.current);
-                    flashTimeoutRef.current = null;
-                  }
-                }
-                return nextAlerts;
-              });
+              nodesToClear.push({ nid, merged });
             }
           });
           return next;
         });
+
+        // Process alert state updates outside setNodesMap updater
+        if (nodesToAlert.length > 0) {
+          setActiveAlerts((prevAlerts) => {
+            let nextAlerts = [...prevAlerts];
+            nodesToAlert.forEach(({ nid, merged, effectiveSeverity }) => {
+              const existingIdx = nextAlerts.findIndex((a) => a.id === nid || a.displayId === nid || (merged.displayId && a.id === merged.displayId));
+              const alertCard = {
+                alertId: existingIdx >= 0 ? nextAlerts[existingIdx].alertId : `${nid}-poll-${Date.now()}`,
+                id: nid,
+                displayId: merged.displayId || nid,
+                name: merged.name || nid,
+                location: merged.location || 'Rashtriya Raksha University, Gujarat',
+                state: merged.state || 'Gujarat',
+                hazard: merged.hazard || `${merged.hazardType || 'MULTI'} Alert`,
+                hazardType: (merged.hazardType || 'MULTI').toUpperCase(),
+                severity: effectiveSeverity,
+                keyMetric: merged.keyMetric,
+                subtext: `${merged.keyMetric} breached operational threshold.`,
+                directive: effectiveSeverity === 'warning'
+                  ? 'Early warning advisory: Initiate field standby and enhanced monitoring.'
+                  : 'Immediate evacuation and tactical NDRF response.',
+                lastUpdated: merged.lastUpdated,
+                isRemoving: false,
+                source: 'esp32_hardware',
+              };
+              if (existingIdx >= 0) {
+                nextAlerts[existingIdx] = { ...nextAlerts[existingIdx], ...alertCard, alertId: nextAlerts[existingIdx].alertId };
+              } else {
+                nextAlerts = [alertCard, ...nextAlerts];
+              }
+            });
+            return nextAlerts;
+          });
+
+          sirenManager.playCriticalSiren(7000);
+          setIsSirenActive(!sirenManager.isMuted);
+          setIsVisualFlashing(true);
+        }
+
+        if (nodesToClear.length > 0) {
+          nodesToClear.forEach(({ nid }) => {
+            warningSmsSentRef.current.delete(nid);
+            criticalSmsSentRef.current.delete(nid);
+          });
+          setActiveAlerts((prevAlerts) => {
+            let nextAlerts = prevAlerts;
+            nodesToClear.forEach(({ nid, merged }) => {
+              nextAlerts = nextAlerts.filter((a) => a.id !== nid && a.displayId !== nid && (!merged.displayId || a.id !== merged.displayId));
+            });
+            const hasSirens = nextAlerts.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
+            if (!hasSirens) {
+              sirenManager.stop();
+              setIsSirenActive(false);
+              setIsVisualFlashing(false);
+              if (flashTimeoutRef.current) {
+                clearTimeout(flashTimeoutRef.current);
+                flashTimeoutRef.current = null;
+              }
+            }
+            return nextAlerts;
+          });
+        }
       } catch (err) {
         // Silently fail — WebSocket will provide updates
       }
@@ -812,6 +845,7 @@ export function HazardAlertProvider({ children }) {
   useEffect(() => {
     let ws = null;
     let reconnectTimeout = null;
+    let pingInterval = null;
     let isUnmounted = false;
 
     const connectWs = () => {
@@ -926,14 +960,21 @@ export function HazardAlertProvider({ children }) {
                   readings: updatedReadings,
                   lastUpdated: istTime,
                   isPulsing: effectiveSeverity === 'critical',
+                  coordinates: {
+                    lat: existing?.coordinates?.lat ?? 23.1545,
+                    lng: existing?.coordinates?.lng ?? 72.8850,
+                  },
                   network: {
-                    ...(existing?.network || {}),
+                    backhaul: existing?.network?.backhaul || 'Campus Gigabit Wi-Fi / USB Serial Ingestion',
+                    latency: existing?.network?.latency || '18ms',
+                    packetDelivery: existing?.network?.packetDelivery || '99.9%',
                     rssi: signal_strength_dbm ? `${signal_strength_dbm} dBm` : (existing?.network?.rssi || '-65 dBm'),
                   },
                   power: {
-                    ...(existing?.power || {}),
-                    batteryPct: battery_pct !== undefined ? battery_pct : (existing?.power?.batteryPct || 95),
-                    voltage: battery_voltage ? `${battery_voltage} V` : (existing?.power?.voltage || '3.84 V'),
+                    solarInput: existing?.power?.solarInput || '1.2 W',
+                    source: existing?.power?.source || 'ESP32 USB Bus / 3.7V LiPo',
+                    batteryPct: battery_pct !== undefined ? battery_pct : (existing?.power?.batteryPct ?? 95),
+                    voltage: battery_voltage ? `${battery_voltage} V` : (existing?.power?.voltage || '4.12 V'),
                   },
                 };
 

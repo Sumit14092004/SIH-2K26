@@ -105,28 +105,28 @@ export default function FleetDiagnostics({ onInspectNode }) {
               <div className="bg-surface-alt/60 border border-subtle p-2 rounded flex flex-col justify-between">
                 <span className="text-[10px] text-muted uppercase font-mono">Solar Array Status</span>
                 <span className="font-mono text-xs text-status-nominal font-medium mt-0.5">
-                  {node.power.solarInput} (Float Mode)
+                  {node.power?.solarInput || '1.2 W'} (Float Mode)
                 </span>
               </div>
 
               <div className="bg-surface-alt/60 border border-subtle p-2 rounded flex flex-col justify-between">
                 <span className="text-[10px] text-muted uppercase font-mono">Battery Voltage</span>
                 <span className="font-mono text-xs text-primary font-medium mt-0.5">
-                  {node.power.voltage} ({node.power.batteryPct}%)
+                  {node.power?.voltage || '4.12 V'} ({node.power?.batteryPct ?? 95}%)
                 </span>
               </div>
 
               <div className="bg-surface-alt/60 border border-subtle p-2 rounded flex flex-col justify-between">
                 <span className="text-[10px] text-muted uppercase font-mono">Risk Composite Index</span>
                 <span className="font-mono text-xs text-status-critical font-medium mt-0.5">
-                  {node.riskScore} / 100
+                  {node.riskScore ?? 15} / 100
                 </span>
               </div>
 
               <div className="bg-surface-alt/60 border border-subtle p-2 rounded flex flex-col justify-between">
                 <span className="text-[10px] text-muted uppercase font-mono">Population At Risk</span>
                 <span className="font-mono text-xs text-primary font-medium mt-0.5">
-                  {node.populationAtRisk} Citizens
+                  {node.populationAtRisk ?? '12,500'} Citizens
                 </span>
               </div>
             </div>

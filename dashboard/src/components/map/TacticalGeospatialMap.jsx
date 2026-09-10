@@ -258,7 +258,7 @@ export default function TacticalGeospatialMap({
       marker.bindPopup(`
         <div style="font-family: 'IBM Plex Sans', sans-serif; padding: 4px;">
           <div style="font-size: 11px; font-weight: bold; color: #00507d; font-family: monospace;">
-            STATION ${node.id} // ${node.state.toUpperCase()}
+            STATION ${node.id || 'NODE'} // ${(node.state || 'Tactical Sector').toUpperCase()}
           </div>
           <div style="font-size: 13px; font-weight: bold; color: #0f172a; margin: 2px 0;">
             ${node.name}

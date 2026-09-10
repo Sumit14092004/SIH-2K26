@@ -72,7 +72,7 @@ export default function LiveCommandCenter({
         nodeId: a.id,
         category: 'ALERT',
         time: a.lastUpdated || '11:42 IST',
-        title: `${a.displayId || a.id} • ${a.hazard.toUpperCase()}`,
+        title: `${a.displayId || a.id} • ${(a.hazard || a.hazardType || 'HAZARD').toUpperCase()}`,
         location: a.location,
         metric: a.keyMetric,
         description: a.subtext || `Sensors recorded threshold breach (${a.keyMetric}).`,

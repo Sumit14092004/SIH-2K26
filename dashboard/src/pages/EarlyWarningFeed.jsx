@@ -213,7 +213,7 @@ export default function EarlyWarningFeed({ onDispatchNDRF }) {
                             : 'bg-status-warning/10 text-status-warning border-status-warning/20'
                         }`}
                       >
-                        {hazard.severity.toUpperCase()}
+                        {(hazard.severity || 'warning').toUpperCase()}
                       </span>
                     </div>
 
