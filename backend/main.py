@@ -66,6 +66,11 @@ ALERT_PHONE_NUMBER = ALERT_RECIPIENT_PHONE  # Backward compatibility alias
 TWILIO_CALL_ENABLED = os.getenv("TWILIO_CALL_ENABLED", "true").lower() in ("true", "1", "yes")
 CALL_COOLDOWN_SECONDS = int(os.getenv("CALL_COOLDOWN_SECONDS", 60))  # 1 minute cooldown between calls
 
+# Mobile Push Notification (ntfy.sh - 100% Free Pub/Sub)
+NTFY_TOPIC = os.getenv("NTFY_TOPIC", "NDRF-ALERTS")
+NTFY_PUSH_ENABLED = os.getenv("NTFY_PUSH_ENABLED", "true").lower() in ("true", "1", "yes")
+
+
 # Evaluation Thresholds
 CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", 70.0))
 SMS_COOLDOWN_SECONDS = int(os.getenv("SMS_COOLDOWN_SECONDS", 900))       # 15 minutes
@@ -1147,6 +1152,120 @@ def build_twiml_xml(speech_text: str) -> str:
         f'</Response>'
     )
 
+# Mobile Push Notification History Log
+
+ntfy_push_logs: List[dict] = []
+
+def trigger_ntfy_push_notification(
+    title: str,
+    message: str,
+    priority: str = "high",
+    tags: Optional[str] = None,
+    click_url: Optional[str] = None,
+    node_id: Optional[str] = None,
+    hazard_type: Optional[str] = None
+) -> dict:
+    """
+    Dispatches 100% free instant mobile push notification via ntfy.sh pub-sub topic.
+    Topic default: 'NDRF-ALERTS' (Subscribed on responder phone).
+    Priority mapping:
+      - 'urgent' or 'emergency' -> 5 (max priority, overrides Do-Not-Disturb / sounds alarm)
+      - 'critical' or 'high'    -> 4 (high priority with ringtone)
+      - 'warning'               -> 3 (default alert)
+    """
+    if not NTFY_PUSH_ENABLED:
+        return {"status": "skipped", "reason": "ntfy push disabled via NTFY_PUSH_ENABLED=false"}
+
+    p_val = "3"
+    pri_lower = str(priority).lower()
+    if pri_lower in ("urgent", "emergency", "max", "5"):
+        p_val = "5"
+    elif pri_lower in ("critical", "high", "4"):
+        p_val = "4"
+    elif pri_lower in ("warning", "elevated", "3"):
+        p_val = "3"
+
+    # Default tags based on priority/hazard
+    tag_str = tags or "rotating_light,warning,fire" if p_val in ("4", "5") else "warning,loudspeaker"
+    if hazard_type:
+        ht = hazard_type.lower()
+        if "flood" in ht:
+            tag_str = "ocean,rotating_light,warning"
+        elif "fire" in ht:
+            tag_str = "fire,rotating_light,warning"
+        elif "air" in ht or "aqi" in ht or "pollution" in ht:
+            tag_str = "mask,biohazard,warning"
+        elif "landslide" in ht or "seismic" in ht or "quake" in ht:
+            tag_str = "mountain,warning,rotating_light"
+        elif "cyclone" in ht or "storm" in ht:
+            tag_str = "cyclone,tornado,warning"
+
+    # HTTP headers in standard Python urllib3/http.client require latin-1 compatible characters.
+    # We strip non-ascii or encode title cleanly, while message body retains full UTF-8.
+    clean_title = title.encode('ascii', 'ignore').decode('ascii').strip() or "NDRF Disaster Alert"
+
+    headers = {
+        "Title": clean_title,
+        "Priority": p_val,
+        "Tags": tag_str
+    }
+    if click_url:
+        headers["Click"] = click_url
+
+    endpoint = f"https://ntfy.sh/{NTFY_TOPIC}"
+    now_ist = datetime.now(IST).isoformat()
+
+    try:
+        import requests
+        response = requests.post(
+            endpoint,
+            data=message.encode("utf-8"),
+            headers=headers,
+            timeout=6
+        )
+        is_ok = response.status_code in (200, 201)
+        record = {
+            "topic": NTFY_TOPIC,
+            "title": title,
+            "message": message,
+            "priority": p_val,
+            "tags": tag_str,
+            "node_id": node_id,
+            "status": "delivered" if is_ok else f"failed_http_{response.status_code}",
+            "timestamp": now_ist
+        }
+        ntfy_push_logs.insert(0, record)
+        if len(ntfy_push_logs) > 100:
+            ntfy_push_logs.pop()
+
+        if is_ok:
+            print(f"[NTFY PUSH SUCCESS] Sent push alert to phone on https://ntfy.sh/{NTFY_TOPIC} (Priority: {p_val})")
+            broadcast_live_event("push_notification_dispatched", record)
+        else:
+            print(f"[NTFY PUSH WARN] HTTP {response.status_code}: {response.text}")
+
+        return {
+            "status": "success" if is_ok else "failed",
+            "topic": NTFY_TOPIC,
+            "priority": p_val,
+            "http_status": response.status_code
+        }
+    except Exception as ex:
+        print(f"[NTFY PUSH ERROR] Failed to send push to https://ntfy.sh/{NTFY_TOPIC}: {ex}")
+        err_rec = {
+            "topic": NTFY_TOPIC,
+            "title": title,
+            "message": message,
+            "priority": p_val,
+            "tags": tag_str,
+            "node_id": node_id,
+            "status": "error",
+            "error": str(ex),
+            "timestamp": now_ist
+        }
+        ntfy_push_logs.insert(0, err_rec)
+        return {"status": "error", "error": str(ex)}
+
 def trigger_voice_call(node_data: dict) -> dict:
     """
     Places an automated emergency voice call via Twilio's Voice API to the responder phone.
@@ -1329,6 +1448,22 @@ def dispatch_authority_notifications(alert: dict):
         TWILIO_ACCOUNT_SID and not TWILIO_ACCOUNT_SID.startswith("your_")
         and TWILIO_AUTH_TOKEN and not TWILIO_AUTH_TOKEN.startswith("your_")
         and TWILIO_FROM_NUMBER and ALERT_PHONE_NUMBER
+    )
+
+    # --- Push Notification Dispatch (ntfy.sh to mobile phone) ---
+    push_title = f"🚨 {warning_tier.upper()}: {hazard.replace('_', ' ').upper()} ({node_id})"
+    push_message = (
+        f"Location: {alert.get('info', {}).get('area', {}).get('areaDesc', 'Zone')}\n"
+        f"Metric: {alert.get('info', {}).get('headline', 'Threshold breach detected')}\n"
+        f"Action: {alert.get('info', {}).get('instruction', 'Take immediate action.')}"
+    )
+    push_pri = "urgent" if warning_tier in ("Emergency", "Critical") else "warning"
+    trigger_ntfy_push_notification(
+        title=push_title,
+        message=push_message,
+        priority=push_pri,
+        node_id=node_id,
+        hazard_type=hazard
     )
 
     if not has_credentials:
@@ -2497,6 +2632,22 @@ def notify_authorities(payload: NotifyPayload):
     if payload.notes:
         sms_body += f"\nNote: {payload.notes}"
 
+    # Dispatch mobile push notification to https://ntfy.sh/NDRF-ALERTS
+    push_title = f"⚠️ {payload.hazard_type.upper()} ALERT: {payload.node_id}" if is_warning else f"🚨 CRITICAL {payload.hazard_type.upper()}: {payload.node_id}"
+    push_msg = (
+        f"Location: {payload.location}\n"
+        f"Metric: {payload.key_metric}\n"
+        f"Severity: {sev.upper()}\n"
+        f"Directive: {'Field standby & enhanced monitoring' if is_warning else 'Immediate evacuation & NDRF deployment'}"
+    )
+    ntfy_res = trigger_ntfy_push_notification(
+        title=push_title,
+        message=push_msg,
+        priority="urgent" if not is_warning else "warning",
+        node_id=payload.node_id,
+        hazard_type=payload.hazard_type
+    )
+
     # Target single fixed recipient phone number
     target_phone = ALERT_RECIPIENT_PHONE or ALERT_PHONE_NUMBER or "+918669923983"
     target_numbers = [target_phone]
@@ -2539,6 +2690,7 @@ def notify_authorities(payload: NotifyPayload):
             "recipient": target_phone,
             "sms_body": sms_body,
             "voice_call": voice_result,
+            "push_notification": ntfy_res,
             "timestamp": datetime.now(IST).isoformat()
         }
 
@@ -2614,6 +2766,7 @@ def notify_authorities(payload: NotifyPayload):
             "recipients": target_numbers,
             "dispatched": dispatched_sids,
             "voice_call": voice_result,
+            "push_notification": ntfy_res,
             "errors": errors,
             "sms_body": sms_body,
             "timestamp": datetime.now(IST).isoformat()
@@ -2710,6 +2863,38 @@ def reset_node_state(node_id: str):
     critical_sms_sent_tracker.pop(f"critical:{clean_id}", None)
     critical_voice_call_tracker.pop(f"call:{clean_id}", None)
     return {"status": "reset", "node_id": clean_id}
+
+class DirectPushTriggerPayload(BaseModel):
+    title: str = Field("🚨 CRITICAL DISASTER ALERT: Dibrugarh Basin", example="🚨 CRITICAL DISASTER ALERT: Dibrugarh Basin")
+    message: str = Field("Water level reached 4.2m (+0.6m/hr). Evacuate 5km radius immediately.", example="Water level reached 4.2m (+0.6m/hr). Evacuate 5km radius immediately.")
+    priority: str = Field("urgent", example="urgent", description="urgent | high | warning")
+    node_id: Optional[str] = Field("IN-ASM-042", example="IN-ASM-042")
+    hazard_type: Optional[str] = Field("FLOOD", example="FLOOD")
+    tags: Optional[str] = Field(None, example="ocean,warning,rotating_light")
+
+@app.post("/api/trigger-push-notification", tags=["Notification Engine"], summary="Directly dispatch a test mobile push notification to https://ntfy.sh/NDRF-ALERTS")
+def manual_push_notification_trigger(payload: DirectPushTriggerPayload):
+    """Dispatches a high-priority mobile push notification directly to subscribed devices."""
+    res = trigger_ntfy_push_notification(
+        title=payload.title,
+        message=payload.message,
+        priority=payload.priority,
+        tags=payload.tags,
+        node_id=payload.node_id,
+        hazard_type=payload.hazard_type
+    )
+    return res
+
+@app.get("/api/push-notification-logs", tags=["Notification Engine"], summary="Retrieve recent mobile push notification delivery logs")
+def get_push_notification_logs():
+    """Returns recent mobile push notifications dispatched to https://ntfy.sh/NDRF-ALERTS."""
+    return {
+        "topic": NTFY_TOPIC,
+        "subscribed_url": f"https://ntfy.sh/{NTFY_TOPIC}",
+        "total": len(ntfy_push_logs),
+        "logs": ntfy_push_logs[:50]
+    }
+
 
 if __name__ == "__main__":
     import uvicorn
