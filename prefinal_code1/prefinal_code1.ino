@@ -38,10 +38,8 @@ bool lr_mode_active = false;
 #define PIR_PIN       13
 #define PIR_PIN_ALT   27
 
-#define TRIG_PIN_A     5
-#define ECHO_PIN_A    18
-#define TRIG_PIN_B    18
-#define ECHO_PIN_B     5
+#define TRIG_PIN       5
+#define ECHO_PIN      18
 
 Adafruit_BMP280 bmp(&Wire);
 Adafruit_BMP280 bmp1(&Wire1);
@@ -126,8 +124,6 @@ bool readRawMPU(TwoWire &bus, uint8_t addr, float &ax, float &ay, float &az) {
 }
 
 static float pingSingle(int trigPin, int echoPin) {
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
   digitalWrite(trigPin, LOW);
   delayMicroseconds(4);
   digitalWrite(trigPin, HIGH);
@@ -141,8 +137,6 @@ static float pingSingle(int trigPin, int echoPin) {
 }
 
 float readUltrasonic() {
-  static int activeTrig = TRIG_PIN_A;
-  static int activeEcho = ECHO_PIN_A;
   static float filteredDist = -1.0;
   static int anomalyCount = 0;
 
@@ -150,14 +144,7 @@ float readUltrasonic() {
   int count = 0;
 
   for (int i = 0; i < 5; i++) {
-    float reading = pingSingle(activeTrig, activeEcho);
-    if (reading < 0) {
-      reading = pingSingle(TRIG_PIN_B, ECHO_PIN_B);
-      if (reading > 0) {
-        activeTrig = TRIG_PIN_B;
-        activeEcho = ECHO_PIN_B;
-      }
-    }
+    float reading = pingSingle(TRIG_PIN, ECHO_PIN);
     if (reading > 2.0 && reading < 400.0) {
       samples[count++] = reading;
     }
@@ -177,7 +164,7 @@ float readUltrasonic() {
     }
   }
 
-  // Median value eliminates 60cm ghost multipath echoes
+  // Median value eliminates ghost multipath echoes
   float median = samples[count / 2];
 
   if (filteredDist < 0) {
@@ -207,6 +194,10 @@ void setup() {
   Serial.println("   🌐 AAPDA-KADABRA: COMPLETE 9-SENSOR DUAL-BUS NODE    ");
   Serial.println("   📦 FIRMWARE: prefinal_code1 (PRODUCTION RELEASE)     ");
   Serial.println("========================================================");
+
+  pinMode(TRIG_PIN, OUTPUT);
+  digitalWrite(TRIG_PIN, LOW);
+  pinMode(ECHO_PIN, INPUT);
 
   pinMode(15, OUTPUT);
   digitalWrite(15, HIGH);
@@ -315,7 +306,7 @@ void setup() {
   Serial.println("✅ [3/9] DHT22 Temp & Humidity : ONLINE (Pin D4)");
 
   pinMode(MQ135_PIN, INPUT);
-  analogSetPinAttenuation(MQ135_PIN, ADC_0db);
+  analogSetPinAttenuation(MQ135_PIN, ADC_11db);
 
   pinMode(SOIL_PIN, INPUT);
   pinMode(TDS_PIN, INPUT);
@@ -392,12 +383,12 @@ void loop() {
 
   // 4. MQ-135 Gas / Smoke
   int mq_raw = analogRead(MQ135_PIN);
-  float mq_volts = (mq_raw / 4095.0) * 0.95;
-  int aqi_ppm = map(constrain(mq_raw, 0, 500), 0, 500, 400, 2000);
+  float mq_volts = (mq_raw / 4095.0) * 3.3;
+  int aqi_ppm = map(constrain(mq_raw, 0, 4095), 0, 4095, 400, 5000);
   Serial.printf("👃 [4] MQ-135    : Raw = %4d (%.2fV) | CO2 eq: ~%4d ppm -> ", mq_raw, mq_volts, aqi_ppm);
-  if (mq_raw < 20) {
+  if (mq_raw < 600) {
     Serial.println("🍃 EXCELLENT (Clean Room Air)");
-  } else if (mq_raw < 80) {
+  } else if (mq_raw < 1500) {
     Serial.println("🟡 MODERATE / VOC DETECTED");
   } else {
     Serial.println("🚨 POOR / HIGH GAS/ALCOHOL ALERT!");
@@ -489,7 +480,7 @@ void loop() {
     dht_temp,                                                        // 0: temp_c
     humidity,                                                        // 1: humidity_pct
     pres,                                                            // 2: pressure_hpa
-    (float)mq_raw * 15.0f,                                           // 3: mq135_raw (scaled to full 12-bit range)
+    (float)mq_raw,                                                   // 3: mq135_raw (full 12-bit range)
     dist,                                                            // 4: water_level_cm (guaranteed positive clearance)
     tilt_deg,                                                        // 5: tilt_deg (MPU-6050 inclination angle)
     vibration_g,                                                     // 6: vibration_g (seismic g-units)

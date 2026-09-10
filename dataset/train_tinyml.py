@@ -267,8 +267,8 @@ inline int predict_hazard_tinyml(const float* x, float* confidence) {{
         f.write(header_content)
     print(f"\n✅ TinyML C Header generated successfully at: {out_header}")
     
-    # Also write to BatRadarTest folder
-    out_header2 = "/Users/sumitpandey/Desktop/SIH2026/BatRadarTest/edge_ai_model.h"
+    # Also write to prefinal_code1 folder
+    out_header2 = "/Users/sumitpandey/Desktop/SIH2026/prefinal_code1/edge_ai_model.h"
     with open(out_header2, "w") as f:
         f.write(header_content)
     print(f"✅ Synced to: {out_header2}")

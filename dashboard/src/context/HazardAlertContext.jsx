@@ -249,33 +249,34 @@ export function HazardAlertProvider({ children }) {
             return nextAlerts;
           });
 
-          sirenManager.playCriticalSiren(7000);
-          setIsSirenActive(!sirenManager.isMuted);
-          setIsVisualFlashing(true);
+          if (!sirenManager.isPlaying) {
+            sirenManager.playCriticalSiren(7000);
+            setIsSirenActive(!sirenManager.isMuted);
+            setIsVisualFlashing(true);
+          }
+        } else {
+          // No nodes alarming: UNCONDITIONALLY silence siren and clear alerts
+          sirenManager.stop();
+          setIsSirenActive(false);
+          setIsVisualFlashing(false);
+          if (flashTimeoutRef.current) {
+            clearTimeout(flashTimeoutRef.current);
+            flashTimeoutRef.current = null;
+          }
+          setActiveAlerts([]);
         }
 
         if (nodesToClear.length > 0) {
-          nodesToClear.forEach(({ nid }) => {
-            warningSmsSentRef.current.delete(nid);
-            criticalSmsSentRef.current.delete(nid);
-          });
-          setActiveAlerts((prevAlerts) => {
-            let nextAlerts = prevAlerts;
-            nodesToClear.forEach(({ nid, merged }) => {
-              nextAlerts = nextAlerts.filter((a) => a.id !== nid && a.displayId !== nid && (!merged.displayId || a.id !== merged.displayId));
-            });
-            const hasSirens = nextAlerts.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
-            if (!hasSirens) {
-              sirenManager.stop();
-              setIsSirenActive(false);
-              setIsVisualFlashing(false);
-              if (flashTimeoutRef.current) {
-                clearTimeout(flashTimeoutRef.current);
-                flashTimeoutRef.current = null;
-              }
-            }
-            return nextAlerts;
-          });
+          warningSmsSentRef.current.clear();
+          criticalSmsSentRef.current.clear();
+          sirenManager.stop();
+          setIsSirenActive(false);
+          setIsVisualFlashing(false);
+          if (flashTimeoutRef.current) {
+            clearTimeout(flashTimeoutRef.current);
+            flashTimeoutRef.current = null;
+          }
+          setActiveAlerts([]);
         }
       } catch (err) {
         // Silently fail — WebSocket will provide updates
@@ -917,7 +918,10 @@ export function HazardAlertProvider({ children }) {
                       newVal = sensors['tds_ppm'];
                     }
                     if ((sensorKey === 'dist_cm' || sensorKey === 'distance') && sensors['dist_cm'] !== undefined) {
-                      newVal = sensors['dist_cm'];
+                      const dVal = Number(sensors['dist_cm']);
+                      if (dVal > 0 && dVal <= 400) {
+                        newVal = dVal;
+                      }
                     }
                     if (sensorKey === 'pressure' && (sensors['pressure'] !== undefined || sensors['pres'] !== undefined)) {
                       newVal = sensors['pressure'] !== undefined ? sensors['pressure'] : sensors['pres'];
@@ -1007,7 +1011,10 @@ export function HazardAlertProvider({ children }) {
                   newVal = sensors['tds_ppm'];
                 }
                 if (sensors && (sensorKey === 'dist_cm' || sensorKey === 'distance') && sensors['dist_cm'] !== undefined) {
-                  newVal = sensors['dist_cm'];
+                  const dVal = Number(sensors['dist_cm']);
+                  if (dVal > 0 && dVal <= 400) {
+                    newVal = dVal;
+                  }
                 }
                 if (sensors && sensorKey === 'pressure' && (sensors['pressure'] !== undefined || sensors['pres'] !== undefined)) {
                   newVal = sensors['pressure'] !== undefined ? sensors['pressure'] : sensors['pres'];
@@ -1133,25 +1140,18 @@ export function HazardAlertProvider({ children }) {
                     }).catch(() => {});
                   }
                 }
-              } else if (sev === 'nominal' || sev === 'offline') {
-                // Nominal or offline: STRICTLY SILENCE SIREN & CLEAR ACTIVE ALERTS
-                warningSmsSentRef.current.delete(node_id);
-                criticalSmsSentRef.current.delete(node_id);
-
-                setActiveAlerts((prev) => {
-                  const filtered = prev.filter((a) => a.id !== node_id && a.displayId !== node_id);
-                  const hasSirens = filtered.some((a) => (a.severity === 'warning' || a.severity === 'abnormal' || a.severity === 'critical') && !a.isRemoving);
-                  if (!hasSirens) {
-                    sirenManager.stop();
-                    setIsSirenActive(false);
-                    setIsVisualFlashing(false);
-                    if (flashTimeoutRef.current) {
-                      clearTimeout(flashTimeoutRef.current);
-                      flashTimeoutRef.current = null;
-                    }
-                  }
-                  return filtered;
-                });
+              } else if (sev === 'nominal' || sev === 'offline' || rawSev === 'nominal') {
+                // Nominal or offline: STRICTLY & UNCONDITIONALLY SILENCE SIREN & CLEAR ALERTS
+                warningSmsSentRef.current.clear();
+                criticalSmsSentRef.current.clear();
+                sirenManager.stop();
+                setIsSirenActive(false);
+                setIsVisualFlashing(false);
+                if (flashTimeoutRef.current) {
+                  clearTimeout(flashTimeoutRef.current);
+                  flashTimeoutRef.current = null;
+                }
+                setActiveAlerts([]);
               }
             } else if (type === 'voice_call_dispatched' && data) {
               const { node_id, recipient, call_sid, status } = data;

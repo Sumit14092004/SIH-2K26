@@ -323,25 +323,9 @@ class NodeRegistry:
         for nid, node in self.nodes.items():
             if nid in CANONICAL_FLEET:
                 node["last_seen"] = now.isoformat()
-                if nid != "IN-JK-001":
-                    node["status"] = "online"
-                node["missed_heartbeats"] = 0
-                result.append(node)
-                continue
-            last_dt = datetime.fromisoformat(node["last_seen"]) if isinstance(node["last_seen"], str) else node["last_seen"]
-            if last_dt.tzinfo is None:
-                last_dt = IST.localize(last_dt)
-            seconds_since = (now - last_dt).total_seconds()
-            
-            # Check for silent offline failure (Qualcomm Section 1.1)
-            if seconds_since > HEARTBEAT_TIMEOUT_SECONDS:
-                node["status"] = "offline"
-                node["missed_heartbeats"] = int(seconds_since // 30)
-            else:
                 node["status"] = "online"
                 node["missed_heartbeats"] = 0
-            
-            result.append(node)
+                result.append(node)
         return result
 
     def get(self, node_id: str) -> Optional[dict]:
@@ -437,20 +421,20 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
             try:
                 vib = float(sensors["vibration"])
                 # If raw MPU-6050 acceleration is passed (resting on desk: ~9.81 to 10.8 m/s²), evaluate tremor delta
-                if 8.0 <= vib <= 13.0:
-                    vib = max(0.0, round(abs(vib - 9.81) - 1.0, 2))
-                if vib >= 2.5:
+                if vib >= 6.0:
+                    vib = max(0.0, round(abs(vib - 9.81) - 2.5, 2))
+                if vib >= 7.0:
                     v_tier, v_risk = "critical", 96
-                    v_met = f"{vib:.2f} mm/s shock tremor"
-                    v_diag = f"CRITICAL — {vib:.2f} mm/s structural shock (≥ 2.5 mm/s)"
-                elif vib >= 1.5:
+                    v_met = f"{vib:.2f} mm/s severe seismic shock"
+                    v_diag = f"CRITICAL — {vib:.2f} mm/s severe earthquake shock (≥ 7.0 mm/s)"
+                elif vib >= 4.5:
                     v_tier, v_risk = "abnormal", 72
-                    v_met = f"{vib:.2f} mm/s elevated vibration"
-                    v_diag = f"ABNORMAL — {vib:.2f} mm/s structural vibration (1.5-2.5 mm/s)"
-                elif vib >= 0.5:
+                    v_met = f"{vib:.2f} mm/s structural tremor"
+                    v_diag = f"ABNORMAL — {vib:.2f} mm/s dangerous ground tremor (4.5-7.0 mm/s)"
+                elif vib >= 2.5:
                     v_tier, v_risk = "warning", 48
-                    v_met = f"{vib:.2f} mm/s minor tremor"
-                    v_diag = f"WARNING — {vib:.2f} mm/s tremor (0.5-1.5 mm/s)"
+                    v_met = f"{vib:.2f} mm/s elevated vibration"
+                    v_diag = f"WARNING — {vib:.2f} mm/s seismic precursor (2.5-4.5 mm/s)"
                 else:
                     v_tier, v_risk = "nominal", 10
                     v_met = f"{vib:.2f} mm/s stable"
@@ -514,27 +498,31 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
             except (ValueError, TypeError):
                 pass
 
-        # Check Ultrasonic Distance / Flood Clearance (Safe > 50cm, Warning 25-50cm, Abnormal 10-25cm, Critical <= 10cm)
+        # Check Ultrasonic Distance / Flood Clearance (Safe > 25cm, Warning 15-25cm, Abnormal 8-15cm, Critical <= 8cm)
         dist_val = sensors.get("dist_cm") if sensors.get("dist_cm") is not None else sensors.get("distance")
         if dist_val is not None:
             try:
                 d = float(dist_val)
-                if 0 < d <= 10.0:
+                if d <= 0 or d > 400.0:
+                    d_tier, d_risk = "nominal", 10
+                    d_met = "Safe clearance"
+                    d_diag = "NOMINAL — Ultrasonic echo safe baseline"
+                elif d <= 8.0:
                     d_tier, d_risk = "critical", 98
                     d_met = f"{d:.1f} cm clearance (Flood Overflow)"
-                    d_diag = f"CRITICAL — Ultrasonic echo clearance {d:.1f} cm (≤ 10.0 cm threshold); catastrophic flood surge"
-                elif 0 < d <= 25.0:
+                    d_diag = f"CRITICAL — Ultrasonic echo clearance {d:.1f} cm (≤ 8.0 cm threshold); catastrophic flood surge"
+                elif d <= 15.0:
                     d_tier, d_risk = "abnormal", 78
                     d_met = f"{d:.1f} cm clearance (Flood Crest Danger)"
-                    d_diag = f"ABNORMAL — Ultrasonic echo clearance {d:.1f} cm (10.0-25.0 cm); flood crest danger"
-                elif 0 < d <= 50.0:
+                    d_diag = f"ABNORMAL — Ultrasonic echo clearance {d:.1f} cm (8.0-15.0 cm); flood crest danger"
+                elif d <= 25.0:
                     d_tier, d_risk = "warning", 50
                     d_met = f"{d:.1f} cm clearance (Rising Flood)"
-                    d_diag = f"WARNING — Ultrasonic echo clearance {d:.1f} cm (25.0-50.0 cm); water level rising"
+                    d_diag = f"WARNING — Ultrasonic echo clearance {d:.1f} cm (15.0-25.0 cm); water level rising"
                 else:
                     d_tier, d_risk = "nominal", 10
                     d_met = f"{d:.1f} cm clearance (Safe)"
-                    d_diag = f"NOMINAL — Ultrasonic echo clearance {d:.1f} cm (safe clearance > 50 cm)"
+                    d_diag = f"NOMINAL — Ultrasonic echo clearance {d:.1f} cm (safe clearance > 25 cm)"
 
                 if tier_weights.get(d_tier, 1) > tier_weights.get(worst_tier, 1):
                     worst_tier = d_tier
@@ -544,9 +532,9 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
             except (ValueError, TypeError):
                 pass
 
-        # Check Water Crest (if explicit crest_m or water_level_m)
+        # Check Water Crest (if explicit crest_m or water_level_m, and no physical distance override)
         crest_val = sensors.get("crest_m") if sensors.get("crest_m") is not None else sensors.get("water_level_m")
-        if crest_val is not None:
+        if crest_val is not None and dist_val is None:
             try:
                 c = float(crest_val)
                 if c >= 1.50:
@@ -618,26 +606,33 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
         if dist_val is not None:
             try:
                 d = float(dist_val)
-                if 0 < d <= 10.0:
+                if 0 < d <= 8.0:
                     return {
                         "active_tier": "critical",
                         "risk_score": 98,
                         "key_metric": f"{d:.1f} cm clearance (Flood Overflow)",
-                        "diagnostic": f"CRITICAL — Ultrasonic echo clearance {d:.1f} cm (≤ 10.0 cm threshold); imminent flood breach"
+                        "diagnostic": f"CRITICAL — Ultrasonic echo clearance {d:.1f} cm (≤ 8.0 cm threshold); imminent flood breach"
                     }
-                elif 0 < d <= 25.0:
+                elif 0 < d <= 15.0:
                     return {
                         "active_tier": "abnormal",
                         "risk_score": 78,
                         "key_metric": f"{d:.1f} cm clearance (Flood Crest Danger)",
-                        "diagnostic": f"ABNORMAL — Ultrasonic echo clearance {d:.1f} cm (10.0-25.0 cm); flood crest danger"
+                        "diagnostic": f"ABNORMAL — Ultrasonic echo clearance {d:.1f} cm (8.0-15.0 cm); flood crest danger"
                     }
-                elif 0 < d <= 50.0:
+                elif 0 < d <= 25.0:
                     return {
                         "active_tier": "warning",
                         "risk_score": 50,
                         "key_metric": f"{d:.1f} cm clearance (Rising Flood)",
-                        "diagnostic": f"WARNING — Ultrasonic echo clearance {d:.1f} cm (25.0-50.0 cm); water level rising"
+                        "diagnostic": f"WARNING — Ultrasonic echo clearance {d:.1f} cm (15.0-25.0 cm); water level rising"
+                    }
+                elif d > 25.0:
+                    return {
+                        "active_tier": "nominal",
+                        "risk_score": 10,
+                        "key_metric": f"{d:.1f} cm clearance (Safe)",
+                        "diagnostic": f"NOMINAL — Ultrasonic echo clearance {d:.1f} cm (safe clearance > 25 cm)"
                     }
             except (ValueError, TypeError):
                 pass
@@ -647,8 +642,6 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
             crest_m = float(sensors["crest_m"])
         elif "water_level_m" in sensors and sensors["water_level_m"] is not None:
             crest_m = float(sensors["water_level_m"])
-        elif "dist_cm" in sensors and sensors["dist_cm"] is not None:
-            crest_m = max(0.0, round((200.0 - float(sensors["dist_cm"])) / 100.0, 2))
         elif "water_level_cm" in sensors and sensors["water_level_cm"] is not None:
             crest_m = float(sensors["water_level_cm"]) / 100.0
         
@@ -832,11 +825,11 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
 
     # 5. FIRE / THERMAL
     elif "fire" in hazard or "thermal" in hazard or "wildfire" in hazard:
-        temp_c = float(sensors.get("temperature", 34.0)) if sensors.get("temperature") is not None else 34.0
-        voc_ppm = float(sensors.get("mq135_ppm")) if sensors.get("mq135_ppm") is not None else None
+        temp_c = float(sensors.get("temperature", 28.0)) if sensors.get("temperature") is not None else 28.0
+        voc_ppm = float(sensors.get("mq135_ppm") or sensors.get("mq_ppm") or 0.0)
         flame = bool(sensors.get("flame_detected", False))
 
-        if temp_c >= 60.0 or (voc_ppm and voc_ppm >= 550.0) or flame:
+        if temp_c >= 60.0 or flame or (temp_c >= 45.0 and voc_ppm >= 1200.0):
             metric_label = f"{temp_c:.1f}°C canopy" + (" / FLAME DETECTED" if flame else "")
             return {
                 "active_tier": "critical",
@@ -844,14 +837,14 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
                 "key_metric": f"{metric_label} (Critical Fire)",
                 "diagnostic": f"CRITICAL — {temp_c:.1f}°C thermal peak / flame detected, active wildfire front (≥ 60°C)"
             }
-        elif temp_c >= 50.0 or (voc_ppm and voc_ppm >= 350.0):
+        elif temp_c >= 50.0 or (temp_c >= 40.0 and voc_ppm >= 800.0):
             return {
                 "active_tier": "abnormal",
                 "risk_score": round(65 + (temp_c - 50) * 1.8),
                 "key_metric": f"{temp_c:.1f}°C smoldering peak",
                 "diagnostic": f"ABNORMAL — {temp_c:.1f}°C smoldering thermal peak, high wildfire risk (50–60°C)"
             }
-        elif temp_c >= 40.0 or (voc_ppm and voc_ppm >= 200.0):
+        elif temp_c >= 40.0 or (temp_c >= 35.0 and voc_ppm >= 700.0):
             return {
                 "active_tier": "warning",
                 "risk_score": round(45 + (temp_c - 40) * 2.0),
@@ -861,9 +854,9 @@ def get_node_severity_python(hazard_type: str, sensors: dict) -> dict:
         else:
             return {
                 "active_tier": "nominal",
-                "risk_score": 18,
-                "key_metric": f"{temp_c:.1f}°C forest canopy (Safe)",
-                "diagnostic": f"NOMINAL — {temp_c:.1f}°C forest canopy temperature, safe ambient (< 40°C)"
+                "risk_score": 10,
+                "key_metric": f"{temp_c:.1f}°C ambient (Safe)",
+                "diagnostic": f"NOMINAL — {temp_c:.1f}°C ambient temperature, safe baseline (< 40°C)"
             }
 
     # Default fallback
@@ -1585,6 +1578,7 @@ def process_esp32_reading(payload: dict) -> dict:
     - Triggers NDMA CAP alerting, correlation engine, and Twilio SMS for Critical states
     - Dispatches real-time WebSocket push (< 50ms) to connected React dashboard clients
     """
+    global stored_alerts
     raw_node_id = str(payload.get("node_id", "NODE_UNKNOWN")).strip()
     node_id = raw_node_id.upper()
     
@@ -1633,15 +1627,39 @@ def process_esp32_reading(payload: dict) -> dict:
     if "tinyml_code" in payload:
         sensors["tinyml_code"] = payload["tinyml_code"]
 
-    # Ultrasonic clearance to water crest conversion
-    if "dist_cm" in payload or "dist_cm" in sensors:
-        d_val = payload.get("dist_cm") if "dist_cm" in payload else sensors.get("dist_cm")
+    # Ultrasonic clearance / Flood level
+    dist_val = payload.get("dist_cm") or sensors.get("dist_cm") or payload.get("distance") or sensors.get("distance")
+    if dist_val is not None:
         try:
-            d_cm = float(d_val)
-            sensors["dist_cm"] = d_cm
-            sensors["distance"] = d_cm
-            # Standard mounting clearance is 200 cm (2.0 meters standard bridge / test rig)
-            crest = max(0.0, round((200.0 - d_cm) / 100.0, 2))
+            d_cm = float(dist_val)
+            # Backend 5-sample rolling median filter to reject ghost readings
+            if not hasattr(process_esp32_reading, "_dist_buf"):
+                process_esp32_reading._dist_buf = []
+            if 0 < d_cm < 450.0:
+                process_esp32_reading._dist_buf.append(d_cm)
+                if len(process_esp32_reading._dist_buf) > 5:
+                    process_esp32_reading._dist_buf.pop(0)
+                sorted_d = sorted(process_esp32_reading._dist_buf)
+                clean_d = sorted_d[len(sorted_d) // 2]
+            else:
+                clean_d = d_cm
+
+            sensors["dist_cm"] = clean_d
+            sensors["distance"] = clean_d
+            
+            # Physical clearance determines crest surge:
+            # Safe (> 25 cm): nominal baseline crest (0.08m)
+            # Warning (15-25 cm): water rising (0.50m)
+            # Abnormal (8-15 cm): crest danger (0.90m)
+            # Critical (<= 8 cm): imminent overflow (1.65m)
+            if clean_d <= 8.0:
+                crest = 1.65
+            elif clean_d <= 15.0:
+                crest = 0.90
+            elif clean_d <= 25.0:
+                crest = 0.50
+            else:
+                crest = 0.08
             sensors["crest_m"] = crest
             sensors["water_level_m"] = crest
         except (ValueError, TypeError):
@@ -1667,22 +1685,32 @@ def process_esp32_reading(payload: dict) -> dict:
         except (ValueError, TypeError):
             pass
 
-    # CPCB AQI baseline calibration
+    # CPCB AQI baseline calibration (prefer calibrated mq_ppm over raw ADC)
     if "aqi" not in sensors or sensors["aqi"] is None:
-        mq_raw = payload.get("mq_raw") if "mq_raw" in payload else sensors.get("mq_raw")
         mq_ppm = payload.get("mq_ppm") if "mq_ppm" in payload else (payload.get("mq135_ppm") if "mq135_ppm" in payload else sensors.get("mq135_ppm"))
-        if mq_raw is not None:
-            try:
-                raw_f = float(mq_raw)
-                sensors["mq_raw"] = raw_f
-                sensors["aqi"] = round(35 + (min(max(raw_f - 40, 0), 500) / 500.0) * 415)
-            except (ValueError, TypeError):
-                pass
-        elif mq_ppm is not None:
+        mq_raw = payload.get("mq_raw") if "mq_raw" in payload else sensors.get("mq_raw")
+        if mq_ppm is not None:
             try:
                 ppm_f = float(mq_ppm)
                 sensors["mq135_ppm"] = ppm_f
+                sensors["mq_ppm"] = ppm_f
+                # MQ-135 ambient clean air baseline is ~400 ppm (AQI ~ 35)
+                # Safe: <= 650 ppm -> AQI <= 100 (Nominal)
+                # Warning: 650-1200 ppm -> AQI 100-250
+                # Abnormal: 1200-1800 ppm -> AQI 250-400
+                # Critical: > 1800 ppm -> AQI > 400
                 sensors["aqi"] = round(35 + (min(max(ppm_f - 400, 0), 1600) / 1600.0) * 415)
+            except (ValueError, TypeError):
+                pass
+        elif mq_raw is not None:
+            try:
+                raw_f = float(mq_raw)
+                sensors["mq_raw"] = raw_f
+                # On ESP32 12-bit ADC (0-4095), baseline room air ADC is typically 100-800
+                if raw_f <= 1800:
+                    sensors["aqi"] = round(35 + (max(raw_f - 100, 0) / 1700.0) * 60)
+                else:
+                    sensors["aqi"] = round(95 + (min(raw_f - 1800, 2200) / 2200.0) * 350)
             except (ValueError, TypeError):
                 pass
 
@@ -1842,7 +1870,10 @@ def process_esp32_reading(payload: dict) -> dict:
     tier_weights = {"critical": 4, "abnormal": 3, "warning": 2, "nominal": 1}
     physical_eval = get_node_severity_python("multi", sensors)
     physical_tier = physical_eval["active_tier"]
-    if tier_weights.get(physical_tier, 1) > tier_weights.get(active_tier, 1):
+    # If on-device TinyML classified normal baseline, do not allow floating-pin warning noise to false-alarm
+    if is_normal and physical_tier in ("nominal", "warning"):
+        pass
+    elif tier_weights.get(physical_tier, 1) > tier_weights.get(active_tier, 1):
         active_tier = physical_tier
         risk_score = max(risk_score, physical_eval["risk_score"])
         key_metric = physical_eval["key_metric"]
@@ -1908,6 +1939,8 @@ def process_esp32_reading(payload: dict) -> dict:
         warning_sms_sent_tracker.pop(f"warning:{node_id}", None)
         critical_sms_sent_tracker.pop(f"critical:{node_id}", None)
         critical_voice_call_tracker.pop(f"call:{node_id}", None)
+        # Purge stored active alerts so GET /api/alerts returns nominal
+        stored_alerts = [a for a in stored_alerts if a.get("node_id") != node_id and a.get("identifier", "").find(node_id) == -1]
 
     # Broadcast real-time update to all connected React WebSocket clients
     broadcast_live_event("telemetry_update", {
@@ -2104,7 +2137,7 @@ def _background_serial_reader():
     - Scans for plugged-in ESP32 boards on macOS (/dev/cu.usbserial*, /dev/tty.*),
       Linux (/dev/ttyUSB*, /dev/ttyACM*), and Windows (COM*)
     - Connects at 115200 baud
-    - Extracts [DATA]{...} packets emitted by BatRadar / Qualcomm TinyML firmware
+    - Extracts [DATA]{...} packets emitted by prefinal_code1 / Qualcomm TinyML firmware
     - Normalizes multi-sensor readings and routes directly into GJ-RRU-001
     - Automatically reconnects if USB is unplugged / plugged back in
     """
@@ -2181,19 +2214,11 @@ def _background_serial_reader():
                             print(f"[SERIAL PARSE ERROR] {parse_err}: {json_str[:60]}")
         except Exception as err:
             print(f"[SERIAL BRIDGE ERROR] Failed on {port}: {err}")
-            # Auto-recovery for laptop sleep/wake when serial-monitor or another process holds an exclusive lock
+            # If port is busy (e.g. user is uploading firmware in Arduino IDE), back off gracefully
             if "resource busy" in str(err).lower() or "[errno 16]" in str(err).lower():
-                try:
-                    res = subprocess.run(["lsof", "-t", port], capture_output=True, text=True)
-                    pids = [int(p) for p in res.stdout.strip().split() if p.isdigit()]
-                    my_pid = os.getpid()
-                    for p in pids:
-                        if p != my_pid:
-                            print(f"[SERIAL BRIDGE] Auto-releasing {port} locked by stale PID {p}...")
-                            os.kill(p, signal.SIGTERM)
-                except Exception as clean_err:
-                    print(f"[SERIAL BRIDGE] Could not auto-clear busy port: {clean_err}")
-            time.sleep(2)
+                time.sleep(4)
+            else:
+                time.sleep(2)
 
 def start_background_serial_reader():
     global _serial_thread

@@ -205,7 +205,16 @@ function AppContent() {
       <NodeInspectorModal
         isOpen={isInspectorOpen}
         nodeId={inspectorNodeId || 'GJ-RRU-001'}
-        onClose={() => setIsInspectorOpen(false)}
+        onClose={() => {
+          setIsInspectorOpen(false);
+          if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('modal')) {
+              url.searchParams.delete('modal');
+              window.history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + url.hash);
+            }
+          }
+        }}
         onTriggerNotification={(notif) => {
           setToast({
             show: true,

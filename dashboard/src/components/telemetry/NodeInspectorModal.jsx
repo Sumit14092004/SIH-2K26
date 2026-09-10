@@ -33,6 +33,18 @@ export default function NodeInspectorModal({
     setSendingDispatch(false);
   }, [nodeId, isOpen]);
 
+  // Escape key handler to close modal easily
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (onClose) onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const loc = canonicalNode?.location || canonicalNode?.region || 'Rashtriya Raksha University, Gujarat';
@@ -144,8 +156,16 @@ export default function NodeInspectorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3">
-      <div className="bg-surface border border-subtle w-full max-w-2xl rounded-md p-4 flex flex-col gap-3 shadow-lg relative text-primary max-h-[90vh] overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 cursor-pointer"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && onClose) onClose();
+      }}
+    >
+      <div
+        className="bg-surface border border-subtle w-full max-w-2xl rounded-md p-4 flex flex-col gap-3 shadow-lg relative text-primary max-h-[90vh] overflow-y-auto cursor-default"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-2 bg-surface-alt border-b border-subtle -mx-4 -mt-4 px-4 pt-3 rounded-t-md">
           <div className="flex items-center gap-2">

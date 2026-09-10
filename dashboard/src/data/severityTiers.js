@@ -81,9 +81,8 @@ export function evaluateSensorReading(reading) {
   const type = (reading.hazard_type || reading.id || '').toLowerCase();
 
   if (type === 'aqi') {
-    // If raw mq135 ppm (ambient CO2 baseline is ~400 ppm) or raw ADC is provided without explicit AQI
     let aqiVal = val;
-    if (reading.unit === 'ppm' || (reading.sensor_model && reading.sensor_model.includes('MQ-135') && val >= 350 && val <= 450)) {
+    if (reading.unit?.toLowerCase() === 'ppm' || (reading.sensor_model && reading.sensor_model.includes('MQ-135') && val > 150)) {
       aqiVal = Math.round(35 + (Math.min(Math.max(val - 400, 0), 1600) / 1600) * 415);
     }
     if (aqiVal >= 400) return { tier: 'critical', riskScore: 95, statusText: 'Hazardous / Emergency' };
@@ -111,14 +110,14 @@ export function evaluateSensorReading(reading) {
   }
 
   if (type === 'seismic' || type === 'vibration') {
-    // If raw MPU-6050 acceleration is passed (resting on desk: ~9.81 to 10.8 m/s²), evaluate tremor delta
     let vibVal = val;
-    if (val >= 8.0 && val <= 13.0) {
-      vibVal = Math.max(0, Number((Math.abs(val - 9.81) - 1.0).toFixed(2)));
+    // If raw MPU-6050 acceleration is passed (e.g. >= 6.0 m/s²), evaluate tremor delta
+    if (val >= 6.0) {
+      vibVal = Math.max(0, Number((Math.abs(val - 9.81) - 2.5).toFixed(2)));
     }
-    if (vibVal >= 2.5) return { tier: 'critical', riskScore: 96, statusText: 'High Vibration / Shock' };
-    if (vibVal >= 1.5) return { tier: 'abnormal', riskScore: 72, statusText: 'Abnormal Tremor' };
-    if (vibVal >= 0.5) return { tier: 'warning', riskScore: 48, statusText: 'Minor Vibration' };
+    if (vibVal >= 7.0) return { tier: 'critical', riskScore: 96, statusText: 'High Vibration / Shock' };
+    if (vibVal >= 4.5) return { tier: 'abnormal', riskScore: 72, statusText: 'Abnormal Tremor' };
+    if (vibVal >= 2.5) return { tier: 'warning', riskScore: 48, statusText: 'Elevated Vibration' };
     return { tier: 'nominal', riskScore: 10, statusText: 'Stable Baseline' };
   }
 
@@ -131,10 +130,14 @@ export function evaluateSensorReading(reading) {
   }
 
   if (type === 'distance' || type === 'dist_cm' || type === 'bat_radar' || type === 'ultrasonic' || type === 'clearance') {
-    // Ultrasonic echo clearance (distance down to water/floor): Safe > 50cm, Warning 25-50cm, Abnormal 10-25cm, Critical <= 10cm
-    if (val > 0 && val <= 10) return { tier: 'critical', riskScore: 96, statusText: 'Imminent Flood Overflow' };
-    if (val > 0 && val <= 25) return { tier: 'abnormal', riskScore: 75, statusText: 'Flood Crest Danger' };
-    if (val > 0 && val <= 50) return { tier: 'warning', riskScore: 48, statusText: 'Rising Flood Clearance' };
+    // Ultrasonic echo clearance (distance down to water/floor): Safe > 25cm, Warning 15-25cm, Abnormal 8-15cm, Critical <= 8cm
+    if (val <= 0 || val > 450) {
+      // Invalid echo or timeout (-1.0 or <= 0) - treat as safe baseline, never alarm on timeout
+      return { tier: 'nominal', riskScore: 10, statusText: 'Safe Clearance Baseline' };
+    }
+    if (val <= 8) return { tier: 'critical', riskScore: 96, statusText: 'Imminent Flood Overflow' };
+    if (val <= 15) return { tier: 'abnormal', riskScore: 75, statusText: 'Flood Crest Danger' };
+    if (val <= 25) return { tier: 'warning', riskScore: 48, statusText: 'Rising Flood Clearance' };
     return { tier: 'nominal', riskScore: 10, statusText: 'Safe Clearance Baseline' };
   }
 
