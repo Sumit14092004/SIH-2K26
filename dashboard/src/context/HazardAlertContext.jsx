@@ -250,7 +250,23 @@ export function HazardAlertProvider({ children }) {
     };
     fetchLiveNodes();
     const interval = setInterval(fetchLiveNodes, 3000);
-    return () => clearInterval(interval);
+
+    const onWakeup = () => {
+      fetchLiveNodes();
+    };
+    window.addEventListener('focus', onWakeup);
+    window.addEventListener('online', onWakeup);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') onWakeup();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onWakeup);
+      window.removeEventListener('online', onWakeup);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, []);
 
   /**
@@ -807,12 +823,23 @@ export function HazardAlertProvider({ children }) {
 
         ws.onopen = () => {
           console.log('[LIVE WS] Connected to backend hardware ingestion stream at', wsUrl);
+          if (pingInterval) clearInterval(pingInterval);
+          pingInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              try {
+                ws.send('ping');
+              } catch {
+                // Ignore ping error
+              }
+            }
+          }, 4000);
         };
 
         ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data);
             const { type, data } = message;
+            if (type === 'pong') return;
 
             if (type === 'telemetry_update' && data) {
               const {
@@ -1140,27 +1167,62 @@ export function HazardAlertProvider({ children }) {
         };
 
         ws.onclose = () => {
+          if (pingInterval) {
+            clearInterval(pingInterval);
+            pingInterval = null;
+          }
           if (!isUnmounted) {
-            reconnectTimeout = setTimeout(connectWs, 3000);
+            reconnectTimeout = setTimeout(connectWs, 2000);
           }
         };
 
         ws.onerror = () => {
-          if (ws) ws.close();
+          if (ws) {
+            try { ws.close(); } catch {}
+          }
         };
       } catch (err) {
         if (!isUnmounted) {
-          reconnectTimeout = setTimeout(connectWs, 5000);
+          reconnectTimeout = setTimeout(connectWs, 3000);
         }
       }
     };
 
     connectWs();
 
+    // Instant Wakeup Recovery from Laptop Sleep / Tab Return
+    const handleTabWakeup = () => {
+      console.log('[LIVE WS] Tab focus/wake detected. Re-verifying hardware WebSocket...');
+      if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+        if (reconnectTimeout) clearTimeout(reconnectTimeout);
+        connectWs();
+      } else if (ws.readyState === WebSocket.OPEN) {
+        try {
+          ws.send('ping');
+        } catch {
+          try { ws.close(); } catch {}
+          connectWs();
+        }
+      }
+    };
+
+    window.addEventListener('focus', handleTabWakeup);
+    window.addEventListener('online', handleTabWakeup);
+    const onVisibilityWakeup = () => {
+      if (document.visibilityState === 'visible') handleTabWakeup();
+    };
+    document.addEventListener('visibilitychange', onVisibilityWakeup);
+
     return () => {
       isUnmounted = true;
+      if (pingInterval) clearInterval(pingInterval);
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
-      if (ws) ws.close();
+      window.removeEventListener('focus', handleTabWakeup);
+      window.removeEventListener('online', handleTabWakeup);
+      document.removeEventListener('visibilitychange', onVisibilityWakeup);
+      if (ws) {
+        try { ws.close(); } catch {}
+      }
     };
   }, [getNode, logNodeAudit]);
 

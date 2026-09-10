@@ -4,6 +4,8 @@ import json
 import time
 import math
 import urllib.parse
+import subprocess
+import signal
 
 # Force UTF-8 for console output on Windows to prevent charmap crashes
 if hasattr(sys.stdout, 'reconfigure'):
@@ -2013,14 +2015,24 @@ def _background_serial_reader():
                     line = raw_line.decode("utf-8", errors="replace").strip()
                     if not line:
                         continue
+                    print(f"[SERIAL INCOMING] {line[:120]}")
 
-                    # Look for [DATA]{...} payload
-                    data_idx = line.find("[DATA]{")
+                    # Look for [DATA] tag or JSON object
                     json_str = None
-                    if data_idx != -1:
-                        json_str = line[data_idx + 6:]
+                    if "[DATA]" in line:
+                        sub = line[line.find("[DATA]") + 6:].strip()
+                        if sub.startswith("{") and sub.endswith("}"):
+                            json_str = sub
+                        elif "{" in sub and "}" in sub:
+                            s = sub.find("{")
+                            e = sub.rfind("}")
+                            json_str = sub[s:e+1]
                     elif line.startswith("{") and line.endswith("}"):
                         json_str = line
+                    elif "{" in line and "}" in line:
+                        s = line.find("{")
+                        e = line.rfind("}")
+                        json_str = line[s:e+1]
 
                     if json_str:
                         try:
@@ -2030,10 +2042,22 @@ def _background_serial_reader():
                             rru_payload["node_id"] = "GJ-RRU-001"
                             rru_payload["hazard_type"] = "MULTI"
                             process_esp32_reading(rru_payload)
-                        except Exception:
-                            pass
+                        except Exception as parse_err:
+                            print(f"[SERIAL PARSE ERROR] {parse_err}: {json_str[:60]}")
         except Exception as err:
             print(f"[SERIAL BRIDGE ERROR] Failed on {port}: {err}")
+            # Auto-recovery for laptop sleep/wake when serial-monitor or another process holds an exclusive lock
+            if "resource busy" in str(err).lower() or "[errno 16]" in str(err).lower():
+                try:
+                    res = subprocess.run(["lsof", "-t", port], capture_output=True, text=True)
+                    pids = [int(p) for p in res.stdout.strip().split() if p.isdigit()]
+                    my_pid = os.getpid()
+                    for p in pids:
+                        if p != my_pid:
+                            print(f"[SERIAL BRIDGE] Auto-releasing {port} locked by stale PID {p}...")
+                            os.kill(p, signal.SIGTERM)
+                except Exception as clean_err:
+                    print(f"[SERIAL BRIDGE] Could not auto-clear busy port: {clean_err}")
             time.sleep(2)
 
 def start_background_serial_reader():
